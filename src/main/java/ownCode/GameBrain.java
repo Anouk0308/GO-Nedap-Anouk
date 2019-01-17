@@ -3,32 +3,26 @@ package ownCode;
 import java.util.*;
 
 public class GameBrain {
-	public ArrayList<String> boardHistory;
+	public ArrayList<String> boardHistory;//komt telkens een nieuwe bij
 	public String oldboardstring;//krijgt Game van de Client
 	public String newboardstring;//gaat naar de client
-	public Board board;
-	public Player p;
-	public static final int DIM = 0;//deze krijgt hij mee vanuit de client
-	public boolean playerPasses = false;
-	public boolean otherPlayerPasses = false;//deze krijgt game an client
-	public boolean exit = false;
+	public Board board;//maakt game zelf aan
+	public Player p; //krijgt mee van client
+	public int DIM;//deze krijgt hij mee vanuit de client
+	public boolean playerPasses = false; // wordt bepaald in play via determineMove
+	public boolean otherPlayerPasses = false;//deze krijgt game van client
+	public boolean exit = false; //geeft mee aan client
 	
 	//game krijgt van client een oldboarstring om het huidige board te bepalen en een player om te bepalen welke strategy te gebruiken voor het bepalen van de move (kan niet alleen strategie meegeven, omdat we ook een human player moeten maken)
 	// game geeft client een newboardstring met een move toegepast, waarbij game zelf checkt of de move valid is
-	public GameBrain(String oldboardstring, Player p){
+	public GameBrain(String obs, int DIM, Player p, boolean opp){
+		obs = this.oldboardstring;
 		p = this.p;
-		oldboardstring = this.oldboardstring;
-		this.board = new Board(oldboardstring);
+		DIM = this.DIM;
+		this.board = new Board(oldboardstring, DIM);
+		opp = this.otherPlayerPasses;
 	}
-	
-	//deze boolean houdt bij of beide players gepassed hebben. In dat geval is het spel afgelopen en kan de score bepaald worden
-	public boolean twoTimesPassed() {
-		if(playerPasses == true && otherPlayerPasses == true){
-			exit = true;
-			return true;
-		}
-		return false;
-	}
+
 	
 	//houdt bij of de boardstring niet al eerder is voorgekomen in het spel
 	public void updateBoardHistory() {

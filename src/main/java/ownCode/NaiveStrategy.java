@@ -1,13 +1,8 @@
 package ownCode;
 
 public class NaiveStrategy implements Strategy{
-	private Intersection[] intersections;
 	
 	public NaiveStrategy() {
-    	intersections = new Intersection[Board.DIM*Board.DIM];
-    	for(int i = 0; 0 <= i && i < Board.DIM*Board.DIM; i++) {
-    		this.intersections[i] = Intersection.EMPTY;
-    	}
     	
 	}
 	
@@ -15,7 +10,7 @@ public class NaiveStrategy implements Strategy{
 		return "Naive";
 	}
 	
-	public int determineMove(Board b, Intersection in) {
+	public int determineMove(Board b) {
 		if(b.isFull() == true) {
 			return -1;
 		}
@@ -32,6 +27,5 @@ public class NaiveStrategy implements Strategy{
 			return rand;
 		}
 	}
-
 }
 

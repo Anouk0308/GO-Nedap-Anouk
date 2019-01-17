@@ -1,23 +1,18 @@
 package ownCode;
 
 public class Client {
-	//geeft door aan Board:
-		//DIM
-		// boardstring
+	public int UserInputDIM;
+
+
 	
-	// krijgt van Board:
-		//nieuwe boardstring
 	
-	// geeft aan GameBrain:
-		// oldboardstring
-		
-		//DIM
-		//public boolean otherPlayerPasses (default is false)
+	
+	
+	
 	
 	//krijgt van GameBrain:
 		//newboardstring
 		//playerpasses
-		//exit()
 	
 	//houdt voor zichzelf bij
 		//game ID
@@ -26,8 +21,15 @@ public class Client {
 		// zelf bij houden of er 2 mensen passen (voor zekerheid ook in game geimplementeerd als de boolean exit)
 	
 	
-
-	
+	//deze boolean houdt bij of beide players gepassed hebben. In dat geval is het spel afgelopen en kan de score bepaald worden
+	/*public boolean twoTimesPassed() {
+		if(playerPasses == true && otherPlayerPasses == true){
+			exit = true;
+			return true;
+		}
+		return false;
+	}
+	*/
 	
 	
 	

@@ -3,29 +3,26 @@ package ownCode;
 import java.util.ArrayList;
 
 public class Board {
-    public static final int DIM = 3;/**deze krijgt hij mee vanuit de client of game */
+    public int DIM;/**deze krijgt hij mee vanuit de client of game */
     private Intersection[] intersections;
     
    // ---Constructors----
 
     //krijgt een string mee van DIM*DIM lengte, waarbij de characters kunnen zijn: 0,1,2
     //maakt elke beurt een nieuw board aan, dus geen behoefte aan een diepcopy
-    public Board(String boardstring) {
+    public Board(String boardstring, int DIM) {
+    	this.DIM = DIM;
     	String stringArray[] = boardstring.split("\\B");
-    	int integerArray[] = new int[stringArray.length];
-    	for (int i = 0; i < stringArray.length; i++) {
-    		integerArray[i] = Integer.parseInt(stringArray[i]);
-    	}
     
     	intersections = new Intersection[DIM*DIM];
     	for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
-    		if(integerArray[i] == 0) {
+    		if(stringArray[i].equals("0")) {
     			intersections[i]=Intersection.EMPTY;
     		}
-    		if(integerArray[i] == 1) {
+    		if(stringArray[i].equals("1")) {
     			intersections[i]=Intersection.BLACK;
     		}
-    		if(integerArray[i] == 2) {
+    		if(stringArray[i].equals("2")) {
     			intersections[i]=Intersection.WHITE;
     		}
     	}
@@ -105,7 +102,7 @@ public class Board {
     
     // maakt intersections[] naar een string
     public String toBoardstring() {
-        String boardstring = null;
+        String newboardstring = "";
         int tempi = 0;
         String temps;
         for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
@@ -119,9 +116,9 @@ public class Board {
     			tempi = 2;
     		}
         	 temps = Integer.toString(tempi);
-        	 boardstring = boardstring + temps;
+        	 newboardstring = newboardstring + temps;
         }
-        return boardstring;
+        return newboardstring;
     }
 
 }
