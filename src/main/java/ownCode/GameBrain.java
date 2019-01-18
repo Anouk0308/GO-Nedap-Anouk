@@ -40,30 +40,28 @@ public class GameBrain {
 	}
 
 	//foundGoodMove geeft aan of er een valid move gevonden is. Valid betekend als de intersectie leeg is en als het niet een board creeert die al eerder in het spel is voorgekomen
-	public String setMove() {
+	public String setMove(String oldboardstring) {
 		this.updateBoardHistory(oldboardstring);
 		String temp = "";
-		while (exit == false) {
-				int move = p.determineMove(board);
+		int move = p.determineMove(board);
 				
-				if(move == -1) {
-					playerPasses = true;
-					temp = oldboardstring;
-				}
-				else if( board.isEmptyIntersection(move)) {
-					board.setIntersection(move, p.getPlayerColour());
-					newboardstring = board.toBoardstring();
-					board = new Board(oldboardstring, DIM);
-					if(!this.boardHistory.contains(this.newboardstring)) {
-						temp = newboardstring;
-					}
-				}
-				else {
-					this.setMove();
-				}
-			}
-		return temp;
+		if(move == -1) {
+			playerPasses = true;
+			temp = oldboardstring;
 		}
+		else if( board.isEmptyIntersection(move)) {
+			board.setIntersection(move, p.getPlayerColour());
+			newboardstring = board.toBoardstring();
+			board = new Board(oldboardstring, DIM);
+			if(!this.boardHistory.contains(this.newboardstring)) {
+				temp = newboardstring;
+			}
+		}
+		else {
+			temp = this.setMove(oldboardstring);
+		}
+		return temp;
+	}
 
 }
 
