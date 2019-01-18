@@ -1,11 +1,95 @@
 package ownCode;
 
 public class Client {
-	public int UserInputDIM;
+	public String serverString;
+	public String playerName;
+	public int gameID;
+	public Intersection playerColor;
+	public int DIM;
+	public int tileIndex;
+	public boolean isLeader;
+	public GameState gameState;
+	public String gameStateString;
+	public String opponentName;
+	public Move move;
+	public String moveString;
+	public String serverMessage;
+	public String winner;
+	public String score;
+	public Status status;
+	public int currentPlayer;
+	public String boardstring;
+	
+	public Client() {
+		
+	}
+	
+	
+	public void serverStringSplitter(String serverString) {
+		this.serverString = serverString;
+		String stringArray[] = gameStateString.split("+");
+		if(stringArray[0].equals("ACKNOWLEDGE_HANDSHAKE")) {
+			this.gameID = Integer.parseInt(stringArray[1]);
+			if(Integer.parseInt(stringArray[2]) == 0) {
+				this.isLeader = false;
+			}
+			if(Integer.parseInt(stringArray[2]) == 1) {
+				this.isLeader = true;
+			}
+		}
+		else if(stringArray[0].equals("REQUEST_CONFIG")) {
+			this.serverMessage = stringArray[1];
+			setConfig();
+			
+		}
+		else if(stringArray[0].equals("ACKNOWLEDGE_CONFIG")) {
+			this.playerName = stringArray[1];
+			if(Integer.parseInt(stringArray[2])==1){
+				this.playerColor = playerColor.BLACK;
+			}
+			if(Integer.parseInt(stringArray[2])==2){
+				this.playerColor = playerColor.WHITE;
+			}
+			this.DIM = Integer.parseInt(stringArray[3]);
+			this.gameState = new GameState(stringArray[4]);
+			this.opponentName = stringArray[5];
+		}
+		else if(stringArray[0].equals("ACKNOWLEDGE_MOVE")) {
+			if(this.gameID == Integer.parseInt(stringArray[1])){
+				if(this.move == new Move(stringArray[2])) {
+					this.gameState = new GameState(stringArray[3]);
+				}
+			}
+			
+		}
+		else if(stringArray[0].equals("INVALID_MOVE")) {
+			this.serverMessage = stringArray[1];
+			
+		}
+		else if(stringArray[0].equals("UNKOWN_COMMAND")) {
+			this.serverMessage = stringArray[1];
+			
+		}
+		else if(stringArray[0].equals("UPDATE_STATUS")) {
+			this.gameState = new GameState(stringArray[1]);
+			
+		}
+		else if(stringArray[0].equals("GAME_FINISHED")) {
+			if(this.gameID == Integer.parseInt(stringArray[1])) {
+				this.winner = stringArray[2];
+				
+			}
+			
+		}
+		else {
+			System.out.println("de server stuurt een foutief bericht");
+		}
+		
+	}
 
-	//krijgt van server:
-		//gameID
-		//kleur van de player
+		public void setConfig() {
+			/** moet ik nog maken*/
+		}
 	
 	//SetUpGame:
 		//eerste in server?
@@ -89,13 +173,7 @@ public class Client {
 	//c-s exit
 		//game-id
 		//playername
-	
-	
-	
-		//MOVE
-		//pass
-		//exit
-	
+
 	
 	
 	

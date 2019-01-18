@@ -58,15 +58,13 @@ public class GameBrainTest {
 	//test of play een valid move kan vinden op board met leeg vlak
 	@Test
 	public void testValidMove() {
-		String temp = gb3.setMove();
-		System.out.println(temp);
-		assertEquals(gb3.setMove(),"1211");
+		assertEquals(gb3.setMove(obs3),3);
 	}
 	
 	//test of play passes als board vol is
 	@Test
 	public void testPassesWhenFull() {
-		assertEquals(gb4.setMove(),"2222");
+		assertEquals(gb4.setMove(obs3),-1);
 	}
 	
 	
