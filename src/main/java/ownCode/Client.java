@@ -15,7 +15,7 @@ public class Client {
 	public String moveString;
 	public String serverMessage;
 	public String winner;
-	public String score;
+	public Score score;
 	public Status status;
 	public int currentPlayer;
 	public String boardstring;
@@ -77,17 +77,25 @@ public class Client {
 		else if(stringArray[0].equals("GAME_FINISHED")) {
 			if(this.gameID == Integer.parseInt(stringArray[1])) {
 				this.winner = stringArray[2];
-				
+				this.score = new Score(stringArray[3]);
+				this.serverMessage = stringArray[4];
 			}
-			
 		}
 		else {
 			System.out.println("de server stuurt een foutief bericht");
 		}
 		
 	}
-
+		public void handshake() {
+			/** moet ik nog maken*/
+		}
 		public void setConfig() {
+			/** moet ik nog maken*/
+		}
+		public void move() {
+			/** moet ik nog maken*/
+		}
+		public void exit() {
 			/** moet ik nog maken*/
 		}
 	
