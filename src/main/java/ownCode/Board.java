@@ -13,6 +13,7 @@ public class Board {
     public Board(String boardstring, int DIM) {
     	this.DIM = DIM;
     	String stringArray[] = boardstring.split("\\B");
+    	//char[] charArray = boardstring.toCharArray();
     
     	intersections = new Intersection[DIM*DIM];
     	for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
@@ -26,6 +27,19 @@ public class Board {
     			intersections[i]=Intersection.WHITE;
     		}
     	}
+    	
+    	/*intersections = new Intersection[boardstring.length()];
+    	for(int i = 0; 0 <= i && i < boardstring.length(); i++) {
+    		if(charArray[i] == 0) {
+    			intersections[i]=Intersection.EMPTY;
+    		}
+    		if(charArray[i] == 1) {
+    			intersections[i]=Intersection.BLACK;
+    		}
+    		if(charArray[i] == 2) {
+    			intersections[i]=Intersection.WHITE;
+    		}
+    	}*/
     }
     
 
