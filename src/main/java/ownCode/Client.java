@@ -24,7 +24,6 @@ public class Client {
 	public boolean isLeader;
 	public GameState gameState;
 	public Status status;
-	public String gameStateString;
 	public String opponentName;
 	public Move move;
 	public String moveString;
@@ -97,7 +96,7 @@ public class Client {
 	//kijkt of het een serverstring een herkenbare command bevat. zo ja, reageert de client daarop volgens protocol
 	public void serverStringSplitter(String serverString) {
 		this.serverString = serverString;
-		String stringArray[] = gameStateString.split("+");
+		String stringArray[] = serverString.split("+");
 		if(stringArray[0].equals("ACKNOWLEDGE_HANDSHAKE")) {
 			this.gameID = Integer.parseInt(stringArray[1]);
 			if(Integer.parseInt(stringArray[2]) == 0) {
@@ -131,14 +130,15 @@ public class Client {
 			this.opponentName = stringArray[5];
 			
 			if(this.currentPlayer == this.playerColorIndex) {
+				UI(boardstring, DIM);
 				gb = new GameBrain(boardstring, DIM, p);
 				gb.updateBoardHistory(boardstring);
 				String s = move(gb,boardstring);
 				//Stuur s naar server
 			}
 			else{
-				gb = new GameBrain(boardstring, DIM, p);
 				UI(boardstring, DIM);
+				gb = new GameBrain(boardstring, DIM, p);
 			}
 		}
 		else if(stringArray[0].equals("ACKNOWLEDGE_MOVE")) {
@@ -154,6 +154,7 @@ public class Client {
 			
 			//als ik current player ben en ander heeft niet gepast
 			if(this.currentPlayer == this.playerColorIndex && tileIndex != -1) {
+				UI(boardstring, DIM);
 				gb.updateBoardHistory(boardstring); //tegenstander heeft een nieuw board gemaakt
 				String s = move(gb,boardstring); //ik ben aan zet
 				//Stuur s naar server
@@ -166,6 +167,7 @@ public class Client {
 			}
 			//als ik current player en andere heeft wel gepast
 			else if(this.currentPlayer == this.playerColorIndex && tileIndex == -1) {
+				UI(boardstring, DIM);
 				//de tegenstander heeft geen nieuw board aan gemaakt
 				String s = move(gb,boardstring); //ik ben aan zet
 				//Stuur s naar server
@@ -173,12 +175,14 @@ public class Client {
 
 			//als ik niet current player ben en ik heb niet gepast
 			else if(this.currentPlayer != this.playerColorIndex && tileIndex != -1) {
+				UI(boardstring, DIM);
 				gb.updateBoardHistory(boardstring); //mijn zet is geaccepteerd en maakt een nieuw board
 				//wacht tot ik aan de beurt ben
 			}
 			
 			//als ik niet current player ben en ik heb wel gepast
 			else if(this.currentPlayer != this.playerColorIndex && tileIndex != -1) {
+				UI(boardstring, DIM);
 				//mijn zet is geaccepteerd maar ik maak geen nieuw board
 				//wacht tot ik aan de beurt ben
 			}	
@@ -240,6 +244,7 @@ public class Client {
 		public String handshake() {
 			return "HANDSHAKE"+playerName;
 		}
+		
 		public String setConfig() {
 			
 			//dit is default. maar user kan ook kiezen om computerplayer te doen, maar dan geen default
@@ -256,10 +261,12 @@ public class Client {
 			
 			}
 		}
+		
 		public String move(GameBrain gb, String boardstring) {
 			this.tileIndex = gb.setMove(boardstring);
 			return "MOVE"+"+"+Integer.toString(gameID)+"+"+playerName+"+"+Integer.toString(tileIndex);
 		}
+		
 		public String exit() {
 			
 			//als user EXIT typt
@@ -268,7 +275,6 @@ public class Client {
 			/** moet ik nog maken*/
 		}
 	
-		
 		//kiest goede UI en laat het board zien
 		public void UI(String boardstring, int DIM) {
 			if(useTUI = true) {

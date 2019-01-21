@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 public class Server {
     private static final String INITIAL_INPUT
         = "input should be: <name> <port>";
+    public String clientString;
 
     /** Starts a Server-application. */
     public static void main(String[] args) {
@@ -75,6 +76,13 @@ public class Server {
          }
     	 
     }
+    
+    public void clientStringSplitter(String clientString) {
+		this.clientString = clientString;
+		String stringArray[] = clientString.split("+");
+		if(stringArray[0].equals("HANDSHAKE")) {
+		}
+	}
 
 }
 
