@@ -42,7 +42,21 @@ public class Client {
 	
 	
 	public static void main(String[] args) {
-	
+		//welkom user
+		//vraag om naam
+			//playerName = input
+		//vraag om humanplayer of AI
+		//vraag om servergegevens (inetadress & port)
+			//connect met server
+		//when requested, vraag om kleur en DIM
+		//when config_acknowledged
+			//maak player (human of computer)
+		//when human, vraag om moves, anders geef moves weer
+		//when user types exit, stop spel
+		//when uitgespeelt; vraag om nieuw spel
+		
+		
+		
 		//maakt een socket aan, om met de server te connecten
 		if (args.length != 3) {
             System.out.println(INITIAL_INPUT);

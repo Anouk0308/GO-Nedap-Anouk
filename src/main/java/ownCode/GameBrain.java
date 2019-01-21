@@ -1,7 +1,5 @@
 package ownCode;
 
-import ownCode.test.*;
-
 import java.util.*;
 
 public class GameBrain {
@@ -10,7 +8,6 @@ public class GameBrain {
 	public String newboardstring;//gaat naar de client
 	public Player p; //krijgt mee van client
 	public int DIM;//deze krijgt hij mee vanuit de client
-	public boolean exit = false; //geeft mee aan client
 	public Board board;
 	
 	//game krijgt van client een oldboarstring om het huidige board te bepalen en een player om te bepalen welke strategy te gebruiken voor het bepalen van de move (kan niet alleen strategie meegeven, omdat we ook een human player moeten maken)
