@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Board {
     public int DIM;/**deze krijgt hij mee vanuit de client of game */
-    private Intersection[] intersections;
+    public Intersection[] intersections;
     
    // ---Constructors----
 

@@ -10,18 +10,15 @@ public class GameBrain {
 	public String newboardstring;//gaat naar de client
 	public Player p; //krijgt mee van client
 	public int DIM;//deze krijgt hij mee vanuit de client
-	public boolean playerPasses = false; // wordt bepaald in play via determineMove
-	public boolean otherPlayerPasses = false;//deze krijgt game van client
 	public boolean exit = false; //geeft mee aan client
 	public Board board;
 	
 	//game krijgt van client een oldboarstring om het huidige board te bepalen en een player om te bepalen welke strategy te gebruiken voor het bepalen van de move (kan niet alleen strategie meegeven, omdat we ook een human player moeten maken)
 	// game geeft client een newboardstring met een move toegepast, waarbij game zelf checkt of de move valid is
-	public GameBrain(String obs, int DIM, Player p, boolean opp){
+	public GameBrain(String obs, int DIM, Player p){
 		this.oldboardstring = obs;
 		this.p = p;
 		this.DIM = DIM;
-		this.otherPlayerPasses = opp;
 		this.boardHistory = new ArrayList<String>();
 		this.board = new Board(oldboardstring,DIM);
 	}
@@ -29,13 +26,11 @@ public class GameBrain {
 	
 	//houdt bij of de boardstring niet al eerder is voorgekomen in het spel
 	public void updateBoardHistory(String oldboardstring) {
-		if(otherPlayerPasses == false) {
-			if( this.boardHistory.contains(oldboardstring)) {
-				System.out.println("er is niet gepasst door de andere speler, maar heb wel dezelfde boardstring gekregen vanuit de server");
-			}
-			else {
-				boardHistory.add(oldboardstring);
-			}
+		if( this.boardHistory.contains(oldboardstring)) {
+			System.out.println("er is niet gepasst door de andere speler, maar heb wel dezelfde boardstring gekregen vanuit de server");
+		}
+		else {
+			boardHistory.add(oldboardstring);
 		}
 	}
 
@@ -46,7 +41,6 @@ public class GameBrain {
 		int move = p.determineMove(board);
 				
 		if(move == -1) {
-			playerPasses = true;
 			temp = move;
 		}
 		else if( board.isEmptyIntersection(move)) {

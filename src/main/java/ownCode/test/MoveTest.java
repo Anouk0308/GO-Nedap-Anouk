@@ -24,15 +24,15 @@ package ownCode.test;
 	    @Test
 	    public void splitMove() {
 	    	assertEquals(m1.tileIndex,3);
-	    	assertEquals(m1.playerColor,1);
+	    	assertEquals(m1.playerColorIndex,1);
 	    }
 	    
 	  //cotroleer of variabelen niet worden gezet bij een verkeerde string
 	    @Test
 	    public void testFoutieveString() {
 	    	assertThat(m2.tileIndex,not(3));
-	    	assertThat(m2.playerColor,not(1));
+	    	assertThat(m2.playerColorIndex,not(1));
 	    	assertThat(m3.tileIndex,not(3));
-	    	assertThat(m3.playerColor,not(1));
+	    	assertThat(m3.playerColorIndex,not(1));
 	    }
 	}

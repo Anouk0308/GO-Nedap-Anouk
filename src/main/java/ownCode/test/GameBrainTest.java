@@ -19,7 +19,6 @@ public class GameBrainTest {
 	private Intersection i;
 	private NaiveStrategy ng;
 	private ComputerPlayer cp;
-	private boolean otherPlayerPasses;
 	private GameBrain gb1;
 	private GameBrain gb2;
 	private GameBrain gb3;
@@ -35,12 +34,11 @@ public class GameBrainTest {
 		 ng = new NaiveStrategy();
 		 i = Intersection.BLACK;
 		 cp = new ComputerPlayer(i, ng);
-		 otherPlayerPasses = false;
 		 
-		 gb1 = new GameBrain(obs1, DIM, cp, otherPlayerPasses);
-		 gb2 = new GameBrain(obs2, DIM, cp, otherPlayerPasses);
-		 gb3 = new GameBrain(obs3, DIM, cp, otherPlayerPasses);
-		 gb4 = new GameBrain(obs4, DIM, cp, otherPlayerPasses);
+		 gb1 = new GameBrain(obs1, DIM, cp);
+		 gb2 = new GameBrain(obs2, DIM, cp);
+		 gb3 = new GameBrain(obs3, DIM, cp);
+		 gb4 = new GameBrain(obs4, DIM, cp);
 	 }
 
 	//test of updateBoardHistory() iets add & test of updateBoardHistory aangeeft als er 2 stringen hetzelfde zijn in geval dat other neit gepast heeft
