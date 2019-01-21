@@ -1,9 +1,19 @@
 package ownCode;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 public class Client {
+	//Client bestaat uit:
+	//code voor het Socket verkeer:
+	//code om de String van de server om te zetten naar variabelen
+	//code om variabelen om te zetten naar een String om naar de server door te sturen
 	public String serverString;
 	public String playerName;
 	public int gameID;
+	public int playerColorIndex;
 	public Intersection playerColor;
 	public int DIM;
 	public int tileIndex;
@@ -19,12 +29,61 @@ public class Client {
 	public Status status;
 	public int currentPlayer;
 	public String boardstring;
+	private static final String INITIAL_INPUT
+    = "input should be: <name> <address> <port>";
 	
-	public Client() {
+	//maakt een socket aan, om met de server te connecten
+	public static void main(String[] args) {
+		if (args.length != 3) {
+            System.out.println(INITIAL_INPUT);
+            System.exit(0);
+        }
 		
+		String name = args[0];
+        InetAddress addr = null;
+        int port = 0;
+        Socket sock = null;
+        
+     // check args[1] - the IP-adress
+        try {
+            addr = InetAddress.getByName(args[1]);
+        } catch (UnknownHostException e) {
+            System.out.println(INITIAL_INPUT);
+            System.out.println("ERROR: host " + args[1] + " unknown");
+            System.exit(0);
+        }
+        
+     // parse args[2] - the port
+        try {
+            port = Integer.parseInt(args[2]);
+        } catch (NumberFormatException e) {
+            System.out.println(INITIAL_INPUT);
+            System.out.println("ERROR: port " + args[2]
+            		           + " is not an integer");
+            System.exit(0);
+        }
+        
+     // try to open a Socket to the server
+        try {
+            sock = new Socket(addr, port);
+        } catch (IOException e) {
+            System.out.println("ERROR: could not create a socket on " + addr
+                    + " and port " + port);
+        }
+        
+     // create SocketInteraction object and start the two-way communication
+        try {
+            SocketInteraction clientSocket = new SocketInteraction(name, sock);
+            Thread streamInputHandler = new Thread(clientSocket);
+            streamInputHandler.start();
+            clientSocket.handleTerminalInput();
+            clientSocket.shutDown();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 	
-	
+	//kijkt of het een servercommand is volgens het protocol
 	public void serverStringSplitter(String serverString) {
 		this.serverString = serverString;
 		String stringArray[] = gameStateString.split("+");
@@ -45,9 +104,11 @@ public class Client {
 		else if(stringArray[0].equals("ACKNOWLEDGE_CONFIG")) {
 			this.playerName = stringArray[1];
 			if(Integer.parseInt(stringArray[2])==1){
+				this.playerColorIndex = 1;
 				this.playerColor = playerColor.BLACK;
 			}
 			if(Integer.parseInt(stringArray[2])==2){
+				this.playerColorIndex = 2;
 				this.playerColor = playerColor.WHITE;
 			}
 			this.DIM = Integer.parseInt(stringArray[3]);
@@ -59,8 +120,7 @@ public class Client {
 				if(this.move == new Move(stringArray[2])) {
 					this.gameState = new GameState(stringArray[3]);
 				}
-			}
-			
+			}	
 		}
 		else if(stringArray[0].equals("INVALID_MOVE")) {
 			this.serverMessage = stringArray[1];
@@ -86,16 +146,24 @@ public class Client {
 		}
 		
 	}
-		public void handshake() {
+		public String handshake() {
+			return "HANDSHAKE"+playerName;
 			/** moet ik nog maken*/
 		}
-		public void setConfig() {
+		public String setConfig() {
+			return "SET_CONFIG+"+Integer.toString(gameID)+"+"+Integer.toString(playerColorIndex)+"+"+Integer.toString(DIM);
 			/** moet ik nog maken*/
 		}
-		public void move() {
+		public String move() {
+			return "MOVE"+"+"+Integer.toString(gameID)+"+"+playerName+"+"+Integer.toString(tileIndex);
 			/** moet ik nog maken*/
 		}
-		public void exit() {
+		public String pass() {
+			return "PASS"+"+"+Integer.toString(gameID)+"+"+playerName;
+			/** moet ik nog maken*/
+		}
+		public String exit() {
+			return "EXIT"+"+"+Integer.toString(gameID)+"+"+playerName;
 			/** moet ik nog maken*/
 		}
 	

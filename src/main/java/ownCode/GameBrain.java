@@ -62,6 +62,10 @@ public class GameBrain {
 		}
 		return temp;
 	}
+	
+	public String getNewboardstring() {
+		return newboardstring;
+	}
 
 }
 
