@@ -111,7 +111,7 @@ public class Client {
 						chosingAI();
 					}
 				} catch (NumberFormatException e) {
-					System.out.println("No simpelton, that is not an integer, try another port");
+					System.out.println("No no, that is not an integer, try a number");
 		            chosingServer();
 				}
 			}
@@ -130,7 +130,7 @@ public class Client {
 					}
 					else {
 						useTUI = false;
-						System.out.println("you have chosen GUI");s
+						System.out.println("you have chosen GUI");
 					}
 				}
 				else {
