@@ -36,6 +36,7 @@ public class SocketInteraction implements Runnable {
     			if (thisLine == "EXIT") {
         			shutDown();
         		} else {
+        			
         		System.out.println(thisLine);
         		}
     		}
@@ -47,13 +48,9 @@ public class SocketInteraction implements Runnable {
     }
     
     //maak van de in van de ene de out van de ander
-    synchronized public void handleTerminalInput() {
-    	while(true) {
-    	String thisLine = null;
+    synchronized public void sendString(String string) {
 	      	try{
-	    		BufferedReader buf = new BufferedReader(new InputStreamReader(System.in));
-	    		thisLine = buf.readLine();
-	        		out.write(thisLine);
+	        		out.write(string);
 	        		out.newLine();
 	        		out.flush();
 	
@@ -61,7 +58,6 @@ public class SocketInteraction implements Runnable {
 	    	catch(IOException e){
 	    		System.out.println("problemen bij functie handleTerminalInput()");
 	    	}
-    	}
     }
     
     //sluit alles

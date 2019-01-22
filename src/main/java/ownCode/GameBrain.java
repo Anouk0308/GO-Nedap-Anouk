@@ -31,7 +31,7 @@ public class GameBrain {
 		}
 	}
 
-	//foundGoodMove geeft aan of er een valid move gevonden is. Valid betekend als de intersectie leeg is en als het niet een board creeert die al eerder in het spel is voorgekomen
+	// Valid betekend als de intersectie leeg is en als het niet een board creeert die al eerder in het spel is voorgekomen
 	public int setMove(String oldboardstring) {
 		this.updateBoardHistory(oldboardstring);
 		int temp = -2;
@@ -40,18 +40,31 @@ public class GameBrain {
 		if(move == -1) {
 			temp = move;
 		}
-		else if( board.isEmptyIntersection(move)) {
-			board.setIntersection(move, p.getPlayerColour());
-			newboardstring = board.toBoardstring();
-			board = new Board(oldboardstring, DIM);
-			if(!this.boardHistory.contains(this.newboardstring)) {
-				temp = move;
-			}
+		else if( validMove(move)) {
+			temp = move;
 		}
 		else {
 			temp = this.setMove(oldboardstring);
 		}
 		return temp;
+	}
+	
+	public boolean validMove(int move) {
+		if(board.isEmptyIntersection(move)) {
+			board.setIntersection(move, p.getPlayerColour());
+			newboardstring = board.toBoardstring();
+			board = new Board(oldboardstring, DIM);
+			if(!this.boardHistory.contains(this.newboardstring)) {
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+		
 	}
 	
 	public String getNewboardstring() {

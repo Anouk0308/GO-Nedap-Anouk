@@ -2,10 +2,7 @@ package ownCode;
 
 public class NaiveStrategy implements Strategy{
 	
-	public NaiveStrategy() {
-    	
-	}
-	
+
 	public String getName() {
 		return "Naive";
 	}

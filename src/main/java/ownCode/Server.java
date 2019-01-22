@@ -70,7 +70,7 @@ public class Server {
              Thread serverThread = new Thread(server);
              serverThread.start();
              
-             server.handleTerminalInput();
+             server.sendString("lala");
              server.shutDown();
          } catch (IOException e) {
              e.printStackTrace();
