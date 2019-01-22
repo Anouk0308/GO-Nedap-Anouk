@@ -69,20 +69,20 @@ public class Client {
 			welcomingUser();//till connecting with the server
 			serverInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 			serverString = serverInput.readLine();
+			while(true) {
+				if(userInput.readLine() == "EXIT") {
+					clientSocket.sendString(exit());//serverOutput
+					exit = true;
+				}
+				else {
+					while(exit!= true) {
+						String[] stringArray = serverStringSplitter(serverString);
+						stringArrayAnalyser(stringArray);
+					}
+				}
+			}
 		} catch(IOException e){
 			System.out.println(e);
-		}
-		
-		
-		//user moet nog ten alle tijden EXIT kunnen typen
-		lll
-		
-		
-		
-		
-		while(exit!= true) {
-			String[] stringArray = serverStringSplitter(serverString);
-			stringArrayAnalyser(stringArray);
 		}
 	}
 	
@@ -99,7 +99,7 @@ public class Client {
 			}
 			
 		userOutput.println("Good, to which server would you like to connect?");
-		userOutput.println("type the Inetadress, click enter, type the port,click enter");
+		userOutput.println("type the Inetadress, click enter, type the port, click enter again");
 			try {
 			addr = InetAddress.getByName(userInput.readLine());    
 	        } catch (UnknownHostException e) {
@@ -192,10 +192,12 @@ public class Client {
 		if(Integer.parseInt(sa[2])==1){
 			this.playerColorIndex = 1;
 			this.playerColor = playerColor.BLACK;
+			userOutput.println("Your color is black");
 		}
 		if(Integer.parseInt(sa[2])==2){
 			this.playerColorIndex = 2;
 			this.playerColor = playerColor.WHITE;
+			userOutput.println("Your color is white");
 		}
 			if(whichPlayerIndexChoice == 1) {
 				this.p = new HumanPlayer(playerName, playerColor);
@@ -205,21 +207,22 @@ public class Client {
 				this.p = new ComputerPlayer(playerColor, g);
 			}
 		this.DIM = Integer.parseInt(sa[3]);
+			userOutput.println("The board is " + DIM + " by " + DIM + " size.");
 		this.gameState = new GameState(sa[4]);
 			this.status = this.gameState.status;
 			this.currentPlayer = this.gameState.currentPlayer;
 			this.boardstring = this.gameState.boardstring;
+			UI(boardstring, DIM);
 		this.opponentName = sa[5];
+			userOutput.println("You will play to " + opponentName);
 		
 			if(this.currentPlayer == this.playerColorIndex) {
-				UI(boardstring, DIM);
 				gb = new GameBrain(boardstring, DIM, p);
 				gb.updateBoardHistory(boardstring);
 				clientSocket.sendString(move(gb,boardstring));//serverOutput
 				//wacht tot acknowledgeMove van eigen move
 			}
-			else{
-				UI(boardstring, DIM);
+			else{;
 				gb = new GameBrain(boardstring, DIM, p);
 				userOutput.println("It is the other player's turn");
 				//wacht tot acknowledgeMove van de andere players move
@@ -236,56 +239,53 @@ public class Client {
 				this.currentPlayer = this.gameState.currentPlayer;
 				this.boardstring = this.gameState.boardstring;
 		}	
-		/**
-		//als ik current player ben en ander heeft niet gepast
+		
+		//als de user de current player is en ander heeft niet gepast
 		if(this.currentPlayer == this.playerColorIndex && tileIndex != -1) {
 			UI(boardstring, DIM);
 			gb.updateBoardHistory(boardstring); //tegenstander heeft een nieuw board gemaakt
-			String s = move(gb,boardstring); //ik ben aan zet
-			//Stuur s naar server
+			clientSocket.sendString(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
+			//wacht tot een acknowledgement van mijn move
 		}
-		//als ik current player en andere heeft wel gepast
+		//als de user de current player is en andere heeft wel gepast
 		else if(this.currentPlayer == this.playerColorIndex && tileIndex == -1) {
-			UI(boardstring, DIM);
-			//de tegenstander heeft geen nieuw board aan gemaakt
-			String s = move(gb,boardstring); //ik ben aan zet
-			//Stuur s naar server
+			UI(boardstring, DIM);//de tegenstander heeft geen nieuw board aan gemaakt
+			clientSocket.sendString(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
+			//wacht tot een acknowledgement van mijn move
 		}
 
-		//als ik niet current player ben en ik heb niet gepast
+		//als de user niet de current player is ben en ik heb niet gepast
 		else if(this.currentPlayer != this.playerColorIndex && tileIndex != -1) {
 			UI(boardstring, DIM);
 			gb.updateBoardHistory(boardstring); //mijn zet is geaccepteerd en maakt een nieuw board
-			//wacht tot ik aan de beurt ben
+			//wacht tot een acknowledgement van de opponents move
 		}
 		
-		//als ik niet current player ben en ik heb wel gepast
+		//als de user niet de current player is ben en ik heb wel gepast
 		else if(this.currentPlayer != this.playerColorIndex && tileIndex != -1) {
 			UI(boardstring, DIM);
 			//mijn zet is geaccepteerd maar ik maak geen nieuw board
-			//wacht tot ik aan de beurt ben
-		}	*/
+			//wacht tot een acknowledgement van de opponents move
+		}	
 	}
 	
 	public void invalidMove(String[] sa) {
 		this.serverMessage = sa[1];
-		/**System.out.println(serverMessage);
-		//vraag om nieuwe move
-		String s = move(gb,boardstring); //ik ben aan zet
-		//Stuur s naar server*/
+		userOutput.println("The server finds it an invalid move");
+		clientSocket.sendString(move(gb,boardstring));
 	}
 	
 	public void unknownCommand(String[] sa) {
 		this.serverMessage = sa[1];
-		//System.out.println(serverMessage);
-		//vraag om nieuwe command
+		userOutput.println("The server does not recognise a command");
+		userOutput.println("please go cry to Anouk, because I also don't know what to do :(");
 	}
 	
 	public void updateStatus(String[] sa) {
 		this.gameState = new GameState(sa[1]);
-		this.status = this.gameState.status;
-		this.currentPlayer = this.gameState.currentPlayer;
-		this.boardstring = this.gameState.boardstring;
+			this.status = this.gameState.status;
+			this.currentPlayer = this.gameState.currentPlayer;
+			this.boardstring = this.gameState.boardstring;
 		/**System.out.println("The status:" + status.statusString(this.status) + " the current layer:" + currentPlayer);
 		UI(boardstring, DIM);
 		if(status == Status.PLAYING && this.currentPlayer == this.playerColorIndex) {
