@@ -1,12 +1,10 @@
 package ownCode;
 
-import com.nedap.go.*;
 import com.nedap.go.gui.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.PrintWriter;
-//import java.io.Reader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -20,44 +18,44 @@ import java.net.UnknownHostException;
 		//code om variabelen om te zetten naar een String om naar de server door te sturen
 
 public class Client {
+	
+	
 	public String serverString;
 	public String playerName;
-	public int gameID;
-	public int playerColorIndex;
-	public Intersection playerColor;
-	public int DIM;
-	public int tileIndex;
-	public boolean isLeader;
-	public GameState gameState;
-	public Status status;
 	public String opponentName;
-	public Move move;
-	public String moveString;
 	public String serverMessage;
 	public String winner;
-	public Score score;
+	public String boardstring;
+	
+	public int whichPlayerIndexChoice;
+	public int port;
+	public int DIM;
+	public int tileIndex;
 	public int pointsBlack;
 	public int pointsWhite;
 	public int currentPlayer;
-	public String boardstring;
-	private static final String INITIAL_INPUT
-    = "input should be: <name> <address> <port>";
-	public int whichPlayerIndexChoice;
-	public Player p;
-	public Strategy g;
+	public int gameID;
+	public int playerColorIndex;
+	
+	public boolean isLeader;
 	public boolean useTUI = true;
-	public GameBrain gb;
-	public InetAddress addr;
-	public int port;
+	public boolean exit = false;
+	
 	public Socket sock;
+	public InetAddress addr;
 	public SocketInteraction clientSocket;
 	public Thread clientThread;
-	
+	public Intersection playerColor;
+	public GameState gameState;
+	public Status status;
+	public Move move;
+	public Score score;
+	public Player p;
+	public Strategy g;
+	public GameBrain gb;
 	public BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));//wat krijgt client binnen van de user
-	public PrintWriter userOutput = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));//wat krijgt de user van de client
 	public BufferedReader serverInput;//wat krijgt de client binnen van de server
-	public BufferedWriter serverOutput;//wat krijgt de server van de client
-	public boolean exit = false;
+	
 	
 	public static void main(String[] args) {
 		Client c = new Client();
@@ -69,8 +67,9 @@ public class Client {
 			welcomingUser();//till connecting with the server
 			serverInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 			serverString = serverInput.readLine();
+			String thisLine = userInput.readLine();
 			while(true) {
-				if(userInput.readLine() == "EXIT") {
+				if(thisLine == "EXIT") {
 					clientSocket.sendString(exit());//serverOutput
 					exit = true;
 				}
@@ -87,45 +86,96 @@ public class Client {
 	}
 	
 	public void welcomingUser() throws IOException{
-		userOutput.println("Welkom gamer, what is your name?");
+		System.out.println("Welkom gamer, what is your name?");
 			if(userInput != null) {
 			playerName = userInput.readLine();
 			}
 			
-		userOutput.println("Very well " + playerName +", would you like to play yourself or would you like to use the AI?");
-		userOutput.println("type 1 for playing yourself, type 2 for letting the AI play.");
+		chosingAI();
+		chosingUI();
+		chosingServer();
+	}
+	
+	public void chosingAI() throws IOException {
+		System.out.println("Very well " + playerName +", would you like to play yourself or would you like to use the AI?");
+		System.out.println("type 1 for playing yourself, type 2 for letting the AI play.");
 			if(userInput != null) {
-				whichPlayerIndexChoice = Integer.parseInt(userInput.readLine());
+				int number = Integer.parseInt(userInput.readLine());
+				try {
+					if(number == 1 || number == 2) {
+						whichPlayerIndexChoice = number;
+						System.out.println("You have chosen " + number);
+					}
+					else {
+						System.out.println("No dummy, that is not a 1 or a 2, try again");
+						chosingAI();
+					}
+				} catch (NumberFormatException e) {
+					System.out.println("No simpelton, that is not an integer, try another port");
+		            chosingServer();
+				}
 			}
+	}
+	
+	public void chosingUI() throws IOException {
+		System.out.println("What would you like to as display?");
+		System.out.println("type 1 for TUI, type 2 for GUI.");
+		try {
+			if(userInput != null) {
+				int number = Integer.parseInt(userInput.readLine());
+				if( number == 1 || number == 2) {
+					if(number == 1) {
+						useTUI = true;
+						System.out.println("you have chosen TUI");
+					}
+					else {
+						useTUI = false;
+						System.out.println("you have chosen GUI");s
+					}
+				}
+				else {
+					System.out.println("No clown, that is not a 1 or 2");
+					chosingUI();
+				} 
+			}
+		}catch (IOException e) {
 			
-		userOutput.println("Good, to which server would you like to connect?");
-		userOutput.println("type the Inetadress, click enter, type the port, click enter again");
+		}
+
+	}
+	
+	public void chosingServer() throws IOException {
+		System.out.println("To which server would you like to connect?");
+		System.out.println("type the Inetadress");
+			String thisLine1 = userInput.readLine();
 			try {
-			addr = InetAddress.getByName(userInput.readLine());    
+			addr = InetAddress.getByName(thisLine1);    
 	        } catch (UnknownHostException e) {
-	        	userOutput.println(INITIAL_INPUT);
-	        	userOutput.println("ERROR: host unknown");
-	            System.exit(0);
+	        	System.out.println("Computer says no, try anoter Inetadress");
+	            chosingServer();
 	        }
+		System.out.println("type the port");
+			String thisLine2 = userInput.readLine();
 			try {
-				port = Integer.parseInt(userInput.readLine());
+				port = Integer.parseInt(thisLine2);
 			} catch (NumberFormatException e) {
-				userOutput.println(INITIAL_INPUT);
-				userOutput.println("ERROR: that is not an integer");
-	            System.exit(0);
+				System.out.println("No simpelton, that is not an integer, try another port");
+	            chosingServer();
 			}
 			try {
 	            sock = new Socket(addr, port);
 	        } catch (IOException e) {
-	        	userOutput.println("ERROR: could not create a socket on " + addr
+	        	System.out.println("ERROR: could not create a socket on " + addr
 	                    + " and port " + port);
+	        	System.out.println("try another server");
+	        	chosingServer();
 	        }
 			try {
 				clientSocket = new SocketInteraction(playerName, sock);
 				clientThread = new Thread(clientSocket);
 				clientThread.start();
 	            clientSocket.sendString(handshake());//serverOutput
-	            userOutput.println("Connecting with the server");
+	            System.out.println("Connecting with the server");
 	        } catch (IOException e) {
 	            e.printStackTrace();
 	        }
@@ -171,19 +221,19 @@ public class Client {
 		if(Integer.parseInt(sa[2]) == 1) {
 			this.isLeader = true;
 		}
-		userOutput.println("Connected with the server");
-		userOutput.println("Wait till more information");
+		System.out.println("Connected with the server");
+		System.out.println("Wait till more information");
 	}
 	
 	public void requestConfig(String[] sa) {
 		this.serverMessage = sa[1];
-		userOutput.println(serverMessage);
+		System.out.println(serverMessage);
 		try {
 		clientSocket.sendString(setConfig());//serverOutput
 		}catch (IOException e) {
             e.printStackTrace();
         }
-		userOutput.println("Wait till another player");
+		System.out.println("Wait till another player");
 		//wacht tot een acknowledgeConfig
 	}
 	
@@ -192,12 +242,12 @@ public class Client {
 		if(Integer.parseInt(sa[2])==1){
 			this.playerColorIndex = 1;
 			this.playerColor = playerColor.BLACK;
-			userOutput.println("Your color is black");
+			System.out.println("Your color is black");
 		}
 		if(Integer.parseInt(sa[2])==2){
 			this.playerColorIndex = 2;
 			this.playerColor = playerColor.WHITE;
-			userOutput.println("Your color is white");
+			System.out.println("Your color is white");
 		}
 			if(whichPlayerIndexChoice == 1) {
 				this.p = new HumanPlayer(playerName, playerColor);
@@ -207,14 +257,14 @@ public class Client {
 				this.p = new ComputerPlayer(playerColor, g);
 			}
 		this.DIM = Integer.parseInt(sa[3]);
-			userOutput.println("The board is " + DIM + " by " + DIM + " size.");
+			System.out.println("The board is " + DIM + " by " + DIM + " size.");
 		this.gameState = new GameState(sa[4]);
 			this.status = this.gameState.status;
 			this.currentPlayer = this.gameState.currentPlayer;
 			this.boardstring = this.gameState.boardstring;
 			UI(boardstring, DIM);
 		this.opponentName = sa[5];
-			userOutput.println("You will play to " + opponentName);
+			System.out.println("You will play to " + opponentName);
 		
 			if(this.currentPlayer == this.playerColorIndex) {
 				gb = new GameBrain(boardstring, DIM, p);
@@ -224,7 +274,7 @@ public class Client {
 			}
 			else{;
 				gb = new GameBrain(boardstring, DIM, p);
-				userOutput.println("It is the other player's turn");
+				System.out.println("It is the other player's turn");
 				//wacht tot acknowledgeMove van de andere players move
 			}
 	}
@@ -271,14 +321,14 @@ public class Client {
 	
 	public void invalidMove(String[] sa) {
 		this.serverMessage = sa[1];
-		userOutput.println("The server finds it an invalid move");
+		System.out.println("The server finds it an invalid move");
 		clientSocket.sendString(move(gb,boardstring));
 	}
 	
 	public void unknownCommand(String[] sa) {
 		this.serverMessage = sa[1];
-		userOutput.println("The server does not recognise a command");
-		userOutput.println("please go cry to Anouk, because I also don't know what to do :(");
+		System.out.println("The server does not recognise a command");
+		System.out.println("please go cry to Anouk, because I also don't know what to do :(");
 	}
 	
 	public void updateStatus(String[] sa) {
@@ -286,13 +336,13 @@ public class Client {
 			this.status = this.gameState.status;
 			this.currentPlayer = this.gameState.currentPlayer;
 			this.boardstring = this.gameState.boardstring;
-		userOutput.println("The status:" + status.statusString(this.status) + " the current layer:" + currentPlayer);
+		System.out.println("The status:" + status.statusString(this.status) + " the current layer:" + currentPlayer);
 		UI(boardstring, DIM);
 		if(status == Status.PLAYING && this.currentPlayer == this.playerColorIndex) {
 			clientSocket.sendString(move(gb,boardstring));//stuur nieuwe move naar server
 		}
 		else {
-			userOutput.println("Wait till the opponent makes a move");
+			System.out.println("Wait till the opponent makes a move");
 		}
 	}
 	
@@ -304,29 +354,31 @@ public class Client {
 				this.pointsWhite = this.score.pointsWhite;
 			this.serverMessage = sa[4];
 		}
-		userOutput.println("The winner is:" + winner);
-		userOutput.println("Points for black:" + Integer.toString(pointsBlack)+" - points for white:" + Integer.toString(pointsWhite));
-		userOutput.println(serverMessage);
+		System.out.println("The winner is:" + winner);
+		System.out.println("Points for black:" + Integer.toString(pointsBlack)+" - points for white:" + Integer.toString(pointsWhite));
+		System.out.println(serverMessage);
 		
 		anotherGame();
 	}
 	
 	public void anotherGame() {
-		userOutput.println("Would you like to play another game of GO? Y/N");
+		System.out.println("Would you like to play another game of GO? Y/N");
+		
 		try {
+			String thisLine = userInput.readLine();
 			if(userInput != null) {
-				if(userInput.readLine() == "Y") {
+				if(thisLine == "Y") {
 					clientSocket.sendString(exit());//serverOutput
 					exit = true;//kill this socket
 					exit = false;//make it possible to create a socket again
 					gameFlow();
 				}
-				else if(userInput.readLine() == "N") {
+				else if(thisLine == "N") {
 					clientSocket.sendString(exit());//serverOutput
 					exit = true;
 				}
 				else {
-					userOutput.println("This is not a Y or N silly, try again");
+					System.out.println("This is not a Y or N silly, try again");
 				}
 			}
 		}catch (IOException e) {
@@ -340,14 +392,21 @@ public class Client {
 	}
 	
 	public String setConfig() throws IOException {
-		userOutput.println("Okay, which color would you like to use? 1 for black and 2 for white");
+		System.out.println("Okay, which color would you like to use? 1 for black and 2 for white");
+		int thisInt = Integer.parseInt(userInput.readLine());
 			if(userInput != null) {
-				this.playerColorIndex = Integer.parseInt(userInput.readLine());
+				if(thisInt == 1 || thisInt == 2) {
+					this.playerColorIndex = thisInt;
+				}
+				else {
+					System.out.println("No sillybilly, that is not a 1 or 2, try again");
+					setConfig();
+				}
 			}
 			else {//default
 				this.playerColorIndex = 2;
 			}
-		userOutput.println("Great, what is your perfered board dimension?");
+		System.out.println("Great, what is your perfered board dimension?");
 			if(userInput != null) {
 				this.DIM = Integer.parseInt(userInput.readLine());
 			}
@@ -362,15 +421,16 @@ public class Client {
 			this.tileIndex = gb.setMove(boardstring);
 		}
 		else {
-			userOutput.println("Where would you like to place a new stone?");
+			System.out.println("Where would you like to place a new stone?");
 			try {
 				if(userInput != null) {
-					this.tileIndex = Integer.parseInt(userInput.readLine());
+					int thisInt = Integer.parseInt(userInput.readLine());
+					this.tileIndex = thisInt;
 					if(gb.validMove(tileIndex)) {
-						userOutput.println("this is a valid move");
+						System.out.println("this is a valid move");
 					}
 					else {
-						userOutput.println("this is not a valid move, please enter a new number");
+						System.out.println("this is not a valid move, please enter a new number");
 						move(gb,boardstring);
 					}
 				}
@@ -382,11 +442,7 @@ public class Client {
 	}
 	
 	public String exit() {
-		
-		//als user EXIT typt
-		
 		return "EXIT"+"+"+Integer.toString(gameID)+"+"+playerName;
-		/** moet ik nog maken*/
 	}
 
 //kiest goede UI en laat het board zien
