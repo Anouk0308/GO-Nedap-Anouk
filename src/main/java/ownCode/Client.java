@@ -286,12 +286,14 @@ public class Client {
 			this.status = this.gameState.status;
 			this.currentPlayer = this.gameState.currentPlayer;
 			this.boardstring = this.gameState.boardstring;
-		/**System.out.println("The status:" + status.statusString(this.status) + " the current layer:" + currentPlayer);
+		userOutput.println("The status:" + status.statusString(this.status) + " the current layer:" + currentPlayer);
 		UI(boardstring, DIM);
 		if(status == Status.PLAYING && this.currentPlayer == this.playerColorIndex) {
-			String s = move(gb,boardstring);
-			//Stuur s naar server
-		}*/
+			clientSocket.sendString(move(gb,boardstring));//stuur nieuwe move naar server
+		}
+		else {
+			userOutput.println("Wait till the opponent makes a move");
+		}
 	}
 	
 	public void gameFinished(String[] sa) {
@@ -302,14 +304,35 @@ public class Client {
 				this.pointsWhite = this.score.pointsWhite;
 			this.serverMessage = sa[4];
 		}
-		/**System.out.println(winner);
-		System.out.println("points for black:" + Integer.toString(pointsBlack)+" - points for white:" + Integer.toString(pointsWhite));
-		System.out.println(serverMessage);
+		userOutput.println("The winner is:" + winner);
+		userOutput.println("Points for black:" + Integer.toString(pointsBlack)+" - points for white:" + Integer.toString(pointsWhite));
+		userOutput.println(serverMessage);
 		
-		// vraag user om nog een potje*/
+		anotherGame();
 	}
 	
-
+	public void anotherGame() {
+		userOutput.println("Would you like to play another game of GO? Y/N");
+		try {
+			if(userInput != null) {
+				if(userInput.readLine() == "Y") {
+					clientSocket.sendString(exit());//serverOutput
+					exit = true;//kill this socket
+					exit = false;//make it possible to create a socket again
+					gameFlow();
+				}
+				else if(userInput.readLine() == "N") {
+					clientSocket.sendString(exit());//serverOutput
+					exit = true;
+				}
+				else {
+					userOutput.println("This is not a Y or N silly, try again");
+				}
+			}
+		}catch (IOException e) {
+	            e.printStackTrace();
+	    }
+	}
 	
 //Strings die client naar de server stuurt
 	public String handshake() {
