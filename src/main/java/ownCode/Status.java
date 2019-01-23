@@ -1,12 +1,8 @@
 package ownCode;
 
-public enum Status {
-	WAITING, PLAYING, FINISHED;
+public enum Status { PLAYING, FINISHED;
 	
 	public String statusString(Status status) {
-		if(status == Status.WAITING) {
-			return "Wait for another player";
-		}
 		if(status == Status.PLAYING) {
 			return "The game is still going";
 		}

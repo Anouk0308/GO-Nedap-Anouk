@@ -16,7 +16,7 @@ public class Server {
 	public String clientString;
 	public String namePlayerWaiting = null;
 	public String playerName;
-	private List<Game> gameList = new ArrayList<Game>(100);
+	private List<Game> gameList = new ArrayList<Game>();
 	private Game g;
 	private int requestDIM;
 	private int requestPlayerColorIndex;
@@ -31,6 +31,7 @@ public class Server {
     public void gameFlow() {
     	while(true) {
 	    	try {
+	    		connect();
 	    		clientInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 	    		clientString = clientInput.readLine();
 	    		clientStringSplitter(clientString);
@@ -40,7 +41,77 @@ public class Server {
     	}
     }
     	
-  //split de serverstring in een array
+  public void connect() {
+	   /**	
+  	
+  	
+ 	 if (args.length != 3) {
+          System.out.println(INITIAL_INPUT);
+          System.exit(0);
+      }
+ 	 
+ 	 String name = args[0];
+      InetAddress addr = null;
+      int port = 0;
+      Socket sock = null;
+      ServerSocket servsock = null;
+      
+      
+   // check args[1] - the IP-adress
+      try {
+          addr = InetAddress.getByName(args[1]);
+      } catch (UnknownHostException e) {
+          System.out.println(INITIAL_INPUT);
+          System.out.println("ERROR: host " + args[1] + " unknown");
+          System.exit(0);
+      }
+
+      // parse args[2] - the port
+      try {
+          port = Integer.parseInt(args[2]);
+      } catch (NumberFormatException e) {
+          System.out.println(INITIAL_INPUT);
+          System.out.println("ERROR: port " + args[2]
+          		           + " is not an integer");
+          System.exit(0);
+      }
+      
+      // try to open a Socket to the server
+      try {
+          servsock = new ServerSocket(port);
+      } catch (IOException e) {
+          System.out.println("ERROR: could not create a socket on port " + port);
+      }
+      
+      //Server waits until a Client wants to connect with the Server over the port
+     
+      try {
+     	 System.out.println("Listening....");
+          sock = servsock.accept();
+          System.out.println("Client found!");
+      } catch (IOException e) {
+          e.printStackTrace();
+          System.exit(0);
+      }
+
+      
+      // create Peer object and start the two-way communication
+      try {
+          SocketInteraction server = new SocketInteraction(name, sock);
+          Thread serverThread = new Thread(server);
+          serverThread.start();
+          
+          server.sendString("lala");
+          server.shutDown();
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
+ 	 
+ }
+ */
+  }
+    
+    //split de serverstring in een array
   	public String[] clientStringSplitter(String clientString) {
   		this.clientString = clientString;
   		String[] stringArray = clientString.split("+");
@@ -76,18 +147,23 @@ public class Server {
     	}
     	else {
     		//hier moet een lock
+    		lllll;
+    		if(playerName.equals(namePlayerWaiting)) {
+    			playerName = playerName+1;//niet dezelfde naam in 1 game
+    		}
     		g = createNewGame(namePlayerWaiting, playerName);
     		gameList.add(g);
     		namePlayerWaiting = null;
     		g = null;
+    		int gameID = gameList.size()-1;
     		
     		//stuur volgende naar beide, alleen dus een andere regel naar ander persoon
     		lllllll;
     		String ownPlayerName = "";//moet ik nog naar kijken
     		int ownPlayerColorIndex = 0; 
     		String otherPlayerName = "";
-    		int currentPlayer = 0;
-    		clientServerSocket.sendString(acknowledgeConfig(ownPlayerName, ownPlayerColorIndex, otherPlayerName, currentPlayer));
+    		int currentPlayer = gameList.get(gameID).currentPlayer;
+    		clientServerSocket.sendString(acknowledgeConfig(ownPlayerName, ownPlayerColorIndex, otherPlayerName, currentPlayer, gameID));
     		
     		//einde lock
     	}
@@ -106,16 +182,42 @@ public class Server {
 	  		this.requestDIM = Integer.parseInt(sa[3]);
   		}
   		else {
-  			clientServerSocket.sendString(invalidMove("SET_CONFIG invalid gameID"));
+  			clientServerSocket.sendString(unknownCommand("SET_CONFIG invalid gameID"));
   		}
   	}
   	
   	public void move(String[] sa) {
-  		
+  		Game g = gameList.get(Integer.parseInt(sa[1]));
+  		String playerName = sa[2];
+  		int tileIndex = Integer.parseInt(sa[3]);
+  		if(tileIndex == -1) {
+  			String boardstring = g.boardstring;
+  			g.setCurrentPlayerOther();
+  			int currentPlayer = g.currentPlayer;
+  			clientServerSocket.sendString(acknowledgeMove());//naar beide
+  		}
+  		else if (0 <= tileIndex && tileIndex < g.DIM*g.DIM ) {
+  			Board b = new Board(g.boardstring, g.DIM);
+  			if(b.isEmptyIntersection(tileIndex)) {//validatie
+  				String newboardstring = g.updateBoard(playerName, tileIndex, g.boardstring);
+  				if(!g.boardHistory.contains(newboardstring)) {//validatie of nieuwboardstring al een keer gemaakt is
+  					g.updateBoardHistory(newboardstring);;
+  					g.setCurrentPlayerOther();
+  					clientServerSocket.sendString(acknowledgeMove());//naar beide
+  				}
+  				else {
+  				clientServerSocket.sendString(invalidMove());//naar 1
+  				}
+  			}
+  			
+  		}
+  		else {
+  			clientServerSocket.sendString(invalidMove());//naar 1
+  		}
   	}
   	
   	public void exit(String[] sa) {
-  		
+  		llll;
   	}
   	
   	public String acknowledgeHandshake() {
@@ -135,102 +237,40 @@ public class Server {
   		return s;
   	}
   	
-  	public String acknowledgeConfig(String ownPlayerName, int ownPlayerColorIndex, String otherPlayerName, int currentPlayer) {
+  	public String acknowledgeConfig(String ownPlayerName, int ownPlayerColorIndex, String otherPlayerName, int currentPlayer, int gameID) {
+  		Game g = gameList.get(gameID);
+  		String boardstring = g.boardstring;	
+  		String s = "ACKNOWLEDGE_CONFIG+" + ownPlayerName + "+" + ownPlayerColorIndex + "+" + "PLAYING;" + currentPlayer + ";" + boardstring + "+" + otherPlayerName;
+  		return s;
+  	}
+  	
+  	public String acknowledgeMove() {
   		
-  		String boardstring = "";//gameList.getlast game.boardstring
+  		//ACKNOWLEDGE_MOVE+$GAME_ID+$MOVE+$GAME_STATE
+  		//ACKNOWLEDGE_MOVE+1+30;1+PLAYING;2;0000011120001200
   		
-  		//ACKNOWLEDGE_CONFIG+Thiery Baudet+1+4+PLAYING;2;0000011120001200+opponent
-  		String s = "ACKNOWLEDGE_CONFIG+" + ownPlayerName + "+" + ownPlayerColorIndex + "+" + "PLAYING;" + currentPlayer + ";" + "...boardstring..." + "+" + otherPlayerName;
-  		return null;
+  		//als beide gepassed hebben, geef FINISHED als status mee 
+  			//gameFinished();
+  		llll;
+  		
+  		String s = "ACKNOWLEDGE_MOVE";
+  		return s;
   	}
   	
-  	public String acknowledgeHMove() {
-  		return null;
+  	public String invalidMove() {
+  		return "this move is invalid";
   	}
   	
-  	public String invalidMove(String s) {
-  		return null;
-  	}
-  	
-  	public String unknownCommand() {
-  		return null;
-  	}
-  	
-  	public String updateStatus() {
-  		return null;
+  	public String unknownCommand(String s) {
+  		return s;
   	}
   	
   	public String gameFinished() {
+  		llll;
   		return null;
   	}
     	
-    /**	
-    	
-    	
-    	 if (args.length != 3) {
-             System.out.println(INITIAL_INPUT);
-             System.exit(0);
-         }
-    	 
-    	 String name = args[0];
-         InetAddress addr = null;
-         int port = 0;
-         Socket sock = null;
-         ServerSocket servsock = null;
-         
-         
-      // check args[1] - the IP-adress
-         try {
-             addr = InetAddress.getByName(args[1]);
-         } catch (UnknownHostException e) {
-             System.out.println(INITIAL_INPUT);
-             System.out.println("ERROR: host " + args[1] + " unknown");
-             System.exit(0);
-         }
-
-         // parse args[2] - the port
-         try {
-             port = Integer.parseInt(args[2]);
-         } catch (NumberFormatException e) {
-             System.out.println(INITIAL_INPUT);
-             System.out.println("ERROR: port " + args[2]
-             		           + " is not an integer");
-             System.exit(0);
-         }
-         
-         // try to open a Socket to the server
-         try {
-             servsock = new ServerSocket(port);
-         } catch (IOException e) {
-             System.out.println("ERROR: could not create a socket on port " + port);
-         }
-         
-         //Server waits until a Client wants to connect with the Server over the port
-        
-         try {
-        	 System.out.println("Listening....");
-             sock = servsock.accept();
-             System.out.println("Client found!");
-         } catch (IOException e) {
-             e.printStackTrace();
-             System.exit(0);
-         }
-
-         
-         // create Peer object and start the two-way communication
-         try {
-             SocketInteraction server = new SocketInteraction(name, sock);
-             Thread serverThread = new Thread(server);
-             serverThread.start();
-             
-             server.sendString("lala");
-             server.shutDown();
-         } catch (IOException e) {
-             e.printStackTrace();
-         }
-    	 
-    }
-    */
+ 
     
    /**
 		if(stringArray[0].equals("HANDSHAKE")) {
@@ -306,16 +346,3 @@ public class Server {
 
 }
 
-	
-		
-		//maakt nieuwe game aan met game ID, player names+kleur + board.string
-	
-		//invalid_move
-			// controleerd of binnenkomende string mag (nooit zelfde string per game)
-		//update_status
-	
-	
-		
-		
-		// telt score wanneer 2 x pass
-		// haald captured weg
