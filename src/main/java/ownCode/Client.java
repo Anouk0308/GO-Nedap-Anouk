@@ -18,8 +18,6 @@ import java.net.UnknownHostException;
 		//code om variabelen om te zetten naar een String om naar de server door te sturen
 
 public class Client {
-	
-	
 	public String serverString;
 	public String playerName;
 	public String opponentName;
@@ -43,7 +41,7 @@ public class Client {
 	
 	public Socket sock;
 	public InetAddress addr;
-	public SocketInteraction clientSocket;
+	public SocketInteraction clientServerSocket;
 	public Thread clientThread;
 	public Intersection playerColor;
 	public GameState gameState;
@@ -70,7 +68,7 @@ public class Client {
 			String thisLine = userInput.readLine();
 			while(true) {
 				if(thisLine == "EXIT") {
-					clientSocket.sendString(exit());//serverOutput
+					clientServerSocket.sendString(exit());//serverOutput
 					exit = true;
 				}
 				else {
@@ -86,15 +84,31 @@ public class Client {
 	}
 	
 	public void welcomingUser() throws IOException{
-		System.out.println("Welkom gamer, what is your name?");
-			if(userInput != null) {
-			playerName = userInput.readLine();
-			}
-			
+		chosingName();	
 		chosingAI();
 		chosingUI();
 		chosingServer();
 	}
+	
+	public void chosingName() throws IOException {
+		System.out.println("Welkom gamer, what is your name?");
+		try {
+			if(userInput != null) {
+				String thisLine = userInput.readLine();
+				if( !thisLine.contains("+")) {
+					playerName = thisLine;
+				}
+				else {
+					System.out.println("Are you trying to kill the programm?");
+					System.out.println("Try a name without a +");
+					chosingName();
+				} 
+			}
+		}catch (IOException e) {	
+		}
+	}
+	
+	
 	
 	public void chosingAI() throws IOException {
 		System.out.println("Very well " + playerName +", would you like to play yourself or would you like to use the AI?");
@@ -139,9 +153,7 @@ public class Client {
 				} 
 			}
 		}catch (IOException e) {
-			
 		}
-
 	}
 	
 	public void chosingServer() throws IOException {
@@ -163,7 +175,8 @@ public class Client {
 	            chosingServer();
 			}
 			try {
-	            sock = new Socket(addr, port);
+				System.out.println("Trying to connect");
+				sock = new Socket(addr, port);
 	        } catch (IOException e) {
 	        	System.out.println("ERROR: could not create a socket on " + addr
 	                    + " and port " + port);
@@ -171,10 +184,10 @@ public class Client {
 	        	chosingServer();
 	        }
 			try {
-				clientSocket = new SocketInteraction(playerName, sock);
-				clientThread = new Thread(clientSocket);
+				clientServerSocket = new SocketInteraction(playerName, sock);
+				clientThread = new Thread(clientServerSocket);
 				clientThread.start();
-	            clientSocket.sendString(handshake());//serverOutput
+	            clientServerSocket.sendString(handshake());//serverOutput
 	            System.out.println("Connecting with the server");
 	        } catch (IOException e) {
 	            e.printStackTrace();
@@ -229,7 +242,7 @@ public class Client {
 		this.serverMessage = sa[1];
 		System.out.println(serverMessage);
 		try {
-		clientSocket.sendString(setConfig());//serverOutput
+		clientServerSocket.sendString(setConfig());//serverOutput
 		}catch (IOException e) {
             e.printStackTrace();
         }
@@ -252,7 +265,7 @@ public class Client {
 			if(whichPlayerIndexChoice == 1) {
 				this.p = new HumanPlayer(playerName, playerColor);
 			}
-			if(whichPlayerIndexChoice == 1) {
+			if(whichPlayerIndexChoice == 2) {
 				this.g = new NaiveStrategy();
 				this.p = new ComputerPlayer(playerColor, g);
 			}
@@ -269,7 +282,7 @@ public class Client {
 			if(this.currentPlayer == this.playerColorIndex) {
 				gb = new GameBrain(boardstring, DIM, p);
 				gb.updateBoardHistory(boardstring);
-				clientSocket.sendString(move(gb,boardstring));//serverOutput
+				clientServerSocket.sendString(move(gb,boardstring));//serverOutput
 				//wacht tot acknowledgeMove van eigen move
 			}
 			else{;
@@ -294,13 +307,13 @@ public class Client {
 		if(this.currentPlayer == this.playerColorIndex && tileIndex != -1) {
 			UI(boardstring, DIM);
 			gb.updateBoardHistory(boardstring); //tegenstander heeft een nieuw board gemaakt
-			clientSocket.sendString(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
+			clientServerSocket.sendString(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
 			//wacht tot een acknowledgement van mijn move
 		}
 		//als de user de current player is en andere heeft wel gepast
 		else if(this.currentPlayer == this.playerColorIndex && tileIndex == -1) {
 			UI(boardstring, DIM);//de tegenstander heeft geen nieuw board aan gemaakt
-			clientSocket.sendString(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
+			clientServerSocket.sendString(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
 			//wacht tot een acknowledgement van mijn move
 		}
 
@@ -321,8 +334,9 @@ public class Client {
 	
 	public void invalidMove(String[] sa) {
 		this.serverMessage = sa[1];
+		System.out.println(serverMessage);
 		System.out.println("The server finds it an invalid move");
-		clientSocket.sendString(move(gb,boardstring));
+		clientServerSocket.sendString(move(gb,boardstring));
 	}
 	
 	public void unknownCommand(String[] sa) {
@@ -339,7 +353,7 @@ public class Client {
 		System.out.println("The status:" + status.statusString(this.status) + " the current layer:" + currentPlayer);
 		UI(boardstring, DIM);
 		if(status == Status.PLAYING && this.currentPlayer == this.playerColorIndex) {
-			clientSocket.sendString(move(gb,boardstring));//stuur nieuwe move naar server
+			clientServerSocket.sendString(move(gb,boardstring));//stuur nieuwe move naar server
 		}
 		else {
 			System.out.println("Wait till the opponent makes a move");
@@ -368,13 +382,13 @@ public class Client {
 			String thisLine = userInput.readLine();
 			if(userInput != null) {
 				if(thisLine == "Y") {
-					clientSocket.sendString(exit());//serverOutput
+					clientServerSocket.sendString(exit());//serverOutput
 					exit = true;//kill this socket
 					exit = false;//make it possible to create a socket again
 					gameFlow();
 				}
 				else if(thisLine == "N") {
-					clientSocket.sendString(exit());//serverOutput
+					clientServerSocket.sendString(exit());//serverOutput
 					exit = true;
 				}
 				else {

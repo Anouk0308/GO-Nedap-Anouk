@@ -1,15 +1,28 @@
 package ownCode;
 
 public class Game {
-	public int DIM;
-	public String boardstring;
+	private int DIM;
+	private String playerName1;
+	private String playerName2;
+	private String boardstring;
+	private int gameID;
+	private int player1ColorIndex;
 	
-	public Game() {
-		String s = "";
+	public Game(String playerName1, int player1ColorIndex, String playerName2, int DIM, int gameID) {
+		this.player1ColorIndex = player1ColorIndex;
+		this.playerName1 = playerName1;
+		this.playerName2 = playerName2;
+		this.DIM = DIM;
+		this.boardstring = createEmptyBoard(DIM);
+		this.gameID = gameID;
+	}
+	
+	public String createEmptyBoard(int DIM) {
+		String boardstring = "";
 		for(int i = 0; i<DIM*DIM; i++) {
-			s = s+Integer.toString(0);
+			boardstring = boardstring+Integer.toString(0);
 		}
-		boardstring = s;
+		return boardstring;
 	}
 	
 	

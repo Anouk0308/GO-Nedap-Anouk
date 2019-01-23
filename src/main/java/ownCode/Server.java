@@ -1,19 +1,172 @@
 package ownCode;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.*;
 
 public class Server {
-    private static final String INITIAL_INPUT
-        = "input should be: <name> <port>";
-    public String clientString;
-    //lijst met games erin, waarbij gameID de index van de game is
+	public BufferedReader clientInput;
+	public SocketInteraction clientServerSocket;
+	public Socket sock;
+	public String clientString;
+	public String namePlayerWaiting = null;
+	public String playerName;
+	private List<Game> gameList = new ArrayList<Game>(100);
+	private Game g;
+	private int requestDIM;
+	private int requestPlayerColorIndex;
+	private int gameID;
 
-    /** Starts a Server-application. */
+	
     public static void main(String[] args) {
+    	Server s = new Server();
+    	s.gameFlow();
+    }
+    
+    public void gameFlow() {
+    	while(true) {
+	    	try {
+	    		clientInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+	    		clientString = clientInput.readLine();
+	    		clientStringSplitter(clientString);
+	    	}catch(IOException e) {
+	    		System.out.println(e);
+	    	}
+    	}
+    }
+    	
+  //split de serverstring in een array
+  	public String[] clientStringSplitter(String clientString) {
+  		this.clientString = clientString;
+  		String[] stringArray = clientString.split("+");
+  		return stringArray;
+  	}
+  	
+  //analyseerd welk commando het is, en stuurt door naar de goede methode
+  	public void stringArrayAnalyser(String[] sa) {
+  		String s = sa[0];
+  		switch(s) {
+  			case "HANDSHAKE":				handshake(sa);
+  											break;
+  			case "SET_CONFIG":				setConfig(sa);
+  											break;
+  			case "MOVE":					move(sa);
+  											break;
+  			case "EXIT":					exit(sa);
+  											break;
+  			default:						System.out.println("The client sent an invalid command");
+  											break;
+  		}
+  	}
+  	
+  	public void handshake(String[] sa) {
+  		clientServerSocket.sendString(acknowledgeHandshake());
+  		matchingPlayers(playerName);
+  	}
+  	
+    public void matchingPlayers(String playerName) {//maakt spelletjes mogelijk voor 2 mensen
+    	if(namePlayerWaiting == null) {
+    		namePlayerWaiting = playerName;
+    		clientServerSocket.sendString(requestConfig());//naar 1
+    	}
+    	else {
+    		//hier moet een lock
+    		g = createNewGame(namePlayerWaiting, playerName);
+    		gameList.add(g);
+    		namePlayerWaiting = null;
+    		g = null;
+    		
+    		//stuur volgende naar beide, alleen dus een andere regel naar ander persoon
+    		lllllll;
+    		String ownPlayerName = "";//moet ik nog naar kijken
+    		int ownPlayerColorIndex = 0; 
+    		String otherPlayerName = "";
+    		int currentPlayer = 0;
+    		clientServerSocket.sendString(acknowledgeConfig(ownPlayerName, ownPlayerColorIndex, otherPlayerName, currentPlayer));
+    		
+    		//einde lock
+    	}
+    }
+    
+    public Game createNewGame(String playerName1, String playerName2) {
+    	int gameID = gameList.size();
+    	Game ng = new Game(playerName1, requestPlayerColorIndex, playerName2, requestDIM, gameID);
+    	return null;
+    }
+    
+ 
+  	public void setConfig(String[] sa) {
+  		if(this.gameID == Integer.parseInt(sa[1])) {
+	  		this.requestPlayerColorIndex = Integer.parseInt(sa[2]);
+	  		this.requestDIM = Integer.parseInt(sa[3]);
+  		}
+  		else {
+  			clientServerSocket.sendString(invalidMove("SET_CONFIG invalid gameID"));
+  		}
+  	}
+  	
+  	public void move(String[] sa) {
+  		
+  	}
+  	
+  	public void exit(String[] sa) {
+  		
+  	}
+  	
+  	public String acknowledgeHandshake() {
+  		int gameID = gameList.size();
+  		int isLeaderBoolean;
+  		if(namePlayerWaiting == null) {
+  			isLeaderBoolean = 1;
+  		} else {
+  			isLeaderBoolean = 0;
+  		}
+  		String s = "ACKNOWLEDGE_HANDSHAKE+" + gameID + "+" + isLeaderBoolean;
+  		return s;
+  	}
+  	
+  	public String requestConfig() {
+  		String s = "REQUEST_CONFIG+" + "Please chose your prefered color and prefered board dimension";
+  		return s;
+  	}
+  	
+  	public String acknowledgeConfig(String ownPlayerName, int ownPlayerColorIndex, String otherPlayerName, int currentPlayer) {
+  		
+  		String boardstring = "";//gameList.getlast game.boardstring
+  		
+  		//ACKNOWLEDGE_CONFIG+Thiery Baudet+1+4+PLAYING;2;0000011120001200+opponent
+  		String s = "ACKNOWLEDGE_CONFIG+" + ownPlayerName + "+" + ownPlayerColorIndex + "+" + "PLAYING;" + currentPlayer + ";" + "...boardstring..." + "+" + otherPlayerName;
+  		return null;
+  	}
+  	
+  	public String acknowledgeHMove() {
+  		return null;
+  	}
+  	
+  	public String invalidMove(String s) {
+  		return null;
+  	}
+  	
+  	public String unknownCommand() {
+  		return null;
+  	}
+  	
+  	public String updateStatus() {
+  		return null;
+  	}
+  	
+  	public String gameFinished() {
+  		return null;
+  	}
+    	
+    /**	
+    	
+    	
     	 if (args.length != 3) {
              System.out.println(INITIAL_INPUT);
              System.exit(0);
@@ -77,10 +230,9 @@ public class Server {
          }
     	 
     }
+    */
     
-    public void clientStringSplitter(String clientString) {
-		this.clientString = clientString;
-		String stringArray[] = clientString.split("+");
+   /**
 		if(stringArray[0].equals("HANDSHAKE")) {
 			// stringArray[1] = newName
 			//name in namelijst
@@ -150,6 +302,7 @@ public class Server {
     	
     	return null;
     }
+    */
 
 }
 
