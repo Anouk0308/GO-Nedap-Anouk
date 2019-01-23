@@ -273,21 +273,8 @@ public class Server {
  
     
    /**
-		if(stringArray[0].equals("HANDSHAKE")) {
-			// stringArray[1] = newName
-			//name in namelijst
-				//wanneer namelijst is 1 groot, vraag die persoon om config (gameID die je dan meegeeft = game[].length.
-					//sla dit als temp op
-				//wanneer namelijst is 2:
-				//----niet te onderbreken
-					//maak nieuwe game aan met de twee players
-					//sla deze op in gamelijst
-					//maak namelijst leeg
-				//----mag hierna weer onderbreken
-			
-			
 	
-			//if tweede, open game, die game ID, this.playerName2 = stringArray[1], color = de andere color dan player1;
+		
 		}
 		else if(stringArray[0].equals("SET_CONFIG")) {
 				//stringArray[1] = gameID( dus voor die game is het)
