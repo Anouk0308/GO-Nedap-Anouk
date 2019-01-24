@@ -99,9 +99,14 @@ public class Game {
     			//empty tellen niet mee met stenen capturen, dus a++
     		}
     		else {
+    			sameColorNeightbours.add(intersections.get(i));
     			List<Intersection> neightboursList = board.getNeighbors(i, DIM, intersections);//neem buren van de intersectie met steen
     			sameColorOrNot(neightboursList, i, intersections);
     			sameColorOrNot(sameColorNeightbours, i, intersections);
+    			lll;// hierdoor krijg je dat hij de black die je er al in hebt gezet, nog een keer afgaat
+    				//daarbij komt hij hier niet uit, dus je moet aangeven: wanneer niks toegevoegd, eruit
+    																	//wanneer wel toegevoegd, nog een keer
+    				//plus nu sla je alleen de intersections op in sameColorNeightbors en notSmae... maar niet de int waar ze op het bord staan
     			while(!notSameColorNeightbours.contains(Intersection.EMPTY)) {
     				for(int a = 0; a < sameColorNeightbours.size(); a++) {
     					Intersection in = sameColorNeightbours.get(a);
