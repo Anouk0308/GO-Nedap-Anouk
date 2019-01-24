@@ -15,6 +15,8 @@ public class Game {
 	public Board board;
 	public String boardstring;
 	public ArrayList<String> boardHistory;
+	private List<Intersection> sameColorNeightbours = new ArrayList<Intersection>();
+	private List<Intersection> notSameColorNeightbours = new ArrayList<Intersection>();//empty zit hier ook in
 	
 	public Game(String player1Name, int player1ColorIndex, String player2Name, int DIM, int gameID) {
 		this.player1Name = player1Name;
@@ -90,43 +92,56 @@ public class Game {
 		Board board = new Board(notYetCheckedBoardstring, DIM);
 		Intersection[] intersectionsArray = board.intersections;
 		List<Intersection> intersections = new ArrayList<Intersection>(Arrays.asList(intersectionsArray));
-		List<Intersection> sameColorNeightbours = new ArrayList<Intersection>();
-		List<Intersection> notSameColorNeightbours = new ArrayList<Intersection>();//empty zit hier ook in
+		
     	
-    	for(int a = 0; a < intersections.size(); a++) {
-    		if(intersections.get(a) == Intersection.EMPTY) {
+    	for(int i = 0; i < intersections.size(); i++) {
+    		if(intersections.get(i) == Intersection.EMPTY) {
     			//empty tellen niet mee met stenen capturen, dus a++
     		}
     		else {
-    			List<Intersection> neightboursList = board.getNeighbors(a, DIM, intersections);//neem buren van de intersectie met steen
-    			for(int b = 0; b < neightboursList.size(); b++) {
-    				Intersection checkingThisNeightbour = neightboursList.get(b);
-    				if(checkingThisNeightbour == intersections.get(a
-    					
-    						
-    						)) {//zelfde als de steen waar we de buren van hebben gevraagd? dan horen ze bij dezelfde groep
-    					sameColorNeightbours.add(checkingThisNeightbour);
-    				} else {
-    					notSameColorNeightbours.add(checkingThisNeightbour);//dit is de rand van de groep (kan ook een lege intersectie zijn)
+    			List<Intersection> neightboursList = board.getNeighbors(i, DIM, intersections);//neem buren van de intersectie met steen
+    			sameColorOrNot(neightboursList, i, intersections);
+    			sameColorOrNot(sameColorNeightbours, i, intersections);
+    			while(!notSameColorNeightbours.contains(Intersection.EMPTY)) {
+    				for(int a = 0; a < sameColorNeightbours.size(); a++) {
+    					Intersection in = sameColorNeightbours.get(a);
+    					in = Intersection.EMPTY;
     				}
     			}
-	//nu wil je de eerste ELSe doen, maar ipv a, geef je de bovenste van de sameColorNeightbours. Deze lijst wil je nml aanvullen, tot je alle randen hebt
-    				//in dat geval, kijk of alle Intersecties van notSameColorNeightbours gelijk zijn aan de tegenovergestelde kleur van a
-    					//zo ja, zet dan alles van sameColorNeightbours op empty
-    					//zo nee, a++
     			
     		}
     	}
-		
-		
-		
-		
-		
+    	
+    	String newboardstring = "";
+        int tempi = 0;
+        String temps;
 
-		String checkedBoardstring = null;
+    	for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
+        	if(intersections.get(i) == Intersection.EMPTY) {
+    			tempi = 0;
+    		}
+    		if(intersections.get(i) == Intersection.BLACK) {
+    			tempi = 1;
+    		}
+    		if(intersections.get(i) == Intersection.WHITE) {
+    			tempi = 2;
+    		}
+        	 temps = Integer.toString(tempi);
+        	 newboardstring = newboardstring + temps;
+        }
+		String checkedBoardstring = newboardstring;
 		return checkedBoardstring;
 	}
 
+    public void sameColorOrNot(List<Intersection> neightboursList, int a, List<Intersection> intersections) {
+     	for(int i = 0; i < neightboursList.size(); i++) {
+			Intersection checkingThisNeightbour = neightboursList.get(i);
+			if(checkingThisNeightbour == intersections.get(a)) {//zelfde als de steen waar we de buren van hebben gevraagd? dan horen ze bij dezelfde groep
+				sameColorNeightbours.add(checkingThisNeightbour);
+			} else {
+				notSameColorNeightbours.add(checkingThisNeightbour);//dit is de rand van de groep (kan ook een lege intersectie zijn)
+			}
+    }
 
 	
 	//public void score (boardstring)
@@ -139,4 +154,6 @@ public class Game {
 		//anders
 			//loser is kleinste getal
 			//winner is andere
+
+    }
 }
