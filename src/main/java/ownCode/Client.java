@@ -95,12 +95,12 @@ public class Client {
 		try {
 			if(userInput != null) {
 				String thisLine = userInput.readLine();
-				if( !thisLine.contains("+")) {
+				if( !thisLine.contains("+") && !thisLine.contains(";")) {
 					playerName = thisLine;
 				}
 				else {
 					System.out.println("Are you trying to kill the programm?");
-					System.out.println("Try a name without a +");
+					System.out.println("Try a name without a + and a ;");
 					chosingName();
 				} 
 			}

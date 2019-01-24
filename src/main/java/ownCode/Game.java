@@ -1,6 +1,8 @@
 package ownCode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Game {
 	public int DIM;
@@ -58,7 +60,7 @@ public class Game {
 		}
 	}
 
-	public String updateBoard(String playerName, int tileIndex, String boardstring) {
+	public String updateBoard(String playerName, int tileIndex, String boardstring, int DIM, Board board) {
 		this.board = new Board(boardstring, DIM);//board updaten met huidige boardstring
 		int tileColor = 0;
 		Intersection i = Intersection.EMPTY;
@@ -78,13 +80,49 @@ public class Game {
 		}
 		this.board.setIntersection(tileIndex, i);
 		String notYetCheckedBoardstring = this.board.toBoardstring();
-		String checkedBoardstring = checkForCaptures(notYetCheckedBoardstring);
+		String checkedBoardstring = checkForCaptures(notYetCheckedBoardstring, DIM);
 		return checkedBoardstring;//de vernieuwe boardstring
 	}
 	
-	public String checkForCaptures(String notYetCheckedBoardstring) {
-		//als geen stenen vangen, stuur zelfde
-		//als wel stenen vangen, haal ze weg en stuur nieuwe string
+	public String checkForCaptures(String notYetCheckedBoardstring, int DIM) {
+		//board wordt gemaakt met gegeven boardstring
+		//intersections[] wordt gemaakt met gemaakte board
+		Board board = new Board(notYetCheckedBoardstring, DIM);
+		Intersection[] intersectionsArray = board.intersections;
+		List<Intersection> intersections = new ArrayList<Intersection>(Arrays.asList(intersectionsArray));
+		List<Intersection> sameColorNeightbours = new ArrayList<Intersection>();
+		List<Intersection> notSameColorNeightbours = new ArrayList<Intersection>();//empty zit hier ook in
+    	
+    	for(int a = 0; a < intersections.size(); a++) {
+    		if(intersections.get(a) == Intersection.EMPTY) {
+    			//empty tellen niet mee met stenen capturen, dus a++
+    		}
+    		else {
+    			List<Intersection> neightboursList = board.getNeighbors(a, DIM, intersections);//neem buren van de intersectie met steen
+    			for(int b = 0; b < neightboursList.size(); b++) {
+    				Intersection checkingThisNeightbour = neightboursList.get(b);
+    				if(checkingThisNeightbour == intersections.get(a
+    					
+    						
+    						)) {//zelfde als de steen waar we de buren van hebben gevraagd? dan horen ze bij dezelfde groep
+    					sameColorNeightbours.add(checkingThisNeightbour);
+    				} else {
+    					notSameColorNeightbours.add(checkingThisNeightbour);//dit is de rand van de groep (kan ook een lege intersectie zijn)
+    				}
+    			}
+	//nu wil je de eerste ELSe doen, maar ipv a, geef je de bovenste van de sameColorNeightbours. Deze lijst wil je nml aanvullen, tot je alle randen hebt
+    				//in dat geval, kijk of alle Intersecties van notSameColorNeightbours gelijk zijn aan de tegenovergestelde kleur van a
+    					//zo ja, zet dan alles van sameColorNeightbours op empty
+    					//zo nee, a++
+    			
+    		}
+    	}
+		
+		
+		
+		
+		
+
 		String checkedBoardstring = null;
 		return checkedBoardstring;
 	}

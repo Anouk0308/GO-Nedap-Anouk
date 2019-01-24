@@ -16,15 +16,15 @@ public class GameStateTest {
 
     @Before
     public void setUp() {
-        gs1 = new GameState("WAITING;1;1212");
-        gs2 = new GameState("WAITING;1");
-        gs3 = new GameState("WAITING;1;1212;45");
+        gs1 = new GameState("PLAYING;1;1212");
+        gs2 = new GameState("PLAYING;1");
+        gs3 = new GameState("PLAYING;1;1212;45");
     }
 
     //cotroleer of string goed wordt gesplit
     @Test
     public void splitGameState() {
-    	assertEquals(gs1.status, Status.WAITING);
+    	assertEquals(gs1.status, Status.PLAYING);
     	assertEquals(gs1.currentPlayer,1);
     	assertEquals(gs1.boardstring, "1212");
     }
@@ -32,10 +32,10 @@ public class GameStateTest {
     //cotroleer of variabelen niet worden gezet bij een verkeerde string
     @Test
     public void testFoutieveString() {
-    	assertThat(gs2.status, not(Status.WAITING));
+    	assertThat(gs2.status, not(Status.PLAYING));
     	assertThat(gs2.currentPlayer,not(1));
     	assertThat(gs2.boardstring, not("1212"));
-    	assertThat(gs3.status, not(Status.WAITING));
+    	assertThat(gs3.status, not(Status.PLAYING));
     	assertThat(gs3.currentPlayer,not(1));
     	assertThat(gs3.boardstring, not("1212"));
     }

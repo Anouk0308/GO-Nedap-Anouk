@@ -29,35 +29,27 @@ public class SocketInteraction implements Runnable {
     	try {
 			in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			System.out.println("problemen bij functie run()");
 		}
-    	try{
-    		while((thisLine = in.readLine()) != null ) {
-    			if (thisLine == "EXIT") {
-        			shutDown();
-        		} else {
-        			
-        		System.out.println(thisLine);
-        		}
-    		}
-    		
-    	} 
-    	catch(IOException e){
-    		System.out.println("problemen bij functie run()");
-	    }
     }
     
     //maak van de in van de ene de out van de ander
     synchronized public void sendString(String string) {
-	      	try{
-	        		out.write(string);
-	        		out.newLine();
-	        		out.flush();
-	
-	      	} 
-	    	catch(IOException e){
-	    		System.out.println("problemen bij functie handleTerminalInput()");
-	    	}
+    	while(true) {
+        	String thisLine = null;
+          	try{
+        		BufferedReader buf = new BufferedReader(new InputStreamReader(System.in));
+        		thisLine = buf.readLine();
+        		//System.out.println(thisLine);
+            		out.write(thisLine);
+            		out.newLine();
+            		out.flush();
+
+        	} 
+        	catch(IOException e){
+        		System.out.println("problemen bij functie sendString()");
+        	}
+        }
     }
     
     //sluit alles

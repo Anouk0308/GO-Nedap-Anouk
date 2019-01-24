@@ -1,6 +1,7 @@
 package ownCode;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Board {
     public int DIM;/**deze krijgt hij mee vanuit de client of game */
@@ -13,8 +14,6 @@ public class Board {
     public Board(String boardstring, int DIM) {
     	this.DIM = DIM;
     	String stringArray[] = boardstring.split("\\B");
-    	//char[] charArray = boardstring.toCharArray();
-    
     	intersections = new Intersection[DIM*DIM];
     	for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
     		if(stringArray[i].equals("0")) {
@@ -27,19 +26,6 @@ public class Board {
     			intersections[i]=Intersection.WHITE;
     		}
     	}
-    	
-    	/*intersections = new Intersection[boardstring.length()];
-    	for(int i = 0; 0 <= i && i < boardstring.length(); i++) {
-    		if(charArray[i] == 0) {
-    			intersections[i]=Intersection.EMPTY;
-    		}
-    		if(charArray[i] == 1) {
-    			intersections[i]=Intersection.BLACK;
-    		}
-    		if(charArray[i] == 2) {
-    			intersections[i]=Intersection.WHITE;
-    		}
-    	}*/
     }
     
 
@@ -72,21 +58,64 @@ public class Board {
     	}
         return false;
     }
-    /**
-     * pas interessant als ik me bezig ga houden met score/captures berekenen
-     
-    public boolean isIntersectionOnEdge(int i) {
-    	/** moet nog geimplementeerd worden 
-    	return false;
+   
+    //---queries---
+    //geeft buren van een intersectie
+    public List<Intersection> getNeighbors(int i, int DIM, List<Intersection> intersections) {
+    	List<Intersection> neightboursList = new ArrayList<Intersection>();
+    	//een hoek op het board
+	    	//int linkerbovenhoek = 0
+	    	//int rechterbovenhoek = DIM-1
+	    	//int rechteronderhoek = DIM*DIM-DIM
+	    	//int linkerbovenhoek = DIM*DIM-1
+    	//intersectie op een rand
+	    	//bovenste rij = tussen 0 en DIM-1
+	    	//onderste rij = tussen DIM*DIM-DIM en DIM*DIM-1
+	    	//linker kolom = i%DIM = 0
+	    	//rechter kollom = i%DIM = DIM-1
+    	//Toevoegen van buren
+	    	//linkerbuur: 	neightboursList.add(intersections.get(i-1))
+			//rechterbuur: 	neightboursList.add(intersections.get(i+1))
+			//bovenbuur:	neightboursList.add(intersections.get(i-DIM))
+			//onderbuur:	neightboursList.add(intersections.get(i+DIM))
+
+    	if(i == 0) {
+    		neightboursList.add(intersections.get(i+1));
+    		neightboursList.add(intersections.get(i+DIM));
+    	} else if(i == DIM-1){
+    		neightboursList.add(intersections.get(i-1));
+    		neightboursList.add(intersections.get(i+DIM));
+    	} else if(i == DIM*DIM-DIM){
+    		neightboursList.add(intersections.get(i+1));
+    		neightboursList.add(intersections.get(i-DIM));
+    	} else if(i == DIM*DIM-1){
+    		neightboursList.add(intersections.get(i-1));
+    		neightboursList.add(intersections.get(i-DIM));
+    	} else if(0 < i << DIM-1){
+    		neightboursList.add(intersections.get(i+1));
+    		neightboursList.add(intersections.get(i-1));
+    		neightboursList.add(intersections.get(i+DIM));
+    	} else if(DIM*DIM-DIM < i << DIM*DIM-1){
+    		neightboursList.add(intersections.get(i+1));
+    		neightboursList.add(intersections.get(i-1));
+    		neightboursList.add(intersections.get(i-DIM));
+    	} else if(i%DIM == 0){
+    		neightboursList.add(intersections.get(i+1));
+    		neightboursList.add(intersections.get(i-DIM));
+    		neightboursList.add(intersections.get(i+DIM));
+    	} else if(i%DIM == DIM-1){
+    		neightboursList.add(intersections.get(i-1));
+    		neightboursList.add(intersections.get(i-DIM));
+    		neightboursList.add(intersections.get(i+DIM));
+    	}else {
+    		neightboursList.add(intersections.get(i-1));
+    		neightboursList.add(intersections.get(i+1));
+    		neightboursList.add(intersections.get(i-DIM));
+    		neightboursList.add(intersections.get(i+DIM));
+    	}
+    	return neightboursList;
     }
     
-    public boolean isIntersectionInCorner(int i) {
-    	/** moet nog geimplementeerd worden 
-    	return false;
-    }
-    */
-
-    //---queries---
     //geeft intersectie van de index, mits die op het board is
     public Intersection getIntersection(int i) {
     	if(isIntersection(i)) {
@@ -94,18 +123,7 @@ public class Board {
     	}
         return null;
     }
-    
-    /**
-     * pas interessant als ik me bezig ga houden met score/captures berekenen
-     
-    //geeft buren van een intersectie
-    public Intersection getNeighbors(int i) {
-    	/**moet nog geimplementeerd worden
-    	return null;
-    }
-	*/
 
-    
     //---voids---
     //sets intersection met index i naar intersectie-enum-optie playerColour
     public void setIntersection(int i, Intersection playerColour) {

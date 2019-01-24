@@ -8,19 +8,22 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock; 
 
 public class Server {
 	public BufferedReader clientInput;
-	public SocketInteraction clientServerSocket;
+	public SocketInteraction clientServerSocket; lll;//deze moet weg, moet uit de lijst de goede socketInter zoeken
 	public Socket sock;
 	public String clientString;
 	public String namePlayerWaiting = null;
 	public String playerName;
 	private List<Game> gameList = new ArrayList<Game>();
+	private List<SocketInteraction> sockIntList = new ArrayList<SocketInteraction>();
 	private Game g;
 	private int requestDIM;
 	private int requestPlayerColorIndex;
 	private int gameID;
+	private ReentrantLock lock = new ReentrantLock();
 
 	
     public static void main(String[] args) {
@@ -29,87 +32,48 @@ public class Server {
     }
     
     public void gameFlow() {
+    	String defaultName = "default player name"; 
+  	  	int serverPort = 8000;
+  	  	Socket clientSocket = null;
+  	  	ServerSocket serverSocket = null;
+  	  
+  	  	//probeer een ServerSocket aan te maken met zelf gegeven port
+  	  	try {
+  	  		serverSocket = new ServerSocket(serverPort);
+  	  	} catch (IOException e) {
+  	  		System.out.println("ERROR: could not create a socket on port " + serverPort);
+  	  	}
+  	  
     	while(true) {
-	    	try {
-	    		connect();
-	    		clientInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-	    		clientString = clientInput.readLine();
-	    		clientStringSplitter(clientString);
-	    	}catch(IOException e) {
+    		lock.lock();
+    		try {
+
+			  	//luister of er een nieuwe client probeert te connecten
+		         clientSocket = serverSocket.accept();//een nieuwe client heeft geconnect
+		         SocketInteraction sockInterac = new SocketInteraction(defaultName, clientSocket);
+		         Thread serverThread = new Thread(sockInterac );//maak nieuwe thread met nieuw gemaakt clientSocket
+		         serverThread.start();//start the thread
+		         
+		         
+		    	llll;	//niet telkens nieuwe maken
+		         clientInput = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		         clientString = clientInput.readLine();
+		         clientStringSplitter(clientString);
+		         
+		         lll;//buiten the whileloop, maar kan pas na clientString in clientStringSplitter
+		         sockInterac.name = playerName;
+		         sockIntList.add(sockInterac);
+		         this.playerName = null;
+		         sockInterac  = null;
+
+		         //einde lock
+	    	} catch(IOException e) {
 	    		System.out.println(e);
+	    	} finally {
+	    		lock.unlock();
 	    	}
     	}
     }
-    	
-  public void connect() {
-	   /**	
-  	
-  	
- 	 if (args.length != 3) {
-          System.out.println(INITIAL_INPUT);
-          System.exit(0);
-      }
- 	 
- 	 String name = args[0];
-      InetAddress addr = null;
-      int port = 0;
-      Socket sock = null;
-      ServerSocket servsock = null;
-      
-      
-   // check args[1] - the IP-adress
-      try {
-          addr = InetAddress.getByName(args[1]);
-      } catch (UnknownHostException e) {
-          System.out.println(INITIAL_INPUT);
-          System.out.println("ERROR: host " + args[1] + " unknown");
-          System.exit(0);
-      }
-
-      // parse args[2] - the port
-      try {
-          port = Integer.parseInt(args[2]);
-      } catch (NumberFormatException e) {
-          System.out.println(INITIAL_INPUT);
-          System.out.println("ERROR: port " + args[2]
-          		           + " is not an integer");
-          System.exit(0);
-      }
-      
-      // try to open a Socket to the server
-      try {
-          servsock = new ServerSocket(port);
-      } catch (IOException e) {
-          System.out.println("ERROR: could not create a socket on port " + port);
-      }
-      
-      //Server waits until a Client wants to connect with the Server over the port
-     
-      try {
-     	 System.out.println("Listening....");
-          sock = servsock.accept();
-          System.out.println("Client found!");
-      } catch (IOException e) {
-          e.printStackTrace();
-          System.exit(0);
-      }
-
-      
-      // create Peer object and start the two-way communication
-      try {
-          SocketInteraction server = new SocketInteraction(name, sock);
-          Thread serverThread = new Thread(server);
-          serverThread.start();
-          
-          server.sendString("lala");
-          server.shutDown();
-      } catch (IOException e) {
-          e.printStackTrace();
-      }
- 	 
- }
- */
-  }
     
     //split de serverstring in een array
   	public String[] clientStringSplitter(String clientString) {
@@ -137,6 +101,7 @@ public class Server {
   	
   	public void handshake(String[] sa) {
   		clientServerSocket.sendString(acknowledgeHandshake());
+  		playerName = sa[1];
   		matchingPlayers(playerName);
   	}
   	
@@ -146,26 +111,31 @@ public class Server {
     		clientServerSocket.sendString(requestConfig());//naar 1
     	}
     	else {
-    		//hier moet een lock
-    		lllll;
-    		if(playerName.equals(namePlayerWaiting)) {
-    			playerName = playerName+1;//niet dezelfde naam in 1 game
+    		lock.lock();
+    		try {
+	    		if(playerName.equals(namePlayerWaiting)) {
+	    			playerName = playerName+1;//niet dezelfde naam in 1 game
+	    		}
+	    		g = createNewGame(namePlayerWaiting, playerName);
+	    		gameList.add(g);
+	    		int gameID = gameList.size()-1;
+	    		
+	    		//stuur volgende naar beide, alleen dus een andere regel naar ander persoon
+	    		lllllll;
+	    		String ownPlayerName = "";//moet ik nog naar kijken
+	    		int ownPlayerColorIndex = 0; 
+	    		String otherPlayerName = "";
+	    		int currentPlayer = gameList.get(gameID).currentPlayer;
+	    		clientServerSocket.sendString(acknowledgeConfig(ownPlayerName, ownPlayerColorIndex, otherPlayerName, currentPlayer, gameID));
+	    		
+	    		namePlayerWaiting = null;
+	    		g = null;
+    		} catch (IOException e) {
+    			System.out.println(e.getMessage());
+    		} finally {
+    			lock.unlock();
     		}
-    		g = createNewGame(namePlayerWaiting, playerName);
-    		gameList.add(g);
-    		namePlayerWaiting = null;
-    		g = null;
-    		int gameID = gameList.size()-1;
-    		
-    		//stuur volgende naar beide, alleen dus een andere regel naar ander persoon
-    		lllllll;
-    		String ownPlayerName = "";//moet ik nog naar kijken
-    		int ownPlayerColorIndex = 0; 
-    		String otherPlayerName = "";
-    		int currentPlayer = gameList.get(gameID).currentPlayer;
-    		clientServerSocket.sendString(acknowledgeConfig(ownPlayerName, ownPlayerColorIndex, otherPlayerName, currentPlayer, gameID));
-    		
-    		//einde lock
+  
     	}
     }
     
@@ -199,7 +169,7 @@ public class Server {
   		else if (0 <= tileIndex && tileIndex < g.DIM*g.DIM ) {
   			Board b = new Board(g.boardstring, g.DIM);
   			if(b.isEmptyIntersection(tileIndex)) {//validatie
-  				String newboardstring = g.updateBoard(playerName, tileIndex, g.boardstring);
+  				String newboardstring = g.updateBoard(playerName, tileIndex, g.boardstring, g.DIM);
   				if(!g.boardHistory.contains(newboardstring)) {//validatie of nieuwboardstring al een keer gemaakt is
   					g.updateBoardHistory(newboardstring);;
   					g.setCurrentPlayerOther();
@@ -267,6 +237,9 @@ public class Server {
   	
   	public String gameFinished() {
   		llll;
+  		//geen 1 en 2 sturen in scoren
+  		//Game finished: exit, disconnect, twee passes
+  		//Na GAME_FINISH stuurt server REQUEST_REMATCH om te vragen of je nog een keer wilt spelen
   		return null;
   	}
     	
