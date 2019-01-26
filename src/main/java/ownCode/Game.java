@@ -17,6 +17,7 @@ public class Game {
 	public ArrayList<String> boardHistory;
 	private List<Intersection> sameColorNeightbours = new ArrayList<Intersection>();
 	private List<Intersection> notSameColorNeightbours = new ArrayList<Intersection>();//empty zit hier ook in
+	private int neightboursListSize;
 	
 	public Game(String player1Name, int player1ColorIndex, String player2Name, int DIM, int gameID) {
 		this.player1Name = player1Name;
@@ -103,10 +104,6 @@ public class Game {
     			List<Intersection> neightboursList = board.getNeighbors(i, DIM, intersections);//neem buren van de intersectie met steen
     			sameColorOrNot(neightboursList, i, intersections);
     			sameColorOrNot(sameColorNeightbours, i, intersections);
-    			lll;// hierdoor krijg je dat hij de black die je er al in hebt gezet, nog een keer afgaat
-    				//daarbij komt hij hier niet uit, dus je moet aangeven: wanneer niks toegevoegd, eruit
-    																	//wanneer wel toegevoegd, nog een keer
-    				//plus nu sla je alleen de intersections op in sameColorNeightbors en notSmae... maar niet de int waar ze op het bord staan
     			while(!notSameColorNeightbours.contains(Intersection.EMPTY)) {
     				for(int a = 0; a < sameColorNeightbours.size(); a++) {
     					Intersection in = sameColorNeightbours.get(a);
@@ -139,13 +136,21 @@ public class Game {
 	}
 
     public void sameColorOrNot(List<Intersection> neightboursList, int a, List<Intersection> intersections) {
-     	for(int i = 0; i < neightboursList.size(); i++) {
-			Intersection checkingThisNeightbour = neightboursList.get(i);
-			if(checkingThisNeightbour == intersections.get(a)) {//zelfde als de steen waar we de buren van hebben gevraagd? dan horen ze bij dezelfde groep
-				sameColorNeightbours.add(checkingThisNeightbour);
-			} else {
-				notSameColorNeightbours.add(checkingThisNeightbour);//dit is de rand van de groep (kan ook een lege intersectie zijn)
-			}
+     	lll;
+    	//je moet niet alleen de kleur van de Intersection weten, maar ook de int op het board.
+    	//de list moet dus een hasmap worden
+     	//dat is mooi, want daar kan je ook een set van maken ipv een list
+     		for(int i = 0; i < neightboursList.size(); i++) {
+    			Intersection checkingThisNeightbour = neightboursList.get(i);
+    			if(checkingThisNeightbour == intersections.get(a)) {//zelfde als de steen waar we de buren van hebben gevraagd? dan horen ze bij dezelfde groep
+    				sameColorNeightbours.add(checkingThisNeightbour);
+    			} else {
+    				notSameColorNeightbours.add(checkingThisNeightbour);//dit is de rand van de groep (kan ook een lege intersectie zijn)
+    			}
+     		}
+     		if(neightboursList == sameColorNeightbours) {
+     			neightboursListSize = neightboursList.size();
+     		}
     }
 
 	
@@ -160,5 +165,5 @@ public class Game {
 			//loser is kleinste getal
 			//winner is andere
 
-    }
+
 }
