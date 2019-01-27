@@ -3,6 +3,8 @@ package ownCode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Game {
 	public int DIM;
@@ -15,7 +17,7 @@ public class Game {
 	public Board board;
 	public String boardstring;
 	public ArrayList<String> boardHistory;
-	private List<Intersection> sameColorNeightbours = new ArrayList<Intersection>();
+	private HashMap<Integer, Intersection> sameColorNeightbours = new HashMap<Integer, Intersection>();
 	private List<Intersection> notSameColorNeightbours = new ArrayList<Intersection>();//empty zit hier ook in
 	private int neightboursListSize;
 	public boolean onePass = false;
@@ -108,70 +110,106 @@ public class Game {
     			//empty tellen niet mee met stenen capturen, dus a++
     		}
     		else {
-    			sameColorNeightbours.add(intersections.get(i));
-    			List<Intersection> neightboursList = board.getNeighbors(i, DIM, intersections);//neem buren van de intersectie met steen
-    			sameColorOrNot(neightboursList, i, intersections);
-    			//hashmap
-    			sameColorOrNot(sameColorNeightbours, i, intersections);
-    			while(!notSameColorNeightbours.contains(Intersection.EMPTY)) {
-    				for(int a = 0; a < sameColorNeightbours.size(); a++) {
-    					Intersection in = sameColorNeightbours.get(a);
-    					in = Intersection.EMPTY;
-    				}
-    			}
+    			sameColorNeightbours.put(i, intersections.get(i));//stop de eerste steen in sameColorNeightbours
     			
+    		
+    			HashMap<Integer, Intersection> neightboursListhsm = board.getNeighbors(i, DIM, intersections);
+    			
+    			sameColorOrNot(neightboursListhsm, i, intersections);//bekijk of de buren dezelfde kleur hebben als de steen op tileIndex i
+    			
+    			while(!notSameColorNeightbours.contains(Intersection.EMPTY)) {//als de groep omringt wordt door de andere kleur
+    				for(int a = 0; a < intersections.size(); a++) {//ga hashmap sameColorNeig.. af op alle mogelijke tileIndexes die opgeslagen zijn
+    					if(sameColorNeightbours.get(a)!= null) {//als er op deze tileIndex dus WEL een intersectie in de hashmap opgeslagen is
+    						board.setIntersection(a, Intersection.EMPTY);
+    					}
+    	
+    				}
+    				String checkedBoardstring = board.toBoardstring();
+    				return checkedBoardstring;
+    			}
+    			return notYetCheckedBoardstring;//niks is veranderd
     		}
     	}
-    	
-    	String newboardstring = "";
-        int tempi = 0;
-        String temps;
-
-    	for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
-        	if(intersections.get(i) == Intersection.EMPTY) {
-    			tempi = 0;
-    		}
-    		if(intersections.get(i) == Intersection.BLACK) {
-    			tempi = 1;
-    		}
-    		if(intersections.get(i) == Intersection.WHITE) {
-    			tempi = 2;
-    		}
-        	 temps = Integer.toString(tempi);
-        	 newboardstring = newboardstring + temps;
-        }
-		String checkedBoardstring = newboardstring;
-		return checkedBoardstring;
+    	return notYetCheckedBoardstring;
 	}
 
-    public void sameColorOrNot(List<Intersection> neightboursList, int a, List<Intersection> intersections) {
-     	lll;
-    	//je moet niet alleen de kleur van de Intersection weten, maar ook de int op het board.
-    	//de list moet dus een hasmap worden
-     	//dat is mooi, want daar kan je ook een set van maken ipv een list
-     		for(int i = 0; i < neightboursList.size(); i++) {
-    			Intersection checkingThisNeightbour = neightboursList.get(i);
+    public void sameColorOrNot(HashMap<Integer, Intersection> neightboursList, int a, List<Intersection> intersections) {//a tileIndex eerste steen & intersections weet of het black/white is
+     		for(int i = 0; i < intersections.size(); i++) {
+    			Intersection checkingThisNeightbour = neightboursList.get(i);//get in hsm is met gegeven keyvalue (niet de plaats in de hsm maar megegeven value)
     			if(checkingThisNeightbour == intersections.get(a)) {//zelfde als de steen waar we de buren van hebben gevraagd? dan horen ze bij dezelfde groep
-    				sameColorNeightbours.add(checkingThisNeightbour);
+    				if(!sameColorNeightbours.containsKey(i)) {//Dus een nieuwe steen die ook in dezelfde groep hoort
+    					sameColorNeightbours.put(i, checkingThisNeightbour);//stop nieuwe bij de groep
+    					sameColorOrNot(sameColorNeightbours, a, intersections);//ook van de nieuw toegevoegde steen wil je weten of er buren zijn met dezelfde kleur
+    				}
     			} else {
     				notSameColorNeightbours.add(checkingThisNeightbour);//dit is de rand van de groep (kan ook een lege intersectie zijn)
     			}
      		}
+     		/**
      		if(neightboursList == sameColorNeightbours) {
      			neightboursListSize = neightboursList.size();
-     		}
+     		}*/
     }
 
-	public Score score(String boardstring) {
-		llll;
-		//lalalalala
-		//bereken points black en points white
+	public Score score(String boardstring, int DIM) {
+		String checkedBoardstring = capturedEmptyfields(boardstring, DIM);//elk vak aan lege intersecties dat gecaptured is door 1 kleur wordt omgezet in stenen in die kleur
 		
+		Board board = new Board(checkedBoardstring, DIM);
+		Intersection[] intersectionsArray = board.intersections;
 		int pointsBlack = 0;
 		int pointsWhite = 0;
+		for(int i = 0; i < intersectionsArray.length; i++) {
+			if(intersectionsArray[i] == Intersection.BLACK) {
+				pointsBlack = pointsBlack + 1;
+			}
+			else if(intersectionsArray[i] == Intersection.WHITE) {
+				pointsBlack = pointsWhite + 1;
+			}
+		}
 		String scoreString = pointsBlack + ";" + pointsWhite;
 		Score score = new Score(scoreString);
 		return score;
+	}
+	
+	public String capturedEmptyfields(String boardstring, int DIM) {
+		Board board = new Board(boardstring, DIM);
+		Intersection[] intersectionsArray = board.intersections;
+		List<Intersection> intersections = new ArrayList<Intersection>(Arrays.asList(intersectionsArray));
+		
+    	
+    	for(int i = 0; i < intersections.size(); i++) {
+    		if(intersections.get(i) != Intersection.EMPTY) {
+    			//zijn nu bezig met lege vlakken te zoeken
+    		}
+    		else {
+    			sameColorNeightbours.put(i, intersections.get(i));//stop de lege intersectie in sameColorNeightbours
+    			
+    			HashMap<Integer, Intersection> neightboursListhsm = board.getNeighbors(i, DIM, intersections);
+    			sameColorOrNot(neightboursListhsm, i, intersections);//bekijk of de buren dezelfde kleur hebben als de steen op tileIndex i
+    			
+    			if(notSameColorNeightbours.contains(Intersection.WHITE) && !notSameColorNeightbours.contains(Intersection.BLACK)) {//als de groep alleen omringt door wit 
+    				for(int a = 0; a < intersections.size(); a++) {//ga hashmap sameColorNeig.. af op alle mogelijke tileIndexes die opgeslagen zijn
+    					if(sameColorNeightbours.get(a)!= null) {//als er op deze tileIndex dus WEL een intersectie in de hashmap opgeslagen is
+    						board.setIntersection(a, Intersection.WHITE);
+    					}
+    				}
+    				String checkedBoardstring = board.toBoardstring();
+    				return checkedBoardstring;
+    			} else if(!notSameColorNeightbours.contains(Intersection.WHITE) && notSameColorNeightbours.contains(Intersection.BLACK)) {//als de groep alleen omringt door zwart 
+    				for(int a = 0; a < intersections.size(); a++) {//ga hashmap sameColorNeig.. af op alle mogelijke tileIndexes die opgeslagen zijn
+    					if(sameColorNeightbours.get(a)!= null) {//als er op deze tileIndex dus WEL een intersectie in de hashmap opgeslagen is
+    						board.setIntersection(a, Intersection.BLACK);
+    					}
+    				}
+    				String checkedBoardstring = board.toBoardstring();
+    				return checkedBoardstring;
+    			} else {
+    				return boardstring;
+    			}
+    		}
+    		return boardstring;
+    	}
+    	return boardstring;
 	}
 	
 	public String winner(Score score) {

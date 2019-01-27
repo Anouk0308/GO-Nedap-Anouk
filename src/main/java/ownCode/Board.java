@@ -1,6 +1,7 @@
 package ownCode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Board {
@@ -61,8 +62,8 @@ public class Board {
    
     //---queries---
     //geeft buren van een intersectie
-    public List<Intersection> getNeighbors(int i, int DIM, List<Intersection> intersections) {
-    	List<Intersection> neightboursList = new ArrayList<Intersection>();
+    public HashMap<Integer, Intersection> getNeighbors(int i, int DIM, List<Intersection> intersections) {
+    	HashMap<Integer, Intersection> neightboursListhsm = new HashMap<Integer, Intersection>();
     	//een hoek op het board
 	    	//int linkerbovenhoek = 0
 	    	//int rechterbovenhoek = DIM-1
@@ -74,46 +75,46 @@ public class Board {
 	    	//linker kolom = i%DIM = 0
 	    	//rechter kollom = i%DIM = DIM-1
     	//Toevoegen van buren
-	    	//linkerbuur: 	neightboursList.add(intersections.get(i-1))
-			//rechterbuur: 	neightboursList.add(intersections.get(i+1))
-			//bovenbuur:	neightboursList.add(intersections.get(i-DIM))
-			//onderbuur:	neightboursList.add(intersections.get(i+DIM))
+	    	//linkerbuur: 	neightboursListhsm.put(i-1, intersections.get(i-1));
+			//rechterbuur: 	neightboursListhsm.put(i+1, intersections.get(i+1));
+			//bovenbuur:	neightboursListhsm.put(i-DIM, intersections.get(i-DIM));
+			//onderbuur:	neightboursListhsm.put(i+DIM, intersections.get(i+DIM));
 
     	if(i == 0) {
-    		neightboursList.add(intersections.get(i+1));
-    		neightboursList.add(intersections.get(i+DIM));
+    		neightboursListhsm.put(i+1, intersections.get(i+1));
+    		neightboursListhsm.put(i+DIM, intersections.get(i+DIM));
     	} else if(i == DIM-1){
-    		neightboursList.add(intersections.get(i-1));
-    		neightboursList.add(intersections.get(i+DIM));
+    		neightboursListhsm.put(i-1, intersections.get(i-1));
+    		neightboursListhsm.put(i+DIM, intersections.get(i+DIM));
     	} else if(i == DIM*DIM-DIM){
-    		neightboursList.add(intersections.get(i+1));
-    		neightboursList.add(intersections.get(i-DIM));
+    		neightboursListhsm.put(i+1, intersections.get(i+1));
+    		neightboursListhsm.put(i-DIM, intersections.get(i-DIM));
     	} else if(i == DIM*DIM-1){
-    		neightboursList.add(intersections.get(i-1));
-    		neightboursList.add(intersections.get(i-DIM));
+    		neightboursListhsm.put(i-1, intersections.get(i-1));
+    		neightboursListhsm.put(i-DIM, intersections.get(i-DIM));
     	} else if(0 < i << DIM-1){
-    		neightboursList.add(intersections.get(i+1));
-    		neightboursList.add(intersections.get(i-1));
-    		neightboursList.add(intersections.get(i+DIM));
+    		neightboursListhsm.put(i+1, intersections.get(i+1));
+    		neightboursListhsm.put(i-1, intersections.get(i-1));
+    		neightboursListhsm.put(i+DIM, intersections.get(i+DIM));
     	} else if(DIM*DIM-DIM < i << DIM*DIM-1){
-    		neightboursList.add(intersections.get(i+1));
-    		neightboursList.add(intersections.get(i-1));
-    		neightboursList.add(intersections.get(i-DIM));
+    		neightboursListhsm.put(i+1, intersections.get(i+1));
+    		neightboursListhsm.put(i-1, intersections.get(i-1));
+    		neightboursListhsm.put(i-DIM, intersections.get(i-DIM));
     	} else if(i%DIM == 0){
-    		neightboursList.add(intersections.get(i+1));
-    		neightboursList.add(intersections.get(i-DIM));
-    		neightboursList.add(intersections.get(i+DIM));
+    		neightboursListhsm.put(i+1, intersections.get(i+1));
+    		neightboursListhsm.put(i-1, intersections.get(i-1));
+    		neightboursListhsm.put(i+DIM, intersections.get(i+DIM));
     	} else if(i%DIM == DIM-1){
-    		neightboursList.add(intersections.get(i-1));
-    		neightboursList.add(intersections.get(i-DIM));
-    		neightboursList.add(intersections.get(i+DIM));
+    		neightboursListhsm.put(i-1, intersections.get(i-1));
+    		neightboursListhsm.put(i-DIM, intersections.get(i-DIM));
+    		neightboursListhsm.put(i+DIM, intersections.get(i+DIM));
     	}else {
-    		neightboursList.add(intersections.get(i-1));
-    		neightboursList.add(intersections.get(i+1));
-    		neightboursList.add(intersections.get(i-DIM));
-    		neightboursList.add(intersections.get(i+DIM));
+    		neightboursListhsm.put(i-1, intersections.get(i-1));
+    		neightboursListhsm.put(i+1, intersections.get(i+1));
+    		neightboursListhsm.put(i-DIM, intersections.get(i-DIM));
+    		neightboursListhsm.put(i+DIM, intersections.get(i+DIM));
     	}
-    	return neightboursList;
+    	return neightboursListhsm;
     }
     
     //geeft intersectie van de index, mits die op het board is

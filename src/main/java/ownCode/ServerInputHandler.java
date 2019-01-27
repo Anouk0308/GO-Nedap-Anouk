@@ -78,6 +78,8 @@ public class ServerInputHandler {
 											break;
 			case "GAME_FINISHED":			gameFinished(sa);
 											break;
+			case "REQUEST_REMATCH":			requestRematch(sa);
+											break;
 			default:						System.out.println("The server sent an invalid command");
 											break;
 		}
@@ -232,6 +234,23 @@ public class ServerInputHandler {
 		c.anotherGame();
 	}
 	
+	public void requestRematch(String[] sa) {
+		print("would you like to play a new game?");
+		print("1 for yes, 0 for no");
+		try {
+			String answer = userInput.readLine();
+			if(answer == "0" || answer == "1") {
+					setRematch(Integer.parseInt(answer));
+			}
+			else {
+				print("that is not a 0 or 1, try again");
+				requestRematch(sa);
+			}
+		} catch(IOException e) {
+			print(e.getMessage());
+		}
+	}
+	
 //Strings die client naar de server stuurt
 	public String handshake() {
 		return "HANDSHAKE"+playerName;
@@ -289,6 +308,10 @@ public class ServerInputHandler {
 	
 	public String exit() {
 		return "EXIT"+"+"+Integer.toString(gameID)+"+"+playerName;
+	}
+	
+	public String setRematch(int answer) {
+		return "SET_REMATCH+" + answer;
 	}
 
 //kiest goede UI en laat het board zien

@@ -45,6 +45,8 @@ public class ClientInputHandler {
   											break;
   			case "EXIT":					exit(sa);
   											break;
+  			case "SET_REMATCH":				setRematch(sa);
+											break;
   			default:						System.out.println("The client sent an invalid command");
   											break;
   		}
@@ -89,7 +91,6 @@ public class ClientInputHandler {
     		} finally {
     			lock.unlock();
     		}
-  
     	}
     }
   	
@@ -135,7 +136,7 @@ public class ClientInputHandler {
   			}
   			else {
   				int gameID = g.gameID;
-  				Score score = g.score(g.boardstring);
+  				Score score = g.score(g.boardstring, g.DIM);
   				String winner = g.winner(score);
   				String message = "The game is finished";
   				
@@ -194,6 +195,26 @@ public class ClientInputHandler {
   		Score score = g.score(g.boardstring);
   		gameFinishedExit(gameID, winner, score, message);
   	}
+  	
+  	public void setRematch(String[] sa) {
+  		llll;//als allebei mee eens zijn, answer = 1, als 1 mee eens is, answer = 0;
+  		int answer = 0;
+  		g = createNewGame(player1Name, player2Name);
+		int gameID = server.gameList.size();
+		server.gameList.add(g);
+		
+		//stuur volgende naar beide, alleen dus een andere regel naar ander persoon
+		lllllll;
+		String ownPlayerName = "";//moet ik nog naar kijken
+		int ownPlayerColorIndex = 0; 
+		String otherPlayerName = g.getPlayerNameOther(ownPlayerName);
+		int currentPlayer = server.gameList.get(gameID).currentPlayer;//winner
+		ch.sendMessage(achknowledgeRematch(answer));//allebei
+		ch.sendMessage(acknowledgeConfig(ownPlayerName, ownPlayerColorIndex, otherPlayerName, currentPlayer, gameID));
+		
+		server.namePlayerWaiting = null;
+		g = null;
+  	}
 
   	public String acknowledgeHandshake() {
   		int gameID = server.gameList.size();
@@ -242,8 +263,8 @@ public class ClientInputHandler {
   		return s;
   	}
   	
-  	public String requestRematch() {
-  		String s = "REQUEST_REMATCH";
+  	public String requestRematch(int answer) {
+  		String s = "REQUEST_REMATCH+"+ answer;
   		return s;
   	}
     	
