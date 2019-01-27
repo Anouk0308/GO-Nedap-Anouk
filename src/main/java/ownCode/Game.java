@@ -10,7 +10,7 @@ public class Game {
 	private int player1ColorIndex;
 	private String player2Name;
 	private int player2ColorIndex;
-	private int gameID;
+	public int gameID;
 	public int currentPlayer;
 	public Board board;
 	public String boardstring;
@@ -18,6 +18,7 @@ public class Game {
 	private List<Intersection> sameColorNeightbours = new ArrayList<Intersection>();
 	private List<Intersection> notSameColorNeightbours = new ArrayList<Intersection>();//empty zit hier ook in
 	private int neightboursListSize;
+	public boolean onePass = false;
 	
 	public Game(String player1Name, int player1ColorIndex, String player2Name, int DIM, int gameID) {
 		this.player1Name = player1Name;
@@ -62,8 +63,17 @@ public class Game {
 			currentPlayer = 1;
 		}
 	}
+	
+	public String getPlayerNameOther(String playerName) {
+		if(playerName == player1Name) {
+			return player2Name;
+		}
+		else {
+			return player1Name;
+		}
+	}
 
-	public String updateBoard(String playerName, int tileIndex, String boardstring, int DIM, Board board) {
+	public String updateBoard(String playerName, int tileIndex, String boardstring, int DIM) {
 		this.board = new Board(boardstring, DIM);//board updaten met huidige boardstring
 		int tileColor = 0;
 		Intersection i = Intersection.EMPTY;
@@ -88,8 +98,6 @@ public class Game {
 	}
 	
 	public String checkForCaptures(String notYetCheckedBoardstring, int DIM) {
-		//board wordt gemaakt met gegeven boardstring
-		//intersections[] wordt gemaakt met gemaakte board
 		Board board = new Board(notYetCheckedBoardstring, DIM);
 		Intersection[] intersectionsArray = board.intersections;
 		List<Intersection> intersections = new ArrayList<Intersection>(Arrays.asList(intersectionsArray));
@@ -103,6 +111,7 @@ public class Game {
     			sameColorNeightbours.add(intersections.get(i));
     			List<Intersection> neightboursList = board.getNeighbors(i, DIM, intersections);//neem buren van de intersectie met steen
     			sameColorOrNot(neightboursList, i, intersections);
+    			//hashmap
     			sameColorOrNot(sameColorNeightbours, i, intersections);
     			while(!notSameColorNeightbours.contains(Intersection.EMPTY)) {
     				for(int a = 0; a < sameColorNeightbours.size(); a++) {
@@ -153,17 +162,49 @@ public class Game {
      		}
     }
 
-	
-	//public void score (boardstring)
+	public Score score(String boardstring) {
+		llll;
 		//lalalalala
-		//pointsblack=
-		//pointswhite=
-		//als exit = true
-			//loser = exit persoon
-			//winner = other
-		//anders
-			//loser is kleinste getal
-			//winner is andere
-
+		//bereken points black en points white
+		
+		int pointsBlack = 0;
+		int pointsWhite = 0;
+		String scoreString = pointsBlack + ";" + pointsWhite;
+		Score score = new Score(scoreString);
+		return score;
+	}
+	
+	public String winner(Score score) {
+		int pointsBlack = score.pointsBlack;
+		int pointsWhite = score.pointsWhite;
+		int winnerColor = 0;
+		String winner = "";
+		if (pointsBlack > pointsWhite) {
+			winnerColor = 1;
+		}
+		else {
+			winnerColor = 2;
+		}
+		
+		if(player1ColorIndex == winnerColor) {
+			winner = player1Name;
+		}
+		else {
+			winner = player2Name;
+		}
+		return winner;
+	}
+	
+	public int getPlayerColor(String playerName) {
+		if(playerName == player1Name) {
+			return player1ColorIndex;
+		} else {
+			if(player1ColorIndex == 1) {
+				return 2;
+			} else {
+				return 1;
+			}
+		}
+	}
 
 }

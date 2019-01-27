@@ -8,29 +8,21 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientInputHandler {
-
 	public String clientString;
-	public String namePlayerWaiting = null;
 	public String playerName;
-	
-	
-	private List<Game> gameList = new ArrayList<Game>();
 	private Game g;
-	
-	//gamelist moet in Server
-	
-	
 	private int requestDIM;
 	private int requestPlayerColorIndex;
 	private int gameID;
 	private ReentrantLock lock = new ReentrantLock();
-	private ClientHandler ch;
+	private Server server;
 	private Socket sock;
+	private List<ClientHandler> threads;
 
 	
-	public ClientInputHandler(ClientHandler ch, Socket sock) {
-		this.ch = ch;
-		this.sock = sock;
+	public ClientInputHandler(Server s) {
+		this.server = server;
+		this.threads = server.threads;
 	}
 	
     //split de serverstring in een array
@@ -58,38 +50,39 @@ public class ClientInputHandler {
   		}
   	}
   	
-  
-  	
   	public void handshake(String[] sa) {
-  		ch.sendMessage(acknowledgeHandshake());
   		playerName = sa[1];
+
+  		ch.sendMessage(acknowledgeHandshake());
+  		
+  		if(server.playerNames.contains(playerName)){
+  			playerName = playerName+"1";
+  		}
+  		server.playerNames.add(playerName);
   		matchingPlayers(playerName);
   	}
 	
     public void matchingPlayers(String playerName) {//maakt spelletjes mogelijk voor 2 mensen
-    	if(namePlayerWaiting == null) {
-    		namePlayerWaiting = playerName;
+    	if(server.namePlayerWaiting == null) {
+    		server.namePlayerWaiting = playerName;
     		ch.sendMessage(requestConfig());//naar 1
     	}
     	else {
     		lock.lock();
     		try {
-	    		if(playerName.equals(namePlayerWaiting)) {
-	    			playerName = playerName+1;//niet dezelfde naam in 1 game
-	    		}
-	    		g = createNewGame(namePlayerWaiting, playerName);
-	    		gameList.add(g);
-	    		int gameID = gameList.size()-1;
+	    		g = createNewGame(server.namePlayerWaiting, playerName);
+	    		int gameID = server.gameList.size();
+	    		server.gameList.add(g);
 	    		
 	    		//stuur volgende naar beide, alleen dus een andere regel naar ander persoon
 	    		lllllll;
 	    		String ownPlayerName = "";//moet ik nog naar kijken
 	    		int ownPlayerColorIndex = 0; 
-	    		String otherPlayerName = "";
-	    		int currentPlayer = gameList.get(gameID).currentPlayer;
+	    		String otherPlayerName = g.getPlayerNameOther(ownPlayerName);
+	    		int currentPlayer = server.gameList.get(gameID).currentPlayer;
 	    		ch.sendMessage(acknowledgeConfig(ownPlayerName, ownPlayerColorIndex, otherPlayerName, currentPlayer, gameID));
 	    		
-	    		namePlayerWaiting = null;
+	    		server.namePlayerWaiting = null;
 	    		g = null;
     		} catch (IOException e) {
     			System.out.println(e.getMessage());
@@ -102,9 +95,10 @@ public class ClientInputHandler {
   	
     
     public Game createNewGame(String playerName1, String playerName2) {
-    	int gameID = gameList.size();
+    	int gameID = server.gameList.size();
     	Game ng = new Game(playerName1, requestPlayerColorIndex, playerName2, requestDIM, gameID);
-    	return null;
+    	server.gameList.add(ng);
+    	return ng;
     }
     
  
@@ -116,36 +110,69 @@ public class ClientInputHandler {
   		else {
   			ch.sendMessage(unknownCommand("SET_CONFIG invalid gameID"));
   		}
-  		
-  		
-  	//stringArray[1] = gameID( dus voor die game is het)
-		//playerName1, die krijgt preggered_colour (int is colorIndex) stringArray[2]
-		// DIM = stringArray[3]
   	}
   	
   	public void move(String[] sa) {
-  		Game g = gameList.get(Integer.parseInt(sa[1]));
+  		Game g = server.gameList.get(Integer.parseInt(sa[1]));
   		String playerName = sa[2];
   		int tileIndex = Integer.parseInt(sa[3]);
   		if(tileIndex == -1) {
-  			String boardstring = g.boardstring;
-  			g.setCurrentPlayerOther();
-  			int currentPlayer = g.currentPlayer;
-  			ch.sendMessage(acknowledgeMove());//naar beide
-  			
-  			
-  		// if -1, hou dan boolean bij da ter 1 heeft gepast.
-			//als volgende ook past. end game
-			//als volgende niet past, boolean weer op 0
+  			if(g.onePass == false) {
+	  			String boardstring = g.boardstring;
+	  			g.onePass = true;
+	  			g.setCurrentPlayerOther();
+	  			int currentPlayer = g.currentPlayer;
+	  			
+	  			int gameID = g.gameID;
+				int playerColorIndex = g.getPlayerColor(playerName);
+				String moveString = tileIndex + ";" + playerColorIndex;
+				Move move = new Move(moveString);
+				Status status = Status.PLAYING;
+				String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
+				GameState gameState = new GameState(gameStateString);
+	  			
+	  			ch.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
+  			}
+  			else {
+  				int gameID = g.gameID;
+  				Score score = g.score(g.boardstring);
+  				String winner = g.winner(score);
+  				String message = "The game is finished";
+  				
+				int playerColorIndex = g.getPlayerColor(playerName);
+				String moveString = tileIndex + ";" + playerColorIndex;
+				Move move = new Move(moveString);
+				Status status = Status.FINISHED;
+				int currentPlayer = g.currentPlayer;
+				String boardstring = g.boardstring;
+				String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
+				GameState gameState = new GameState(gameStateString);
+				
+  				ch.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
+  				ch.sendMessage(gameFinishedPasses(gameID, winner, score, message));//naar beide
+  				ch.sendMessage(requestRematch());//naar beide //rematch is alleen als spel op goede manier is afgelopen
+  			}
   		}
   		else if (0 <= tileIndex && tileIndex < g.DIM*g.DIM ) {
+  			g.onePass = false;
   			Board b = new Board(g.boardstring, g.DIM);
   			if(b.isEmptyIntersection(tileIndex)) {//validatie
   				String newboardstring = g.updateBoard(playerName, tileIndex, g.boardstring, g.DIM);
   				if(!g.boardHistory.contains(newboardstring)) {//validatie of nieuwboardstring al een keer gemaakt is
   					g.updateBoardHistory(newboardstring);;
   					g.setCurrentPlayerOther();
-  					ch.sendMessage(acknowledgeMove());//naar beide
+  					
+  					int gameID = g.gameID;
+  					int playerColorIndex = g.getPlayerColor(playerName);
+  					String moveString = tileIndex + ";" + playerColorIndex;
+  					Move move = new Move(moveString);
+  					Status status = Status.PLAYING;
+  					int currentPlayer = g.currentPlayer;
+  					String boardstring = g.boardstring;
+  					String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
+  					GameState gameState = new GameState(gameStateString);
+  					
+  					ch.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
   				}
   				else {
   				ch.sendMessage(invalidMove());//naar 1
@@ -155,26 +182,23 @@ public class ClientInputHandler {
   		}
   		else {
   			ch.sendMessage(invalidMove());//naar 1
-  		}
-  		
-  		
- 
-						
+  		}				
   	}
   	
   	public void exit(String[] sa) {
-  		llll;
-  		
-  	//stringArray[1] = game_id
-		//stringArray[2] = playername (verliezer van het spel)
-		//update_status
-		//gameFinished()
+  		int gameID = Integer.parseInt(sa[1]);
+  		Game g = server.gameList.get(gameID);
+  		String loser = sa[2];
+  		String winner = g.getPlayerNameOther(loser);
+  		String message = "The other has exited";
+  		Score score = g.score(g.boardstring);
+  		gameFinishedExit(gameID, winner, score, message);
   	}
 
   	public String acknowledgeHandshake() {
-  		int gameID = gameList.size();
+  		int gameID = server.gameList.size();
   		int isLeaderBoolean;
-  		if(namePlayerWaiting == null) {
+  		if(server.namePlayerWaiting == null) {
   			isLeaderBoolean = 1;
   		} else {
   			isLeaderBoolean = 0;
@@ -189,22 +213,14 @@ public class ClientInputHandler {
   	}
   	
   	public String acknowledgeConfig(String ownPlayerName, int ownPlayerColorIndex, String otherPlayerName, int currentPlayer, int gameID) {
-  		Game g = gameList.get(gameID);
+  		Game g = server.gameList.get(gameID);
   		String boardstring = g.boardstring;	
   		String s = "ACKNOWLEDGE_CONFIG+" + ownPlayerName + "+" + ownPlayerColorIndex + "+" + "PLAYING;" + currentPlayer + ";" + boardstring + "+" + otherPlayerName;
   		return s;
   	}
   	
-  	public String acknowledgeMove() {
-  		
-  		//ACKNOWLEDGE_MOVE+$GAME_ID+$MOVE+$GAME_STATE
-  		//ACKNOWLEDGE_MOVE+1+30;1+PLAYING;2;0000011120001200
-  		
-  		//als beide gepassed hebben, geef FINISHED als status mee 
-  			//gameFinished();
-  		llll;
-  		
-  		String s = "ACKNOWLEDGE_MOVE";
+  	public String acknowledgeMove(int gameID, Move move, GameState gameState) {
+  		String s = "ACKNOWLEDGE_MOVE+" + gameID + "+" + move + "+" + gameState;
   		return s;
   	}
   	
@@ -216,24 +232,19 @@ public class ClientInputHandler {
   		return s;
   	}
   	
-  	public String gameFinished() {
-  		llll;
-  		//geen 1 en 2 sturen in scoren
-  		//Game finished: exit, disconnect, twee passes
-  		//Na GAME_FINISH stuurt server REQUEST_REMATCH om te vragen of je nog een keer wilt spelen
-  		
-  		
-  		
-  		//gameID is stop
-    	//bereken score
-    	//als exit boolean van game is aan, 
-    		//dan losername=exit persoon, winner is de andere
-    	//als beide gepasst
-    		//winner = meeste punten, ander is loser
-    	//stuur string
-  		
-  		
-  		return null;
+  	public String gameFinishedExit(int gameID, String winner, Score score, String message) {//in geval dat iemand exit drukt
+  		String s = "GAME_FINISHED+" + gameID + "+" + winner + "+" + score + "+"+ message;
+  		return s;
+  	}
+  	
+  	public String gameFinishedPasses(int gameID, String winner, Score score, String message) {
+  		String s = "GAME_FINISHED+" + gameID + "+" + winner + "+" + score + "+"+ message;
+  		return s;
+  	}
+  	
+  	public String requestRematch() {
+  		String s = "REQUEST_REMATCH";
+  		return s;
   	}
     	
 

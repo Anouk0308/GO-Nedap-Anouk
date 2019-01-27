@@ -17,8 +17,9 @@ public class Server {
 	public String clientString;
 	public String namePlayerWaiting = null;
 	public String playerName;
-	private List<Game> gameList = new ArrayList<Game>();
-	private List<ClientHandler> threads;
+	public List<Game> gameList = new ArrayList<Game>();
+	public List<String> playerNames= new ArrayList<String>();
+	public List<ClientHandler> threads;
 	private Game g;
 	private int requestDIM;
 	private int requestPlayerColorIndex;
@@ -26,6 +27,8 @@ public class Server {
 	private ReentrantLock lock = new ReentrantLock();
 	private int port;
 	public BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+	public ClientInputHandler CIH;
+	public ClientHandler ch;
 
 	 public Server() {
 		 //lege constructor om main te kunnen beginnen in gameFlow()
@@ -72,7 +75,8 @@ public class Server {
 			ServerSocket ssocket = new ServerSocket(port);
 			while (true) {
 				Socket s = ssocket.accept();
-				ClientHandler ch = new ClientHandler(this, s);
+				ch = new ClientHandler(this, s);
+				CIH = new ClientInputHandler(this);
 				ch.start();
 				addHandler(ch);
 			}

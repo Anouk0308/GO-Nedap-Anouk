@@ -8,18 +8,19 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 public class ClientHandler extends Thread {
-	private Server server;
+	public Server s;
     private BufferedReader clientInput;
     private BufferedWriter serverToClient;
     private String thisLine;
     private String clientString;
-    private ClientInputHandler CIH;
     private Socket sock;
+    private ClientInputHandler CIH;
 
     public ClientHandler(Server server, Socket sock) { 
 	   try {
 		   	this.sock = sock;
-	    	this.server = server;
+	    	this.s = server;
+	    	this.CIH = s.CIH;
 	    	clientInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 	    	serverToClient = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
 	    } catch(IOException e) {
@@ -31,7 +32,6 @@ public class ClientHandler extends Thread {
     	thisLine = null;
     	try {
 	         clientString = clientInput.readLine();
-	         CIH = new ClientInputHandler(this, sock);
 	         String[] stringArray = CIH.clientStringSplitter(clientString);
 	         CIH.stringArrayAnalyser(stringArray);
 
@@ -54,7 +54,7 @@ public class ClientHandler extends Thread {
     
     //sluit alles
     public void shutDown() {
-    	server.removeHandler(this);
+    	s.removeHandler(this);
     }
     
     private static void print(String message){
