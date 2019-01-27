@@ -192,7 +192,7 @@ public class ClientInputHandler {
   		String loser = sa[2];
   		String winner = g.getPlayerNameOther(loser);
   		String message = "The other has exited";
-  		Score score = g.score(g.boardstring);
+  		Score score = g.score(g.boardstring, g.DIM);
   		gameFinishedExit(gameID, winner, score, message);
   	}
   	
@@ -263,7 +263,11 @@ public class ClientInputHandler {
   		return s;
   	}
   	
-  	public String requestRematch(int answer) {
+  	public String requestRematch() {
+  		String s = "REQUEST_REMATCH";
+  		return s;
+  	}
+  	public String acknowledgeRematch(int answer) {
   		String s = "REQUEST_REMATCH+"+ answer;
   		return s;
   	}
