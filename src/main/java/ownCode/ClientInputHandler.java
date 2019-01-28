@@ -17,12 +17,10 @@ public class ClientInputHandler {
 	private ReentrantLock lock = new ReentrantLock();
 	private Server server;
 	private Socket sock;
-	private List<ClientHandler> threads;
 
 	
 	public ClientInputHandler(Server s) {
 		this.server = server;
-		this.threads = server.threads;
 	}
 	
     //split de serverstring in een array

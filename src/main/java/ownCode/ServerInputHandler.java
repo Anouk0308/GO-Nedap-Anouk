@@ -55,12 +55,14 @@ public class ServerInputHandler {
 	//split de serverstring in een array
 	public String[] serverStringSplitter(String serverString) {
 		String[] stringArray = serverString.split("\\+");
+		System.out.println(stringArray[0]+ "zijn bij splitter");
 		return stringArray;
 	}
 	
 	//analyseerd welk commando het is, en stuurt door naar de goede methode
 	public void stringArrayAnalyser(String[] sa) {
 		String s = sa[0];
+		System.out.println(s+ "zijn bij analyser");
 		switch(s) {
 			case "ACKNOWLEDGE_HANDSHAKE":	System.out.println("ah1 is binnen");
 											acknowledgeHandshake(sa);

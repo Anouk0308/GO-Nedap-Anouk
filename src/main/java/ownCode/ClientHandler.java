@@ -32,6 +32,7 @@ public class ClientHandler extends Thread {
     	thisLine = null;
     	try {
 	         clientString = clientInput.readLine();
+	         System.out.println(CIH);//hier gaat het fout
 	         String[] stringArray = CIH.clientStringSplitter(clientString);
 	         CIH.stringArrayAnalyser(stringArray, this);
 

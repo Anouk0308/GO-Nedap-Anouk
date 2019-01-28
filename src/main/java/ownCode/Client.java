@@ -43,6 +43,7 @@ public class Client extends Thread{
 	public void gameFlow(){
 		try{
 			SIH = new ServerInputHandler(userInput, this);
+			System.out.println(SIH);
 			chosingName();	
 			chosingAI();
 			chosingUI();
@@ -139,10 +140,10 @@ public class Client extends Thread{
 			}
 			
 			try {
-				print("Trying to connect with this client");
+				print("Trying to connect with this server");
 				Client client = new Client(playerName, addr, port);
 				client.start();
-				client.sendMessage(SIH.handshake());
+				client.sendMessage(this.SIH.handshake());
 
 			} catch (IOException e) {
 				print("ERROR: couldn't construct a client object!");
@@ -155,21 +156,24 @@ public class Client extends Thread{
 		try {
 			System.out.println("I am listening");
 			while(true) {
+				System.out.println("we zitten in de while");
 				serverString = serverInput.readLine();
 				System.out.println("server says: " + serverString);
-				String thisLine = userInput.readLine();
-				if(thisLine == "EXIT") {
+				/**String thisLine = userInput.readLine();
+				if(thisLine.equals("EXIT")) {
 					sendMessage(SIH.exit());//serverOutput
 					exit = true;
 					shutdown();
 				}
-				else {
-					String[] stringArray = SIH.serverStringSplitter(serverString);
-					SIH.stringArrayAnalyser(stringArray);
-					}
+				else {*/
+					System.out.println("zijn in run, else");
+					System.out.println(this.SIH);
+					String[] stringArray = this.SIH.serverStringSplitter(serverString);
+					this.SIH.stringArrayAnalyser(stringArray);
 				}
+			/**}*/
 			}catch (IOException e) {
-				shutdown();
+				System.out.println("er gaat wat fout in run");;
 		}
 	}
 	

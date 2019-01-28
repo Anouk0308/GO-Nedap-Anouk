@@ -57,6 +57,7 @@ public class Server {
 	  	  	if(userInput != null) {
 				String thisLine = userInput.readLine();
 				serverPort = Integer.parseInt(thisLine);
+				System.out.println("You have chosen port " + serverPort);
 	  	  	}
   	  		Server server = new Server(serverPort);
   	  		server.run();
@@ -78,9 +79,13 @@ public class Server {
 			ServerSocket ssocket = new ServerSocket(port);
 			while (true) {
 				Socket s = ssocket.accept();
+				System.out.println("er is een clientsocket gemaakt");
 				ch = new ClientHandler(this, s);
+				System.out.println("de clienthandler wordt gemaakt");
 				CIH = new ClientInputHandler(this);
+				System.out.println("de clientinputhandler wordt gemaakt");
 				ch.start();
+				System.out.println("de clienthandler wordt gestart");
 				addHandler(ch);
 			}
 		} catch (IOException e) {
