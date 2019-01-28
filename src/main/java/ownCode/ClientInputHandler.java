@@ -20,13 +20,13 @@ public class ClientInputHandler {
 
 	
 	public ClientInputHandler(Server s) {
-		this.server = server;
+		this.server = s;
 	}
 	
     //split de serverstring in een array
   	public String[] clientStringSplitter(String clientString) {
   		this.clientString = clientString;
-  		String[] stringArray = clientString.split("+");
+  		String[] stringArray = clientString.split("\\+");
   		return stringArray;
   	}
   	
@@ -249,7 +249,13 @@ public class ClientInputHandler {
   	}
 
   	public String acknowledgeHandshake() {
-  		int gameID = server.gameList.size();
+  		System.out.println("test: server =" + server);
+  		if(server.gameList == null) {
+  			gameID = 0;
+  		} else {
+  			gameID = server.gameList.size();
+  		}
+  		System.out.println("test: gameID in AH():" + gameID + ", 0 is okee");
   		int isLeaderBoolean;
   		if(server.namePlayerWaiting == null) {
   			isLeaderBoolean = 1;

@@ -22,6 +22,7 @@ public class Client extends Thread{
 	public Socket sock;
 	public InetAddress addr;
 	public Thread clientThread;
+	public Client client;
 	
 	public Client(){
 		//een lege constructor om in main de functie gameFlow() aan te vragen
@@ -33,6 +34,7 @@ public class Client extends Thread{
 		print("Created Socket!");
 		serverInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 		userToServer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+		SIH = new ServerInputHandler(userInput, client); 
 	}
 	
 	public static void main(String[] args) {
@@ -43,7 +45,7 @@ public class Client extends Thread{
 	public void gameFlow(){
 		try{
 			SIH = new ServerInputHandler(userInput, this);
-			System.out.println(SIH);
+			System.out.println("test: SIH in gameflow is:" + this.SIH);
 			chosingName();	
 			chosingAI();
 			chosingUI();
@@ -141,7 +143,8 @@ public class Client extends Thread{
 			
 			try {
 				print("Trying to connect with this server");
-				Client client = new Client(playerName, addr, port);
+				client = new Client(playerName, addr, port);
+				System.out.println("test: chosingsrv() SIH:" + SIH);
 				client.start();
 				client.sendMessage(this.SIH.handshake());
 
@@ -156,9 +159,9 @@ public class Client extends Thread{
 		try {
 			System.out.println("I am listening");
 			while(true) {
-				System.out.println("we zitten in de while");
+				System.out.println("test: we zitten in de while");
 				serverString = serverInput.readLine();
-				System.out.println("server says: " + serverString);
+				System.out.println("test: server says: " + serverString);
 				/**String thisLine = userInput.readLine();
 				if(thisLine.equals("EXIT")) {
 					sendMessage(SIH.exit());//serverOutput
@@ -166,14 +169,17 @@ public class Client extends Thread{
 					shutdown();
 				}
 				else {*/
-					System.out.println("zijn in run, else");
-					System.out.println(this.SIH);
-					String[] stringArray = this.SIH.serverStringSplitter(serverString);
-					this.SIH.stringArrayAnalyser(stringArray);
+					System.out.println("test: zijn in run, else");
+					
+					System.out.println("test: SIH in client,run()=" + this.SIH);
+					ServerInputHandler SIHH = this.SIH;
+					System.out.println("test: SIHH in client,run()=" + SIHH);
+					String[] stringArray = SIHH.serverStringSplitter(serverString);
+					SIHH.stringArrayAnalyser(stringArray);
 				}
 			/**}*/
 			}catch (IOException e) {
-				System.out.println("er gaat wat fout in run");;
+				System.out.println("test: er gaat wat fout in run");;
 		}
 	}
 	

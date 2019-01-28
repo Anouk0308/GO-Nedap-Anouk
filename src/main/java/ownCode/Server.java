@@ -79,13 +79,13 @@ public class Server {
 			ServerSocket ssocket = new ServerSocket(port);
 			while (true) {
 				Socket s = ssocket.accept();
-				System.out.println("er is een clientsocket gemaakt");
-				ch = new ClientHandler(this, s);
-				System.out.println("de clienthandler wordt gemaakt");
+				System.out.println("test: er is een clientsocket gemaakt");
 				CIH = new ClientInputHandler(this);
-				System.out.println("de clientinputhandler wordt gemaakt");
+				System.out.println("test: de clientinputhandler wordt gemaakt");
+				ch = new ClientHandler(this, s);
+				System.out.println("test: de clienthandler wordt gemaakt");
 				ch.start();
-				System.out.println("de clienthandler wordt gestart");
+				System.out.println("test: de clienthandler wordt gestart");
 				addHandler(ch);
 			}
 		} catch (IOException e) {
