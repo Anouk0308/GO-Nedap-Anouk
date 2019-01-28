@@ -7,7 +7,7 @@ public class GameState {
 	public String boardstring;
 	
 	public GameState(String gameStateString){
-		String stringArray[] = gameStateString.split(";");
+		String stringArray[] = gameStateString.split("\\;");
 		if (stringArray.length == 3) {
 			this.status = status.valueOf(stringArray[0]);
 			this.currentPlayer = Integer.parseInt(stringArray[1]);

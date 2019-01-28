@@ -31,10 +31,12 @@ public class ClientHandler extends Thread {
     public void run() {
     	thisLine = null;
     	try {
-	         clientString = clientInput.readLine();
-	         System.out.println("test: geef te CIH in clienthandler" + CIH);//hier gaat het fout
-	         String[] stringArray = CIH.clientStringSplitter(clientString);
-	         CIH.stringArrayAnalyser(stringArray, this);
+    		while(true) {
+		         clientString = clientInput.readLine();
+		         System.out.println("test: geef te CIH in clienthandler" + CIH);
+		         String[] stringArray = CIH.clientStringSplitter(clientString);
+		         CIH.stringArrayAnalyser(stringArray, this);
+    		}
 
 		} catch (IOException e1) {
 			System.out.println("problemen bij functie run()");

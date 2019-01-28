@@ -22,11 +22,11 @@ public class Server {
 	public List<String> playerNames= new ArrayList<String>();
 	public List<ClientHandler> threads;
 	private Game g;
-	private int requestDIM;
-	private int requestPlayerColorIndex;
-	private int gameID;
+	public int requestDIM;
+	public int requestPlayerColorIndex;
+	public int gameID;
 	private ReentrantLock lock = new ReentrantLock();
-	private int port;
+	public int port;
 	public BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 	public ClientInputHandler CIH;
 	public ClientHandler ch;

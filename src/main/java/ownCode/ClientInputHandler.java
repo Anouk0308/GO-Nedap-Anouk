@@ -11,8 +11,6 @@ public class ClientInputHandler {
 	public String clientString;
 	public String playerName;
 	private Game g;
-	private int requestDIM;
-	private int requestPlayerColorIndex;
 	private int gameID;
 	private ReentrantLock lock = new ReentrantLock();
 	private Server server;
@@ -34,6 +32,7 @@ public class ClientInputHandler {
   //analyseerd welk commando het is, en stuurt door naar de goede methode
   	public void stringArrayAnalyser(String[] sa, ClientHandler ch) {
   		String s = sa[0];
+  		System.out.println("test: welk commando krijgen we van de client?" + sa[0]);
   		switch(s) {
   			case "HANDSHAKE":				handshake(sa, ch);
   											break;
@@ -71,39 +70,42 @@ public class ClientInputHandler {
     	else {
     		lock.lock();
     		try {
-	    		g = createNewGame(server.namePlayerWaiting, playerName);
-	    		g.player1CH = server.chPlayerWaiting;
-	    		g.player2CH = ch;
-	    		int gameID = server.gameList.size();
-	    		server.gameList.add(g);
+    			int gameID = server.gameList.size();
+    			Game game = new Game(server.namePlayerWaiting, server.requestPlayerColorIndex, playerName, server.requestDIM, gameID);
+	    		System.out.println("test: is deze game in matchingPlayers leeg?" + game);//niet leeg
+    			System.out.println("test: en zn boardstring?" + game.boardstring);//wel leeg?????
+    			System.out.println("test: en player1color?" + game.player1ColorIndex);//wel leeg????
+    			System.out.println("test: en this.requestplayercolor?" + server.requestPlayerColorIndex);//wel leeg?????
+    			System.out.println("test: en this.requestDIM?" + server.requestDIM);//wel leeg????
+    			
+    			game.player1CH = server.chPlayerWaiting;
+	    		game.player2CH = ch;
+	    		
+	    		server.gameList.add(game);
 	    		
 	    		String player1Name = server.namePlayerWaiting;//moet ik nog naar kijken
-	    		int player1ColorIndex = g.player1ColorIndex; 
+	    		int player1ColorIndex = game.player1ColorIndex; 
 	    		String player2Name = playerName;
-	    		int player2ColorIndex = g.player2ColorIndex; 
-	    		int currentPlayer = server.gameList.get(gameID).currentPlayer;
-	    		g.player1CH.sendMessage(acknowledgeConfig(player1Name, player1ColorIndex, player2Name, currentPlayer, gameID));
-	    		g.player2CH.sendMessage(acknowledgeConfig(player2Name, player2ColorIndex, player1Name, currentPlayer, gameID));
+	    		int player2ColorIndex = game.player2ColorIndex; 
+	    		int currentPlayer = game.currentPlayer;
+	    		game.player1CH.sendMessage(acknowledgeConfig(game, player1Name, player1ColorIndex, player2Name, currentPlayer, gameID));
+	    		game.player2CH.sendMessage(acknowledgeConfig(game, player2Name, player2ColorIndex, player1Name, currentPlayer, gameID));
 	    		server.namePlayerWaiting = null;
-	    		g = null;
+	    		game = null;
     		} finally {
     			lock.unlock();
     		}
     	}
     }
   	
-    
-    public Game createNewGame(String playerName1, String playerName2) {
-    	int gameID = server.gameList.size();
-    	Game ng = new Game(playerName1, requestPlayerColorIndex, playerName2, requestDIM, gameID);
-    	return ng;
-    }
-    
- 
   	public void setConfig(String[] sa, ClientHandler ch) {
-  		//Game g = server.gameList.get(Integer.parseInt(sa[1]));
-	  	this.requestPlayerColorIndex = Integer.parseInt(sa[2]);
-	  	this.requestDIM = Integer.parseInt(sa[3]);
+  		//setConfig komt neit goed aan
+  		//SET_CONFIG+0+1+4 is wat client stuurt
+  		int rpci = Integer.parseInt(sa[2]);
+	  	server.requestPlayerColorIndex = Integer.parseInt(sa[2]);
+	  	int rdim = Integer.parseInt(sa[3]); 
+	  	server.requestDIM = Integer.parseInt(sa[3]);
+	  	System.out.println("test: kijk of requestplycolorinx en requestDIM aankomen" + rpci + rdim);
 
   	}
   	
@@ -236,8 +238,8 @@ public class ClientInputHandler {
   			String player2Name = ng.player2Name;
   			int player2ColorIndex = ng.player2ColorIndex; 
   			int currentPlayer = ng.currentPlayer;
-  			ng.player1CH.sendMessage(acknowledgeConfig(player1Name, player1ColorIndex, player2Name, currentPlayer, gameID));
-  			ng.player2CH.sendMessage(acknowledgeConfig(player2Name, player2ColorIndex, player1Name, currentPlayer, gameID));
+  			ng.player1CH.sendMessage(acknowledgeConfig(ng, player1Name, player1ColorIndex, player2Name, currentPlayer, gameID));
+  			ng.player2CH.sendMessage(acknowledgeConfig(ng, player2Name, player2ColorIndex, player1Name, currentPlayer, gameID));
   			
   			g = null;
 	  		}
@@ -271,9 +273,12 @@ public class ClientInputHandler {
   		return s;
   	}
   	
-  	public String acknowledgeConfig(String ownPlayerName, int ownPlayerColorIndex, String otherPlayerName, int currentPlayer, int gameID) {
-  		Game g = server.gameList.get(gameID);
-  		String boardstring = g.boardstring;	
+  	public String acknowledgeConfig(Game g, String ownPlayerName, int ownPlayerColorIndex, String otherPlayerName, int currentPlayer, int gameID) {
+  		//ACKNOWLEDGE_CONFIG+Anouk+0+PLAYING;0;+Luuk krijgen we binnen, kleur 0 is fout en gamestate is fout
+  		System.out.println("test: vind hij wel een game? " + g);
+  		String boardstring = g.boardstring;
+  		System.out.println("test: vind hij wel boardstring van g? " + boardstring);
+  		//anders naar matching partners
   		String s = "ACKNOWLEDGE_CONFIG+" + ownPlayerName + "+" + ownPlayerColorIndex + "+" + "PLAYING;" + currentPlayer + ";" + boardstring + "+" + otherPlayerName;
   		return s;
   	}

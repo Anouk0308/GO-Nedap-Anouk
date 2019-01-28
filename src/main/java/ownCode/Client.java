@@ -34,7 +34,7 @@ public class Client extends Thread{
 		print("Created Socket!");
 		serverInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 		userToServer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
-		SIH = new ServerInputHandler(userInput, client); 
+		SIH = new ServerInputHandler(userInput, this); 
 	}
 	
 	public static void main(String[] args) {
@@ -172,10 +172,8 @@ public class Client extends Thread{
 					System.out.println("test: zijn in run, else");
 					
 					System.out.println("test: SIH in client,run()=" + this.SIH);
-					ServerInputHandler SIHH = this.SIH;
-					System.out.println("test: SIHH in client,run()=" + SIHH);
-					String[] stringArray = SIHH.serverStringSplitter(serverString);
-					SIHH.stringArrayAnalyser(stringArray);
+					String[] stringArray = this.SIH.serverStringSplitter(serverString);
+					this.SIH.stringArrayAnalyser(stringArray);
 				}
 			/**}*/
 			}catch (IOException e) {

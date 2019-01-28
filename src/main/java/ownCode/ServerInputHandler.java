@@ -49,6 +49,7 @@ public class ServerInputHandler {
 	
 	public ServerInputHandler(BufferedReader userInput, Client c) {
 		this.c = c;
+		System.out.println("test: is de client null wanneer SIH aangemaakt wordt?" + c);
 		this.userInput = userInput;
 	}
 	
@@ -105,7 +106,10 @@ public class ServerInputHandler {
 		this.serverMessage = sa[1];
 		print(serverMessage);
 		try {
-		c.sendMessage(setConfig());//serverOutput
+			String s = setConfig();
+			System.out.println("test: is hier ook setConfig 0+1+4?" + s);
+		c.sendMessage(s);//serverOutput
+			System.out.println("test: is deze client leeg?"+c);//nee niet leeg
 		}catch (IOException e) {
             e.printStackTrace();
         }
@@ -124,6 +128,7 @@ public class ServerInputHandler {
 			this.playerColorIndex = 2;
 			this.playerColor = playerColor.WHITE;
 			print("Your color is white");
+			lll; //deze print die nog wel, daarna niet meer
 		}
 			if(whichPlayerIndexChoice == 1) {
 				this.p = new HumanPlayer(playerName, playerColor);
@@ -134,6 +139,7 @@ public class ServerInputHandler {
 			}
 		this.DIM = Integer.parseInt(sa[3]);
 			print("The board is " + DIM + " by " + DIM + " size.");
+		System.out.println("test: bekijk wat de gameState is" + sa[4]);
 		this.gameState = new GameState(sa[4]);
 			this.status = this.gameState.status;
 			this.currentPlayer = this.gameState.currentPlayer;
@@ -283,7 +289,10 @@ public class ServerInputHandler {
 			else {//default
 				this.DIM = 7;
 			}
-		return "SET_CONFIG+"+Integer.toString(gameID)+"+"+Integer.toString(playerColorIndex)+"+"+Integer.toString(DIM);
+		String s = "SET_CONFIG+"+Integer.toString(gameID)+"+"+Integer.toString(playerColorIndex)+"+"+Integer.toString(DIM); 
+		System.out.println("Test: setConfig geeft regel " +  s);//dit gaat goed
+		System.out.println("test: is client null? " + c);
+		return s; 
 	}
 	
 	public String move(GameBrain gb, String boardstring) {
