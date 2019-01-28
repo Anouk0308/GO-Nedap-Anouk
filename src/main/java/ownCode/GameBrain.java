@@ -52,6 +52,7 @@ public class GameBrain {
 	// Valid betekend als de intersectie leeg is en als het niet een board creeert die al eerder in het spel is voorgekomen
 	public boolean validMove(int move) {
 		if(board.isEmptyIntersection(move)) {
+			System.out.println("test: is validMove p null?" + p);
 			board.setIntersection(move, p.getPlayerColour());
 			newboardstring = board.toBoardstring();
 			board = new Board(oldboardstring, DIM);

@@ -24,7 +24,6 @@ public class ServerInputHandler {
 	public String winner;
 	public String boardstring;
 	
-	public int whichPlayerIndexChoice;
 	public int DIM;
 	public int tileIndex;
 	public int pointsBlack;
@@ -118,6 +117,15 @@ public class ServerInputHandler {
 	}
 	
 	public void acknowledgeConfig(String[] sa) {
+		//ACKNOWLEDGE_CONFIG+$PLAYER_NAME+$COLOR+$SIZE+$GAME_SATE+$OPPONENT
+		System.out.println("test: wat is sa[1]?"+sa[1]);//name
+		System.out.println("test: wat is sa[2]?"+sa[2]);//color
+		System.out.println("test: wat is sa[3]?"+sa[3]);//size
+		System.out.println("test: wat is sa[4]?"+sa[4]);//gamestate
+		System.out.println("test: wat is sa[5]?"+sa[5]);//opponent
+		Player p = null;
+		Strategy ns;
+		
 		this.playerName = sa[1];
 		if(Integer.parseInt(sa[2])==1){
 			this.playerColorIndex = 1;
@@ -128,14 +136,14 @@ public class ServerInputHandler {
 			this.playerColorIndex = 2;
 			this.playerColor = playerColor.WHITE;
 			print("Your color is white");
-			lll; //deze print die nog wel, daarna niet meer
 		}
-			if(whichPlayerIndexChoice == 1) {
-				this.p = new HumanPlayer(playerName, playerColor);
+		System.out.println("test: wat is wichPlayerIndexChoice?"+c.getWhichPlayerIndexChoice());
+			if(c.getWhichPlayerIndexChoice() == 1) {
+				p = new HumanPlayer(playerName, playerColor);
 			}
-			if(whichPlayerIndexChoice == 2) {
-				this.g = new NaiveStrategy();
-				this.p = new ComputerPlayer(playerColor, g);
+			else if(c.getWhichPlayerIndexChoice() == 2) {
+				ns = new NaiveStrategy();
+				p = new ComputerPlayer(playerColor, ns);
 			}
 		this.DIM = Integer.parseInt(sa[3]);
 			print("The board is " + DIM + " by " + DIM + " size.");
@@ -150,6 +158,7 @@ public class ServerInputHandler {
 		
 			if(this.currentPlayer == this.playerColorIndex) {
 				gb = new GameBrain(boardstring, DIM, p);
+				System.out.println("test: is in ac p null?" + p);
 				gb.updateBoardHistory(boardstring);
 				c.sendMessage(move(gb,boardstring));//serverOutput
 				//wacht tot acknowledgeMove van eigen move
@@ -296,7 +305,8 @@ public class ServerInputHandler {
 	}
 	
 	public String move(GameBrain gb, String boardstring) {
-		if(p instanceof ComputerPlayer) {
+		System.out.println("test: is p in string move null?"+gb.p);
+		if(gb.p instanceof ComputerPlayer) {
 			this.tileIndex = gb.setMove(boardstring);
 		}
 		else {

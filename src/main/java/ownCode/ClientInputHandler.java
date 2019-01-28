@@ -277,9 +277,10 @@ public class ClientInputHandler {
   		//ACKNOWLEDGE_CONFIG+Anouk+0+PLAYING;0;+Luuk krijgen we binnen, kleur 0 is fout en gamestate is fout
   		System.out.println("test: vind hij wel een game? " + g);
   		String boardstring = g.boardstring;
+  		int DIM = g.DIM;
   		System.out.println("test: vind hij wel boardstring van g? " + boardstring);
   		//anders naar matching partners
-  		String s = "ACKNOWLEDGE_CONFIG+" + ownPlayerName + "+" + ownPlayerColorIndex + "+" + "PLAYING;" + currentPlayer + ";" + boardstring + "+" + otherPlayerName;
+  		String s = "ACKNOWLEDGE_CONFIG+" + ownPlayerName + "+" + ownPlayerColorIndex + "+" + DIM + "+" + "PLAYING;" + currentPlayer + ";" + boardstring + "+" + otherPlayerName;
   		return s;
   	}
   	

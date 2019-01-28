@@ -12,6 +12,7 @@ import java.net.UnknownHostException;
 public class Client extends Thread{
 	public String playerName;
 	public String serverString;
+	public int whichPlayerIndexChoice;
 	public int port;
 	public boolean exit = false;
 
@@ -83,8 +84,9 @@ public class Client extends Thread{
 				int number = Integer.parseInt(userInput.readLine());
 				try {
 					if(number == 1 || number == 2) {
-						SIH.whichPlayerIndexChoice = number;
+						this.whichPlayerIndexChoice = number;
 						print("You have chosen " + number);
+						System.out.println("test: what is whichPIC?" + this.whichPlayerIndexChoice);
 					}
 					else {
 						print("No dummy, that is not a 1 or a 2, try again");
@@ -145,6 +147,7 @@ public class Client extends Thread{
 				print("Trying to connect with this server");
 				client = new Client(playerName, addr, port);
 				System.out.println("test: chosingsrv() SIH:" + SIH);
+				client.whichPlayerIndexChoice = this.whichPlayerIndexChoice;
 				client.start();
 				client.sendMessage(this.SIH.handshake());
 
@@ -230,5 +233,9 @@ public class Client extends Thread{
 		}catch (IOException e) {
 	            e.printStackTrace();
 	    }
+	}
+	
+	public int getWhichPlayerIndexChoice() {
+		return whichPlayerIndexChoice;
 	}
 }
