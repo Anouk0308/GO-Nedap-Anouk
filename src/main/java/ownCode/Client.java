@@ -110,7 +110,7 @@ public class Client extends Thread{
 						SIH.useTUI = true;
 						print("you have chosen TUI");
 					}
-					else {
+					else if(number == 2){
 						SIH.useTUI = false;
 						print("you have chosen GUI");
 					}

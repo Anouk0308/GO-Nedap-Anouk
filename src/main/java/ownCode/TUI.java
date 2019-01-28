@@ -13,6 +13,7 @@ public class TUI {
 	public TUI(String newboardstring, int DIM) {
 		this.newboardstring = newboardstring;
 		this.DIM = DIM;
+		System.out.println("test: newboardstring in TUI" + newboardstring);
 		
 		String stringArray[] = newboardstring.split("\\B");
     

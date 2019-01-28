@@ -8,11 +8,14 @@ public class GameState {
 	
 	public GameState(String gameStateString){
 		String stringArray[] = gameStateString.split("\\;");
-		if (stringArray.length == 3) {
-			this.status = status.valueOf(stringArray[0]);
+
+			//this.status = status.valueOf(stringArray[0]);
 			this.currentPlayer = Integer.parseInt(stringArray[1]);
 			this.boardstring = stringArray[2];
-		}
 		
+	}
+	
+	public String getBoardstring() {
+		return this.boardstring;
 	}
 }

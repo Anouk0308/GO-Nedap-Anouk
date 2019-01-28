@@ -18,7 +18,7 @@ public class Game {
 	public int currentPlayer;
 	public Board board;
 	public String boardstring;
-	public ArrayList<String> boardHistory;
+	public ArrayList<String> boardHistory = new ArrayList<String>();
 	private HashMap<Integer, Intersection> sameColorNeightbours = new HashMap<Integer, Intersection>();
 	private List<Intersection> notSameColorNeightbours = new ArrayList<Intersection>();//empty zit hier ook in
 	private int neightboursListSize;
@@ -111,7 +111,7 @@ public class Game {
 		this.board.setIntersection(tileIndex, i);
 		String notYetCheckedBoardstring = this.board.toBoardstring();
 		String checkedBoardstring = checkForCaptures(notYetCheckedBoardstring, DIM);
-		return checkedBoardstring;//de vernieuwe boardstring
+		return notYetCheckedBoardstring;//de vernieuwe boardstring
 	}
 	
 	public String checkForCaptures(String notYetCheckedBoardstring, int DIM) {
@@ -178,9 +178,10 @@ public class Game {
 				pointsBlack = pointsBlack + 1;
 			}
 			else if(intersectionsArray[i] == Intersection.WHITE) {
-				pointsBlack = pointsWhite + 1;
+				pointsBlack = pointsWhite +1;
 			}
 		}
+		//pointsWhite = pointsWhite + 0.5;
 		String scoreString = pointsBlack + ";" + pointsWhite;
 		Score score = new Score(scoreString);
 		return score;

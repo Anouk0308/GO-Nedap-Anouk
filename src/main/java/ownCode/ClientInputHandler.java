@@ -110,7 +110,13 @@ public class ClientInputHandler {
   	}
   	
   	public void move(String[] sa, ClientHandler ch) {
+  		System.out.println("test: wat is sa[1]" + sa[1]);//klopt
+  		System.out.println("test: wat is sa[2]" + sa[2]);//klopt
+  		System.out.println("test: wat is sa[3]" + sa[3]);//klopt
+  		
+  		
   		Game g = server.gameList.get(Integer.parseInt(sa[1]));
+  		System.out.println("test: is toevallig deze game leeg?" + g);//niet leeg
   		String playerName = sa[2];
   		int tileIndex = Integer.parseInt(sa[3]);
   		if(tileIndex == -1) {
@@ -155,11 +161,13 @@ public class ClientInputHandler {
   			}
   		}
   		else if (0 <= tileIndex && tileIndex < g.DIM*g.DIM ) {
+  			System.out.println("test: wat is g.DIM?" + g.DIM);
   			g.onePass = false;
   			Board b = new Board(g.boardstring, g.DIM);
   			if(b.isEmptyIntersection(tileIndex)) {//validatie
   				String newboardstring = g.updateBoard(playerName, tileIndex, g.boardstring, g.DIM);
-  				if(!g.boardHistory.contains(newboardstring)) {//validatie of nieuwboardstring al een keer gemaakt is
+  				System.out.println("test: wat is newboardstring?"+ newboardstring);
+  				if(g.boardHistory == null || !g.boardHistory.contains(newboardstring)) {//validatie of nieuwboardstring al een keer gemaakt is
   					g.updateBoardHistory(newboardstring);;
   					g.setCurrentPlayerOther();
   					
@@ -172,6 +180,10 @@ public class ClientInputHandler {
   					String boardstring = g.boardstring;
   					String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
   					GameState gameState = new GameState(gameStateString);
+  					
+  					System.out.println("test: wat is gameID?"+ gameID);
+  					System.out.println("test: wat is move?"+move);
+  					System.out.println("test: wat is gamestate?"+gameState);
   					
   					g.player1CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
   					g.player2CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide

@@ -54,6 +54,7 @@ public class ServerInputHandler {
 	
 	//split de serverstring in een array
 	public String[] serverStringSplitter(String serverString) {
+		System.out.println("test: geef serverString"+serverString);
 		String[] stringArray = serverString.split("\\+");
 		System.out.println(stringArray[0]+ "zijn bij splitter");
 		return stringArray;
@@ -77,8 +78,6 @@ public class ServerInputHandler {
 			case "INVALID_MOVE":			invalidMove(sa);
 											break;
 			case "UNKNOWN_COMMAND":			unknownCommand(sa);
-											break;
-			case "UPDATE_STATUS":			updateStatus(sa);
 											break;
 			case "GAME_FINISHED":			gameFinished(sa);
 											break;
@@ -149,7 +148,7 @@ public class ServerInputHandler {
 			print("The board is " + DIM + " by " + DIM + " size.");
 		System.out.println("test: bekijk wat de gameState is" + sa[4]);
 		this.gameState = new GameState(sa[4]);
-			this.status = this.gameState.status;
+			//this.status = this.gameState.status;
 			this.currentPlayer = this.gameState.currentPlayer;
 			this.boardstring = this.gameState.boardstring;
 			UI(boardstring, DIM);
@@ -171,39 +170,39 @@ public class ServerInputHandler {
 	}
 	
 	public void acknowledgeMove(String[] sa) {
-		if(this.gameID == Integer.parseInt(sa[1])){
-			this.move = new Move(sa[2]);
-				this.tileIndex = this.move.tileIndex;
-				this.playerColorIndex = this.move.playerColorIndex;
-			this.gameState = new GameState(sa[3]);
-				this.status = this.gameState.status;
-				this.currentPlayer = this.gameState.currentPlayer;
-				this.boardstring = this.gameState.boardstring;
-		}	
-		
+			Move move = new Move(sa[2]);
+				int tileIndex = move.tileIndex;
+				int playerColorIndex = move.playerColorIndex;
+			GameState gameState = new GameState(sa[3]);
+				//Status status = gameState.status;
+				int currentPlayer = gameState.currentPlayer;
+				String boardstring = gameState.getBoardstring();
+				System.out.println("test: iig de variabelen kunnen worden gezet");
+				System.out.println("test: DIM is?"+ this.DIM);
+				System.out.println("test: boardstring is?"+ boardstring);
 		//als de user de current player is en ander heeft niet gepast
-		if(this.currentPlayer == this.playerColorIndex && tileIndex != -1) {
-			UI(boardstring, DIM);
+		if(currentPlayer == this.playerColorIndex && tileIndex != -1) {
+			UI(boardstring, this.DIM);
 			gb.updateBoardHistory(boardstring); //tegenstander heeft een nieuw board gemaakt
 			c.sendMessage(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
 			//wacht tot een acknowledgement van mijn move
 		}
 		//als de user de current player is en andere heeft wel gepast
-		else if(this.currentPlayer == this.playerColorIndex && tileIndex == -1) {
-			UI(boardstring, DIM);//de tegenstander heeft geen nieuw board aan gemaakt
+		else if(currentPlayer == this.playerColorIndex && tileIndex == -1) {
+			UI(boardstring, this.DIM);//de tegenstander heeft geen nieuw board aan gemaakt
 			c.sendMessage(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
 			//wacht tot een acknowledgement van mijn move
 		}
 
 		//als de user niet de current player is ben en ik heb niet gepast
-		else if(this.currentPlayer != this.playerColorIndex && tileIndex != -1) {
+		else if(currentPlayer != this.playerColorIndex && tileIndex != -1) {
 			UI(boardstring, DIM);
 			gb.updateBoardHistory(boardstring); //mijn zet is geaccepteerd en maakt een nieuw board
 			//wacht tot een acknowledgement van de opponents move
 		}
 		
 		//als de user niet de current player is ben en ik heb wel gepast
-		else if(this.currentPlayer != this.playerColorIndex && tileIndex != -1) {
+		else if(currentPlayer != this.playerColorIndex && tileIndex != -1) {
 			UI(boardstring, DIM);
 			//mijn zet is geaccepteerd maar ik maak geen nieuw board
 			//wacht tot een acknowledgement van de opponents move
@@ -221,21 +220,6 @@ public class ServerInputHandler {
 		this.serverMessage = sa[1];
 		print("The server does not recognise a command");
 		print("please go cry to Anouk, because I also don't know what to do :(");
-	}
-	
-	public void updateStatus(String[] sa) {
-		this.gameState = new GameState(sa[1]);
-			this.status = this.gameState.status;
-			this.currentPlayer = this.gameState.currentPlayer;
-			this.boardstring = this.gameState.boardstring;
-		print("The status:" + status.statusString(this.status) + " the current layer:" + currentPlayer);
-		UI(boardstring, DIM);
-		if(status == Status.PLAYING && this.currentPlayer == this.playerColorIndex) {
-			c.sendMessage(move(gb,boardstring));//stuur nieuwe move naar server
-		}
-		else {
-			print("Wait till the opponent makes a move");
-		}
 	}
 	
 	public void gameFinished(String[] sa) {
@@ -340,10 +324,12 @@ public class ServerInputHandler {
 
 //kiest goede UI en laat het board zien
 	public void UI(String boardstring, int DIM) {
+		System.out.println("test in UI, wat is boardstring"+ boardstring);
+		System.out.println("test in UI, wat is dim"+ DIM);
 		if(useTUI = true) {
 			TUI tui = new TUI(boardstring, DIM);
 		}
-		else {
+		else if(useTUI = false){
 			GoGuiIntegrator gogui = new GoGuiIntegrator(false,true,DIM);
 			gogui.startGUI();
 			gogui.setBoardSize(DIM);
