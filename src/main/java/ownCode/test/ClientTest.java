@@ -38,13 +38,12 @@ public void setUp() {
 }
 
 
-//test welcomingUser() door het uit te voeren
-		//visueel gecontroleerd
+
 
 //connect with other server
 		//testen door te connecten
 	
-//test serverStringSplitter of het goed split op +
+
 
 //test analyser, acknowledgeHandshake
 	//check gameID die meegegeven wordt

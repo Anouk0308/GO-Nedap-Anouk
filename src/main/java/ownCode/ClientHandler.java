@@ -33,7 +33,7 @@ public class ClientHandler extends Thread {
     	try {
 	         clientString = clientInput.readLine();
 	         String[] stringArray = CIH.clientStringSplitter(clientString);
-	         CIH.stringArrayAnalyser(stringArray);
+	         CIH.stringArrayAnalyser(stringArray, this);
 
 		} catch (IOException e1) {
 			System.out.println("problemen bij functie run()");

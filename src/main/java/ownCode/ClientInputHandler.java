@@ -34,60 +34,60 @@ public class ClientInputHandler {
   	
   
   //analyseerd welk commando het is, en stuurt door naar de goede methode
-  	public void stringArrayAnalyser(String[] sa) {
+  	public void stringArrayAnalyser(String[] sa, ClientHandler ch) {
   		String s = sa[0];
   		switch(s) {
-  			case "HANDSHAKE":				handshake(sa);
+  			case "HANDSHAKE":				handshake(sa, ch);
   											break;
-  			case "SET_CONFIG":				setConfig(sa);
+  			case "SET_CONFIG":				setConfig(sa, ch);
   											break;
-  			case "MOVE":					move(sa);
+  			case "MOVE":					move(sa, ch);
   											break;
-  			case "EXIT":					exit(sa);
+  			case "EXIT":					exit(sa, ch);
   											break;
-  			case "SET_REMATCH":				setRematch(sa);
+  			case "SET_REMATCH":				setRematch(sa, ch);
 											break;
   			default:						System.out.println("The client sent an invalid command");
   											break;
   		}
   	}
   	
-  	public void handshake(String[] sa) {
+  	public void handshake(String[] sa, ClientHandler ch) {
   		playerName = sa[1];
 
-  		ch.sendMessage(acknowledgeHandshake());
+  		ch.sendMessage(acknowledgeHandshake());//deze ch alleen
   		
   		if(server.playerNames.contains(playerName)){
   			playerName = playerName+"1";
   		}
   		server.playerNames.add(playerName);
-  		matchingPlayers(playerName);
+  		matchingPlayers(playerName, ch);
   	}
 	
-    public void matchingPlayers(String playerName) {//maakt spelletjes mogelijk voor 2 mensen
+    public void matchingPlayers(String playerName, ClientHandler ch) {//maakt spelletjes mogelijk voor 2 mensen
     	if(server.namePlayerWaiting == null) {
     		server.namePlayerWaiting = playerName;
+    		server.chPlayerWaiting = ch;
     		ch.sendMessage(requestConfig());//naar 1
     	}
     	else {
     		lock.lock();
     		try {
 	    		g = createNewGame(server.namePlayerWaiting, playerName);
+	    		g.player1CH = server.chPlayerWaiting;
+	    		g.player2CH = ch;
 	    		int gameID = server.gameList.size();
 	    		server.gameList.add(g);
 	    		
-	    		//stuur volgende naar beide, alleen dus een andere regel naar ander persoon
-	    		lllllll;
-	    		String ownPlayerName = "";//moet ik nog naar kijken
-	    		int ownPlayerColorIndex = 0; 
-	    		String otherPlayerName = g.getPlayerNameOther(ownPlayerName);
+	    		String player1Name = server.namePlayerWaiting;//moet ik nog naar kijken
+	    		int player1ColorIndex = g.player1ColorIndex; 
+	    		String player2Name = playerName;
+	    		int player2ColorIndex = g.player2ColorIndex; 
 	    		int currentPlayer = server.gameList.get(gameID).currentPlayer;
-	    		ch.sendMessage(acknowledgeConfig(ownPlayerName, ownPlayerColorIndex, otherPlayerName, currentPlayer, gameID));
-	    		
+	    		g.player1CH.sendMessage(acknowledgeConfig(player1Name, player1ColorIndex, player2Name, currentPlayer, gameID));
+	    		g.player2CH.sendMessage(acknowledgeConfig(player2Name, player2ColorIndex, player1Name, currentPlayer, gameID));
 	    		server.namePlayerWaiting = null;
 	    		g = null;
-    		} catch (IOException e) {
-    			System.out.println(e.getMessage());
     		} finally {
     			lock.unlock();
     		}
@@ -98,22 +98,18 @@ public class ClientInputHandler {
     public Game createNewGame(String playerName1, String playerName2) {
     	int gameID = server.gameList.size();
     	Game ng = new Game(playerName1, requestPlayerColorIndex, playerName2, requestDIM, gameID);
-    	server.gameList.add(ng);
     	return ng;
     }
     
  
-  	public void setConfig(String[] sa) {
-  		if(this.gameID == Integer.parseInt(sa[1])) {
-	  		this.requestPlayerColorIndex = Integer.parseInt(sa[2]);
-	  		this.requestDIM = Integer.parseInt(sa[3]);
-  		}
-  		else {
-  			ch.sendMessage(unknownCommand("SET_CONFIG invalid gameID"));
-  		}
+  	public void setConfig(String[] sa, ClientHandler ch) {
+  		//Game g = server.gameList.get(Integer.parseInt(sa[1]));
+	  	this.requestPlayerColorIndex = Integer.parseInt(sa[2]);
+	  	this.requestDIM = Integer.parseInt(sa[3]);
+
   	}
   	
-  	public void move(String[] sa) {
+  	public void move(String[] sa, ClientHandler ch) {
   		Game g = server.gameList.get(Integer.parseInt(sa[1]));
   		String playerName = sa[2];
   		int tileIndex = Integer.parseInt(sa[3]);
@@ -132,7 +128,8 @@ public class ClientInputHandler {
 				String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
 				GameState gameState = new GameState(gameStateString);
 	  			
-	  			ch.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
+	  			g.player1CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
+	  			g.player2CH.sendMessage(acknowledgeMove(gameID, move, gameState));
   			}
   			else {
   				int gameID = g.gameID;
@@ -149,9 +146,12 @@ public class ClientInputHandler {
 				String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
 				GameState gameState = new GameState(gameStateString);
 				
-  				ch.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
-  				ch.sendMessage(gameFinishedPasses(gameID, winner, score, message));//naar beide
-  				ch.sendMessage(requestRematch());//naar beide //rematch is alleen als spel op goede manier is afgelopen
+				g.player1CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
+				g.player2CH.sendMessage(acknowledgeMove(gameID, move, gameState));
+  				g.player1CH.sendMessage(gameFinishedPasses(gameID, winner, score, message));//naar beide
+  				g.player2CH.sendMessage(gameFinishedPasses(gameID, winner, score, message));
+  				g.player1CH.sendMessage(requestRematch());//naar beide //rematch is alleen als spel op goede manier is afgelopen
+  				g.player2CH.sendMessage(requestRematch());//naar beide //rematch is alleen als spel op goede manier is afgelopen
   			}
   		}
   		else if (0 <= tileIndex && tileIndex < g.DIM*g.DIM ) {
@@ -173,7 +173,8 @@ public class ClientInputHandler {
   					String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
   					GameState gameState = new GameState(gameStateString);
   					
-  					ch.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
+  					g.player1CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
+  					g.player2CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
   				}
   				else {
   				ch.sendMessage(invalidMove());//naar 1
@@ -186,34 +187,67 @@ public class ClientInputHandler {
   		}				
   	}
   	
-  	public void exit(String[] sa) {
+  	public void exit(String[] sa, ClientHandler ch) {
   		int gameID = Integer.parseInt(sa[1]);
   		Game g = server.gameList.get(gameID);
   		String loser = sa[2];
   		String winner = g.getPlayerNameOther(loser);
   		String message = "The other has exited";
   		Score score = g.score(g.boardstring, g.DIM);
-  		gameFinishedExit(gameID, winner, score, message);
+  		ClientHandler ch2 = g.getPlayerCHOther(ch);
+  		ch2.sendMessage(gameFinishedExit(gameID, winner, score, message));
   	}
   	
-  	public void setRematch(String[] sa) {
-  		llll;//als allebei mee eens zijn, answer = 1, als 1 mee eens is, answer = 0;
-  		int answer = 0;
-  		g = createNewGame(player1Name, player2Name);
-		int gameID = server.gameList.size();
-		server.gameList.add(g);
-		
-		//stuur volgende naar beide, alleen dus een andere regel naar ander persoon
-		lllllll;
-		String ownPlayerName = "";//moet ik nog naar kijken
-		int ownPlayerColorIndex = 0; 
-		String otherPlayerName = g.getPlayerNameOther(ownPlayerName);
-		int currentPlayer = server.gameList.get(gameID).currentPlayer;//winner
-		ch.sendMessage(achknowledgeRematch(answer));//allebei
-		ch.sendMessage(acknowledgeConfig(ownPlayerName, ownPlayerColorIndex, otherPlayerName, currentPlayer, gameID));
-		
-		server.namePlayerWaiting = null;
-		g = null;
+  	public void setRematch(String[] sa, ClientHandler ch) {
+  		int answerThisCH = Integer.parseInt(sa[1]);
+  		int getGame = -1;
+  		for(int i = 0; i < server.gameList.size(); i++) {
+  			g = server.gameList.get(i);
+  			if(g.player1CH == ch || g.player2CH == ch) {
+  				getGame = i;
+  			}
+  		}
+  		if(getGame != -1) {
+  			g = server.gameList.get(getGame);
+  		}
+  		
+  		g.rematchOrNot(answerThisCH);
+  		
+  		if(g.twoAnswers = true) {//dit gebeurt pas als tweede player ook antwoord heeft gegeven
+  				rematchAnswer(g);
+  		}
+  		
+  	}
+  	
+  	public void rematchAnswer(Game gg) {
+  		Game g = gg;
+  		int answerGame;
+  		Game ng;
+  		
+  		if(g.rematch = true) {
+	  		answerGame = 1;
+  	  		g.player1CH.sendMessage(acknowledgeRematch(answerGame));//allebei
+  			g.player2CH.sendMessage(acknowledgeRematch(answerGame));//allebei
+  			
+  			ng = new Game(g.player1Name, g.player1ColorIndex, g.player2Name, g.DIM, g.gameID);
+  			int gameID = server.gameList.size();
+  			server.gameList.add(ng);
+  		
+  			String player1Name = ng.player1Name;
+  			int player1ColorIndex = ng.player1ColorIndex; 
+  			String player2Name = ng.player2Name;
+  			int player2ColorIndex = ng.player2ColorIndex; 
+  			int currentPlayer = ng.currentPlayer;
+  			ng.player1CH.sendMessage(acknowledgeConfig(player1Name, player1ColorIndex, player2Name, currentPlayer, gameID));
+  			ng.player2CH.sendMessage(acknowledgeConfig(player2Name, player2ColorIndex, player1Name, currentPlayer, gameID));
+  			
+  			g = null;
+	  		}
+	  		else {
+	  			answerGame = 0;
+  	  		g.player1CH.sendMessage(acknowledgeRematch(answerGame));//allebei
+  			g.player2CH.sendMessage(acknowledgeRematch(answerGame));//allebei
+	  		}
   	}
 
   	public String acknowledgeHandshake() {
@@ -270,9 +304,6 @@ public class ClientInputHandler {
   	public String acknowledgeRematch(int answer) {
   		String s = "REQUEST_REMATCH+"+ answer;
   		return s;
-  	}
-    	
-
-    
+  	}   
 
 }

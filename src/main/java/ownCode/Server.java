@@ -16,6 +16,7 @@ public class Server {
 	public Socket sock;
 	public String clientString;
 	public String namePlayerWaiting = null;
+	public ClientHandler chPlayerWaiting;
 	public String playerName;
 	public List<Game> gameList = new ArrayList<Game>();
 	public List<String> playerNames= new ArrayList<String>();
@@ -61,6 +62,8 @@ public class Server {
   	  		server.run();
   	  	} catch (IOException e) {
   	  		System.out.println("ERROR: could not create a socket on port " + serverPort);
+  	  		System.out.println("Try again");
+  	  		gameFlow();
   	  	}
     }
 

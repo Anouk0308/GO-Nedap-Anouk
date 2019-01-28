@@ -8,10 +8,12 @@ import java.util.Map;
 
 public class Game {
 	public int DIM;
-	private String player1Name;
-	private int player1ColorIndex;
-	private String player2Name;
-	private int player2ColorIndex;
+	public String player1Name;
+	public int player1ColorIndex;
+	public ClientHandler player1CH;
+	public String player2Name;
+	public int player2ColorIndex;
+	public ClientHandler player2CH;
 	public int gameID;
 	public int currentPlayer;
 	public Board board;
@@ -21,6 +23,10 @@ public class Game {
 	private List<Intersection> notSameColorNeightbours = new ArrayList<Intersection>();//empty zit hier ook in
 	private int neightboursListSize;
 	public boolean onePass = false;
+	public boolean rematch = false;
+	public boolean twoAnswers = false;
+	private int firstAnswer = -10;//0 is een legit optie, -10 niet
+	private int secondAnswer = -10;
 	
 	public Game(String player1Name, int player1ColorIndex, String player2Name, int DIM, int gameID) {
 		this.player1Name = player1Name;
@@ -72,6 +78,15 @@ public class Game {
 		}
 		else {
 			return player1Name;
+		}
+	}
+	
+	public ClientHandler getPlayerCHOther(ClientHandler ch) {
+		if(ch == player1CH) {
+			return player2CH;
+		}
+		else {
+			return player1CH;
 		}
 	}
 
@@ -245,4 +260,17 @@ public class Game {
 		}
 	}
 
+
+	public void rematchOrNot(int answer) {
+		if (firstAnswer == -10) {
+			firstAnswer = answer;
+		} else if(secondAnswer == -10) {
+			secondAnswer = answer;
+			twoAnswers = true;
+		}
+		
+		if(firstAnswer == 1 && secondAnswer == 1){
+			rematch = true;
+		}
+	}
 }

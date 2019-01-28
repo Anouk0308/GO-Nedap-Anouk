@@ -54,7 +54,7 @@ public class ServerInputHandler {
 	
 	//split de serverstring in een array
 	public String[] serverStringSplitter(String serverString) {
-		String[] stringArray = serverString.split("+");
+		String[] stringArray = serverString.split("\\+");
 		return stringArray;
 	}
 	
@@ -62,9 +62,11 @@ public class ServerInputHandler {
 	public void stringArrayAnalyser(String[] sa) {
 		String s = sa[0];
 		switch(s) {
-			case "ACKNOWLEDGE_HANDSHAKE":	acknowledgeHandshake(sa);
+			case "ACKNOWLEDGE_HANDSHAKE":	System.out.println("ah1 is binnen");
+											acknowledgeHandshake(sa);
 											break;
-			case "REQUEST_CONFIG":			requestConfig(sa);
+			case "REQUEST_CONFIG":			System.out.println("rc1 is binnen");
+											requestConfig(sa);
 											break;
 			case "ACKNOWLEDGE_CONFIG":		acknowledgeConfig(sa);
 											break;
@@ -253,12 +255,13 @@ public class ServerInputHandler {
 	
 //Strings die client naar de server stuurt
 	public String handshake() {
-		return "HANDSHAKE"+playerName;
+		return "HANDSHAKE+"+playerName;
 	}
 	
 	public String setConfig() throws IOException {
 		print("Okay, which color would you like to use? 1 for black and 2 for white");
-		int thisInt = Integer.parseInt(userInput.readLine());
+		String userString = userInput.readLine();
+		int thisInt = Integer.parseInt(userString);
 			if(userInput != null) {
 				if(thisInt == 1 || thisInt == 2) {
 					this.playerColorIndex = thisInt;

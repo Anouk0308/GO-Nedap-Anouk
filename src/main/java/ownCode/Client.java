@@ -42,6 +42,7 @@ public class Client extends Thread{
 	
 	public void gameFlow(){
 		try{
+			SIH = new ServerInputHandler(userInput, this);
 			chosingName();	
 			chosingAI();
 			chosingUI();
@@ -133,7 +134,7 @@ public class Client extends Thread{
 			try {
 				port = Integer.parseInt(thisLine2);
 			} catch (NumberFormatException e) {
-				print("No simpelton, that is not an integer, try another port");
+				print("No crazy, that is not an integer, try another port");
 	            chosingServer();
 			}
 			
@@ -152,25 +153,23 @@ public class Client extends Thread{
 	
 	public void run() {
 		try {
-			serverString = serverInput.readLine();
-			SIH = new ServerInputHandler(userInput, this);
-			String thisLine = userInput.readLine();
-			
+			System.out.println("I am listening");
 			while(true) {
+				serverString = serverInput.readLine();
+				System.out.println("server says: " + serverString);
+				String thisLine = userInput.readLine();
 				if(thisLine == "EXIT") {
 					sendMessage(SIH.exit());//serverOutput
 					exit = true;
 					shutdown();
 				}
 				else {
-					while(exit!= true) {
-						String[] stringArray = SIH.serverStringSplitter(serverString);
-						SIH.stringArrayAnalyser(stringArray);
+					String[] stringArray = SIH.serverStringSplitter(serverString);
+					SIH.stringArrayAnalyser(stringArray);
 					}
 				}
-			}
-		} catch (IOException e) {
-			shutdown();
+			}catch (IOException e) {
+				shutdown();
 		}
 	}
 	
