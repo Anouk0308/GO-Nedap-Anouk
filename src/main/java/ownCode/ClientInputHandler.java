@@ -123,9 +123,14 @@ public class ClientInputHandler {
 	  			g.player1CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
 	  			g.player2CH.sendMessage(acknowledgeMove(gameID, move, gameState));
   			}
-  			else {
+  			else if(g.onePass == true){
+  				System.out.println("test: we zijn hier iig gekomen");
   				int gameID = g.gameID;
+  				System.out.println("test:het gaat niet fout bij gameID");
+  				System.out.println("test:g.boardstring niet leeg?" + g.boardstring);
+  				System.out.println("test:g.DIM niet leeg?"+ g.DIM);
   				Score score = g.score(g.boardstring, g.DIM);
+  				System.out.println("test: het gaat niet fout bij score");
   				String winner = g.winner(score);
   				String message = "The game is finished";
   				
@@ -145,6 +150,8 @@ public class ClientInputHandler {
   				g.player2CH.sendMessage(gameFinishedPasses(gameID, winner, score, message));
   				g.player1CH.sendMessage(requestRematch());//naar beide //rematch is alleen als spel op goede manier is afgelopen
   				g.player2CH.sendMessage(requestRematch());//naar beide //rematch is alleen als spel op goede manier is afgelopen
+  			} else {
+  				print("Something went wrong when both players passed");
   			}
   		}
   		else if (0 <= tileIndex && tileIndex < g.DIM*g.DIM ) {

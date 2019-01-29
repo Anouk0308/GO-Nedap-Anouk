@@ -62,7 +62,7 @@ public class Board {
    
     //---queries---
     //geeft buren van een intersectie
-    public HashMap<Integer, Intersection> getNeighbors(int i, int DIM, List<Intersection> intersections) {
+    public HashMap<Integer, Intersection> getNeighbours(int i, int DIM, List<Intersection> intersections) {
     	HashMap<Integer, Intersection> neightboursListhsm = new HashMap<Integer, Intersection>();
     	//een hoek op het board
 	    	//int linkerbovenhoek = 0
@@ -92,11 +92,11 @@ public class Board {
     	} else if(i == DIM*DIM-1){
     		neightboursListhsm.put(i-1, intersections.get(i-1));
     		neightboursListhsm.put(i-DIM, intersections.get(i-DIM));
-    	} else if(0 < i << DIM-1){
+    	} else if(0 < i && i < DIM-1){
     		neightboursListhsm.put(i+1, intersections.get(i+1));
     		neightboursListhsm.put(i-1, intersections.get(i-1));
     		neightboursListhsm.put(i+DIM, intersections.get(i+DIM));
-    	} else if(DIM*DIM-DIM < i << DIM*DIM-1){
+    	} else if(DIM*DIM-DIM < i && i < DIM*DIM-1){
     		neightboursListhsm.put(i+1, intersections.get(i+1));
     		neightboursListhsm.put(i-1, intersections.get(i-1));
     		neightboursListhsm.put(i-DIM, intersections.get(i-DIM));

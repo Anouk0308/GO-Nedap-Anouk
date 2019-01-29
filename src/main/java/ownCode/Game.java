@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import static java.lang.Math.toIntExact;
 
 public class Game {
 	public int DIM;
@@ -115,7 +116,7 @@ public class Game {
 		
 		this.board.setIntersection(tileIndex, i);
 		String notYetCheckedBoardstring = this.board.toBoardstring();
-		//String checkedBoardstring = checkForCaptures(notYetCheckedBoardstring, DIM);
+		String checkedBoardstring = checkForCaptures(notYetCheckedBoardstring, DIM);
 		return notYetCheckedBoardstring;//de vernieuwe boardstring
 	}
 	
@@ -131,8 +132,8 @@ public class Game {
     		else {
     			sameColorNeightbours.put(i, intersections.get(i));//stop de eerste steen in sameColorNeightbours
     			
-    		
-    			HashMap<Integer, Intersection> neightboursListhsm = board.getNeighbors(i, DIM, intersections);
+    		///todo: lijkt bij getNeightbors
+    			HashMap<Integer, Intersection> neightboursListhsm = board.getNeighbours(i, DIM, intersections);
     			
     			sameColorOrNot(neightboursListhsm, i, intersections);//bekijk of de buren dezelfde kleur hebben als de steen op tileIndex i
     			
@@ -158,10 +159,35 @@ public class Game {
     			if(checkingThisNeightbour == intersections.get(a)) {//zelfde als de steen waar we de buren van hebben gevraagd? dan horen ze bij dezelfde groep
     				if(!sameColorNeightbours.containsKey(i)) {//Dus een nieuwe steen die ook in dezelfde groep hoort
     					sameColorNeightbours.put(i, checkingThisNeightbour);//stop nieuwe bij de groep
-    					sameColorOrNot(sameColorNeightbours, a, intersections);//ook van de nieuw toegevoegde steen wil je weten of er buren zijn met dezelfde kleur
+    					
+    					//wanneer je er een nieuwe steen in stopt, moet je het opnieuw testen
+    					HashMap<Integer, Intersection> biggerNeightboursList = new HashMap<Integer, Intersection>() ;//get the neightbours van de neightbours
+    					for(int b = 0; b < intersections.size(); b++) {
+    						Intersection value = sameColorNeightbours.get(b);//b = key
+    						if(value != null) {
+    							Board board = new Board("0", 1);//niet netjes, maar functie getNeightbours hoeft niet met sepcifiek board
+    							double DDIM = Math.sqrt((double)intersections.size());
+    							int DIM = (int)DDIM;
+    							HashMap<Integer, Intersection>thisStoneNeightbours = board.getNeighbours(b, DIM, intersections);
+    							for(int c = 0; c < intersections.size(); c++) {
+    								if(value != null) {
+    									biggerNeightboursList.put(c, value);
+    								} else {
+    									continue;
+    								}
+    							}
+    						}else {
+    							continue;
+    						}
+    					}
+    					sameColorOrNot(biggerNeightboursList, a, intersections);//ook van de nieuw toegevoegde steen wil je weten of er buren zijn met dezelfde kleur
     				}
     			} else {
-    				notSameColorNeightbours.add(checkingThisNeightbour);//dit is de rand van de groep (kan ook een lege intersectie zijn)
+    				if(checkingThisNeightbour != null) {
+    					notSameColorNeightbours.add(checkingThisNeightbour);//dit is de rand van de groep (kan ook een lege intersectie zijn)
+    				} else {
+    					continue;
+    				}
     			}
      		}
      		/**
@@ -199,12 +225,12 @@ public class Game {
     	
     	for(int i = 0; i < intersections.size(); i++) {
     		if(intersections.get(i) != Intersection.EMPTY) {
-    			//zijn nu bezig met lege vlakken te zoeken
+    			continue;
     		}
     		else {
     			sameColorNeightbours.put(i, intersections.get(i));//stop de lege intersectie in sameColorNeightbours
     			
-    			HashMap<Integer, Intersection> neightboursListhsm = board.getNeighbors(i, DIM, intersections);
+    			HashMap<Integer, Intersection> neightboursListhsm = board.getNeighbours(i, DIM, intersections);
     			sameColorOrNot(neightboursListhsm, i, intersections);//bekijk of de buren dezelfde kleur hebben als de steen op tileIndex i
     			
     			if(notSameColorNeightbours.contains(Intersection.WHITE) && !notSameColorNeightbours.contains(Intersection.BLACK)) {//als de groep alleen omringt door wit 
@@ -227,7 +253,6 @@ public class Game {
     				return boardstring;
     			}
     		}
-    		return boardstring;
     	}
     	return boardstring;
 	}

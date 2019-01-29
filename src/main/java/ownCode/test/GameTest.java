@@ -41,13 +41,29 @@ public class GameTest {
 		g.boardstring = notChecked1;
 		assertEquals(g.checkForCaptures(notChecked1, DIM), "020220000");
 		g.boardstring = notChecked2;
-		assertEquals(g.checkForCaptures(notChecked2, DIM), "000000021");
+		String test = g.checkForCaptures(notChecked2, DIM);
+		assertEquals(test, "000000021");
 	}
 	
 	//test updateBoard, specifiek op of er een goede newboardstring wordt gemaakt
 	@Test
 	public void testUB() {
 		assertEquals(g.updateBoard(player1Name, tileIndexMove, empty, DIM), "000000001");
+	}
+	
+	//test score
+	@Test
+	public void testScore() {
+		//eerst capturedEmptyFields testen
+	}
+	
+	//test capturedEmptyFields
+	@Test
+	public void testCEF() {
+		String s = g.capturedEmptyfields("1000", 2);
+		assertEquals("1111", s);
+		//String s = g.capturedEmptyfields("0000", 2);
+		//assertEquals("0000", s);
 	}
 
 }
