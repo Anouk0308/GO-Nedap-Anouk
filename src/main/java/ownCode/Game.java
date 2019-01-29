@@ -160,16 +160,18 @@ public class Game {
     				if(!sameColorNeightbours.containsKey(i)) {//Dus een nieuwe steen die ook in dezelfde groep hoort
     					sameColorNeightbours.put(i, checkingThisNeightbour);//stop nieuwe bij de groep
     					
-    					//wanneer je er een nieuwe steen in stopt, moet je het opnieuw testen
-    					HashMap<Integer, Intersection> biggerNeightboursList = new HashMap<Integer, Intersection>() ;//get the neightbours van de neightbours
+    					//wanneer je er een nieuwe steen in stopt, moet je het opnieuw testen, met de grotere groep
+    					HashMap<Integer, Intersection> biggerNeightboursList = new HashMap<Integer, Intersection>() ;//hierin komen de neightbours van de neightbours
     					for(int b = 0; b < intersections.size(); b++) {
     						Intersection value = sameColorNeightbours.get(b);//b = key
     						if(value != null) {
-    							Board board = new Board("0", 1);//niet netjes, maar functie getNeightbours hoeft niet met sepcifiek board
-    							double DDIM = Math.sqrt((double)intersections.size());
-    							int DIM = (int)DDIM;
+    							
+		    							Board board = new Board("0", 1);//niet netjes, maar functie getNeightbours hoeft niet met sepcifiek board
+		    							double DDIM = Math.sqrt((double)intersections.size());
+		    							int DIM = (int)DDIM;
+		    							
     							HashMap<Integer, Intersection>thisStoneNeightbours = board.getNeighbours(b, DIM, intersections);
-    							for(int c = 0; c < intersections.size(); c++) {
+    							for(int c = 0; c < intersections.size(); c++) {//ga de neightbours af van deze steen
     								if(value != null) {
     									biggerNeightboursList.put(c, value);
     								} else {
@@ -190,10 +192,6 @@ public class Game {
     				}
     			}
      		}
-     		/**
-     		if(neightboursList == sameColorNeightbours) {
-     			neightboursListSize = neightboursList.size();
-     		}*/
     }
 
 	public Score score(String boardstring, int DIM) {

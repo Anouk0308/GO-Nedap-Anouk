@@ -51,19 +51,19 @@ public class GameTest {
 		assertEquals(g.updateBoard(player1Name, tileIndexMove, empty, DIM), "000000001");
 	}
 	
-	//test score
-	@Test
-	public void testScore() {
-		//eerst capturedEmptyFields testen
-	}
-	
 	//test capturedEmptyFields
 	@Test
 	public void testCEF() {
 		String s = g.capturedEmptyfields("1000", 2);
 		assertEquals("1111", s);
-		//String s = g.capturedEmptyfields("0000", 2);
-		//assertEquals("0000", s);
+		String ss = g.capturedEmptyfields("0120", 2);
+		assertEquals("0120", ss);
 	}
+	
+	//test score
+		@Test
+		public void testScore() {
+			//eerst capturedEmptyFields testen
+		}
 
 }
