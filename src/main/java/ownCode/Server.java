@@ -51,13 +51,13 @@ public class Server {
 	  	  	if(userInput != null) {
 				String thisLine = userInput.readLine();
 				serverPort = Integer.parseInt(thisLine);
-				System.out.println("You have chosen port " + serverPort);
+				print("You have chosen port " + serverPort);
 	  	  	}
 	  	  	threads = new ArrayList<ClientHandler>();
   	  		this.run();
   	  	} catch (IOException e) {
-  	  		System.out.println("ERROR: could not create a socket on port " + serverPort);
-  	  		System.out.println("Try again");
+  	  		print("ERROR: could not create a socket on port " + serverPort);
+  	  		print("Try again");
   	  		gameFlow();
   	  	}
     }
@@ -73,13 +73,9 @@ public class Server {
 			ServerSocket ssocket = new ServerSocket(serverPort);
 			while (true) {
 				Socket s = ssocket.accept();
-				System.out.println("test: er is een clientsocket gemaakt");
 				CIH = new ClientInputHandler(this);
-				System.out.println("test: de clientinputhandler wordt gemaakt");
 				ch = new ClientHandler(this, s);
-				System.out.println("test: de clienthandler wordt gemaakt");
 				ch.start();
-				System.out.println("test: de clienthandler wordt gestart");
 				addHandler(ch);
 			}
 		} catch (IOException e) {

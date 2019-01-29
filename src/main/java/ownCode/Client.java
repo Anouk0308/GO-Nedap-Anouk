@@ -36,7 +36,6 @@ public class Client extends Thread{
 	public void gameFlow(){
 		try{
 			SIH = new ServerInputHandler(userInput, this);
-			System.out.println("test: SIH in gameflow is:" + this.SIH);
 			chosingName();	
 			chosingAI();
 			chosingUI();
@@ -76,7 +75,6 @@ public class Client extends Thread{
 					if(number == 1 || number == 2) {
 						whichPlayerIndexChoice = number;
 						print("You have chosen " + number);
-						System.out.println("test: what is whichPIC?" + whichPlayerIndexChoice);
 					}
 					else {
 						print("No dummy, that is not a 1 or a 2, try again");
@@ -102,7 +100,6 @@ public class Client extends Thread{
 					}
 					else if(number == 2){
 						SIH.setUseTUI(false);
-						System.out.println("test: geef mij useTUI"+SIH.useTUI);
 						print("you have chosen GUI");
 					}
 				}
@@ -141,7 +138,6 @@ public class Client extends Thread{
 				print("Created Socket!");
 				serverInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 				userToServer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
-				System.out.println("test: chosingsrv() SIH:" + SIH);
 				this.start();
 				this.sendMessage(SIH.handshake());
 
@@ -154,7 +150,7 @@ public class Client extends Thread{
 	
 	public void run() {
 		try {
-			System.out.println("I am listening");
+			print("I am listening");
 			while(true) {
 				System.out.println("test: we zitten in de while");
 				serverString = serverInput.readLine();
@@ -166,15 +162,12 @@ public class Client extends Thread{
 					shutdown();
 				}
 				else {*/
-					System.out.println("test: zijn in run, else");
-					
-					System.out.println("test: SIH in client,run()=" + this.SIH);
 					String[] stringArray = this.SIH.serverStringSplitter(serverString);
 					this.SIH.stringArrayAnalyser(stringArray);
 				}
 			/**}*/
 			}catch (IOException e) {
-				System.out.println("test: er gaat wat fout in run");;
+				print("Something went wrong while running the client");;
 		}
 	}
 	

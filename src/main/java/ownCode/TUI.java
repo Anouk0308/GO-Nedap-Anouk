@@ -13,7 +13,6 @@ public class TUI {
 	public TUI(String newboardstring, int DIM) {
 		this.newboardstring = newboardstring;
 		this.DIM = DIM;
-		System.out.println("test: newboardstring in TUI" + newboardstring);
 		
 		String stringArray[] = newboardstring.split("\\B");
     
@@ -59,23 +58,3 @@ public class TUI {
     	System.out.println("");
 	}
 }
-/**
- 
- * public String toString() {
-        String s = "";
-        for (int i = 0; i < DIM; i++) {
-            String row = "";
-            for (int j = 0; j < DIM; j++) {
-                row = row + " " + getField(i, j).toString() + " ";
-                if (j < DIM - 1) {
-                    row = row + "|";
-                }
-            }
-            s = s + row + DELIM + NUMBERING[i * 2];
-            if (i < DIM - 1) {
-                s = s + "\n" + LINE + DELIM + NUMBERING[i * 2 + 1] + "\n";
-            }
-        }
-        return s;
-    }
-    */

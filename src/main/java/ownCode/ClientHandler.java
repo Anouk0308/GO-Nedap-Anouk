@@ -33,7 +33,6 @@ public class ClientHandler extends Thread {
     	try {
     		while(true) {
 		         clientString = clientInput.readLine();
-		         System.out.println("test: geef te CIH in clienthandler" + CIH);
 		         String[] stringArray = CIH.clientStringSplitter(clientString);
 		         CIH.stringArrayAnalyser(stringArray, this);
     		}

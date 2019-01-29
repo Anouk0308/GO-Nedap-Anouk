@@ -49,7 +49,6 @@ public class ServerInputHandler {
 	
 	public ServerInputHandler(BufferedReader userInput, Client c) {
 		this.c = c;
-		System.out.println("test: is de client null wanneer SIH aangemaakt wordt?" + c);
 		this.userInput = userInput;
 	}
 	
@@ -70,11 +69,9 @@ public class ServerInputHandler {
 		String s = sa[0];
 		System.out.println(s+ "zijn bij analyser");
 		switch(s) {
-			case "ACKNOWLEDGE_HANDSHAKE":	System.out.println("ah1 is binnen");
-											acknowledgeHandshake(sa);
+			case "ACKNOWLEDGE_HANDSHAKE":	acknowledgeHandshake(sa);
 											break;
-			case "REQUEST_CONFIG":			System.out.println("rc1 is binnen");
-											requestConfig(sa);
+			case "REQUEST_CONFIG":			requestConfig(sa);
 											break;
 			case "ACKNOWLEDGE_CONFIG":		acknowledgeConfig(sa);
 											break;
@@ -110,9 +107,7 @@ public class ServerInputHandler {
 		print(serverMessage);
 		try {
 			String s = setConfig();
-			System.out.println("test: is hier ook setConfig 0+1+4?" + s);
 		c.sendMessage(s);//serverOutput
-			System.out.println("test: is deze client leeg?"+c);//nee niet leeg
 		}catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,12 +116,6 @@ public class ServerInputHandler {
 	}
 	
 	public void acknowledgeConfig(String[] sa) {
-		//ACKNOWLEDGE_CONFIG+$PLAYER_NAME+$COLOR+$SIZE+$GAME_SATE+$OPPONENT
-		System.out.println("test: wat is sa[1]?"+sa[1]);//name
-		System.out.println("test: wat is sa[2]?"+sa[2]);//color
-		System.out.println("test: wat is sa[3]?"+sa[3]);//size
-		System.out.println("test: wat is sa[4]?"+sa[4]);//gamestate
-		System.out.println("test: wat is sa[5]?"+sa[5]);//opponent
 		Player p = null;
 		Strategy ns;
 		
@@ -141,7 +130,6 @@ public class ServerInputHandler {
 			this.playerColor = playerColor.WHITE;
 			print("Your color is white");
 		}
-		System.out.println("test: wat is wichPlayerIndexChoice?"+c.getWhichPlayerIndexChoice());
 			if(c.getWhichPlayerIndexChoice() == 1) {
 				p = new HumanPlayer(playerName, playerColor);
 			}
@@ -151,19 +139,16 @@ public class ServerInputHandler {
 			}
 		this.DIM = Integer.parseInt(sa[3]);
 			print("The board is " + DIM + " by " + DIM + " size.");
-		System.out.println("test: bekijk wat de gameState is" + sa[4]);
 		this.gameState = new GameState(sa[4]);
 			//this.status = this.gameState.status;
 			this.currentPlayer = this.gameState.currentPlayer;
 			this.boardstring = this.gameState.boardstring;
-			System.out.println("test: is hier de useTUI verandert?"+useTUI);
 			UI(boardstring, DIM);
 		this.opponentName = sa[5];
 			print("You will play to " + opponentName);
 		
 			if(this.currentPlayer == this.playerColorIndex) {
 				gb = new GameBrain(boardstring, DIM, p);
-				System.out.println("test: is in ac p null?" + p);
 				gb.updateBoardHistory(boardstring);
 				c.sendMessage(move(gb,boardstring));//serverOutput
 				//wacht tot acknowledgeMove van eigen move
@@ -176,22 +161,13 @@ public class ServerInputHandler {
 	}
 	
 	public void acknowledgeMove(String[] sa) {
-		System.out.println("test: hij komt iig in am aan!");
 			Move move = new Move(sa[2]);
-			System.out.println("test: geef move in AM "+ move);
 				int tileIndex = move.tileIndex;
-			System.out.println("test: geef ti in AM "+ tileIndex);
 				int playerColorIndex = move.playerColorIndex;
-			System.out.println("test: geef pci in AM "+ playerColorIndex);
 			GameState gameState = new GameState(sa[3]);
 				//Status status = gameState.status;
 				int currentPlayer = gameState.currentPlayer;
-			System.out.println("test: geef cp in AM "+ currentPlayer);
 				String boardstring = gameState.getBoardstring();
-			System.out.println("test: geef bstring in AM "+ boardstring);
-				System.out.println("test: iig de variabelen kunnen worden gezet");
-				System.out.println("test: DIM is?"+ this.DIM);
-				System.out.println("test: boardstring is?"+ boardstring);
 		//als de user de current player is en ander heeft niet gepast
 		if(currentPlayer == this.playerColorIndex && tileIndex != -1) {
 			UI(boardstring, this.DIM);
@@ -302,7 +278,6 @@ public class ServerInputHandler {
 	}
 	
 	public String move(GameBrain gb, String boardstring) {
-		System.out.println("test: is p in string move null?"+gb.p);
 		if(gb.p instanceof ComputerPlayer) {
 			this.tileIndex = gb.setMove(boardstring);
 		}
@@ -343,15 +318,10 @@ public class ServerInputHandler {
 
 //kiest goede UI en laat het board zien
 	public void UI(String boardstring, int DIM) {
-		System.out.println("test in UI, wat is boardstring"+ boardstring);
-		System.out.println("test in UI, wat is dim"+ DIM);
-		
-		System.out.println("test: wat is useTUI in UI()"+useTUI);
 		if(useTUI == true) {
 			TUI tui = new TUI(boardstring, DIM);
 		}
 		else if (useTUI == false){
-			System.out.println("test: hij komt iig in useTUI false...");
 			if(gogui == null) {
 				gogui = new GoGuiIntegrator(false,true,DIM);
 				gogui.startGUI();

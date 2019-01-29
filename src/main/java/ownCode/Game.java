@@ -48,11 +48,15 @@ public class Game {
 	
 	public void updateBoardHistory(String oldboardstring) {
 		if( this.boardHistory.contains(oldboardstring)) {
-			System.out.println("er is niet gepasst door de andere speler, maar heb wel dezelfde boardstring gekregen vanuit de server");
+			print("er is niet gepasst door de andere speler, maar heb wel dezelfde boardstring gekregen vanuit de server");
 		}
 		else {
 			boardHistory.add(oldboardstring);
 		}
+	}
+	
+	public void print(String s) {
+		System.out.println(s);
 	}
 	
 	public String createEmptyBoard(int DIM) {
@@ -91,31 +95,17 @@ public class Game {
 	}
 
 	public String updateBoard(String playerName, int tileIndex, String boardstring, int DIM) {
-		System.out.println("test: wat is playername?"+ playerName);
-		System.out.println("test: wat is player1name?"+ player1Name);
-		System.out.println("test: wat is tileIndex?"+ tileIndex);
-		System.out.println("test: wat is g.boardstring?"+ boardstring);
-		System.out.println("test: wat is g.DIM?"+ DIM);
-		
-		
-		
-		
 		this.board = new Board(boardstring, DIM);//board updaten met huidige boardstring
 		int tileColor = 0;
 		Intersection i = Intersection.EMPTY;
-		
-		System.out.println("test: wat is player1ColorIndex?"+ player1ColorIndex);
-		System.out.println("test: wat is player2ColorIndex?"+ player2ColorIndex);
-		
+
 		if(playerName.equals(player1Name)) {
 			tileColor = player1ColorIndex;
 		}
 		else if (playerName.equals(player2Name)) {
 			tileColor = player2ColorIndex;
 		}
-		
-		System.out.println("test: wat is tileColor?"+ tileColor);
-		
+	
 		if(tileColor == 1) {
 			i= Intersection.BLACK;
 		}
@@ -123,23 +113,16 @@ public class Game {
 			i= Intersection.WHITE;
 		}
 		
-		System.out.println("test: wat is intersection?"+ i);
-		
 		this.board.setIntersection(tileIndex, i);
 		String notYetCheckedBoardstring = this.board.toBoardstring();
-		System.out.println("test: wat is NYCboardstring?"+ notYetCheckedBoardstring);
 		//String checkedBoardstring = checkForCaptures(notYetCheckedBoardstring, DIM);
-		//System.out.println("test: wat is Cboardstring?"+ checkedBoardstring);
 		return notYetCheckedBoardstring;//de vernieuwe boardstring
 	}
 	
 	public String checkForCaptures(String notYetCheckedBoardstring, int DIM) {
 		Board board = new Board(notYetCheckedBoardstring, DIM);
-		System.out.println("test: gaat het goed bij het board in cfc?"+ board);
 		Intersection[] intersectionsArray = board.intersections;
-		System.out.println("test: gaat het goed bij het array in cfc?"+ intersectionsArray);
 		List<Intersection> intersections = new ArrayList<Intersection>(Arrays.asList(intersectionsArray));
-		System.out.println("test: gaat het goed bij het list in cfc?"+ intersections);
     	
     	for(int i = 0; i < intersections.size(); i++) {
     		if(intersections.get(i) == Intersection.EMPTY) {
