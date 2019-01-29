@@ -35,15 +35,9 @@ public class Server {
 		 //lege constructor om main te kunnen beginnen in gameFlow()
 	 }
 	 
-	 public Server(int port) {
-		 this.port = port;
-		 this.threads = new ArrayList<ClientHandler>();
-	 }
-	
-	
     public static void main(String[] args) {
-    	Server s = new Server();
-    	s.gameFlow();
+    	Server server = new Server();
+    	server.gameFlow();
     }
     
     public void gameFlow() {
@@ -59,8 +53,8 @@ public class Server {
 				serverPort = Integer.parseInt(thisLine);
 				System.out.println("You have chosen port " + serverPort);
 	  	  	}
-  	  		Server server = new Server(serverPort);
-  	  		server.run();
+	  	  	threads = new ArrayList<ClientHandler>();
+  	  		this.run();
   	  	} catch (IOException e) {
   	  		System.out.println("ERROR: could not create a socket on port " + serverPort);
   	  		System.out.println("Try again");

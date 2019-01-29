@@ -33,7 +33,7 @@ public class ServerInputHandler {
 	public int playerColorIndex;
 	
 	public boolean isLeader;
-	public boolean useTUI = true;
+	public boolean useTUI;
 
 	public Intersection playerColor;
 	public GameState gameState;
@@ -50,6 +50,10 @@ public class ServerInputHandler {
 		this.c = c;
 		System.out.println("test: is de client null wanneer SIH aangemaakt wordt?" + c);
 		this.userInput = userInput;
+	}
+	
+	public void setUseTUI(boolean b) {
+		useTUI = b;
 	}
 	
 	//split de serverstring in een array
@@ -151,6 +155,7 @@ public class ServerInputHandler {
 			//this.status = this.gameState.status;
 			this.currentPlayer = this.gameState.currentPlayer;
 			this.boardstring = this.gameState.boardstring;
+			System.out.println("test: is hier de useTUI verandert?"+useTUI);
 			UI(boardstring, DIM);
 		this.opponentName = sa[5];
 			print("You will play to " + opponentName);
@@ -341,10 +346,11 @@ public class ServerInputHandler {
 		System.out.println("test in UI, wat is dim"+ DIM);
 		
 		System.out.println("test: wat is useTUI in UI()"+useTUI);
-		if(useTUI = true) {
+		if(useTUI == true) {
 			TUI tui = new TUI(boardstring, DIM);
 		}
-		else{
+		else if (useTUI == false){
+			System.out.println("test: hij komt iig in useTUI false...");
 			GoGuiIntegrator gogui = new GoGuiIntegrator(false,true,DIM);
 			gogui.startGUI();
 			gogui.setBoardSize(DIM);
@@ -360,6 +366,9 @@ public class ServerInputHandler {
 					gogui.addStone(x, y, false);
 				}
 			}
+		}
+		else {
+			print("Something went wrong with creating a UI");
 		}
 
 	}

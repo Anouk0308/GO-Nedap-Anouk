@@ -23,24 +23,14 @@ public class Client extends Thread{
 	public Socket sock;
 	public InetAddress addr;
 	public Thread clientThread;
-	public Client client;
 	
 	public Client(){
 		//een lege constructor om in main de functie gameFlow() aan te vragen
 	}
 	
-	public Client(String name, InetAddress addr, int port) throws IOException {
-		this.playerName = name;
-		sock = new Socket(addr, port);
-		print("Created Socket!");
-		serverInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-		userToServer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
-		SIH = new ServerInputHandler(userInput, this); 
-	}
-	
 	public static void main(String[] args) {
-		Client c = new Client();
-		c.gameFlow();
+		Client client = new Client();
+		client.gameFlow();
 	}
 	
 	public void gameFlow(){
@@ -84,9 +74,9 @@ public class Client extends Thread{
 				int number = Integer.parseInt(userInput.readLine());
 				try {
 					if(number == 1 || number == 2) {
-						this.whichPlayerIndexChoice = number;
+						whichPlayerIndexChoice = number;
 						print("You have chosen " + number);
-						System.out.println("test: what is whichPIC?" + this.whichPlayerIndexChoice);
+						System.out.println("test: what is whichPIC?" + whichPlayerIndexChoice);
 					}
 					else {
 						print("No dummy, that is not a 1 or a 2, try again");
@@ -107,11 +97,11 @@ public class Client extends Thread{
 				int number = Integer.parseInt(userInput.readLine());
 				if( number == 1 || number == 2) {
 					if(number == 1) {
-						SIH.useTUI = true;
+						SIH.setUseTUI(true);;
 						print("you have chosen TUI");
 					}
 					else if(number == 2){
-						SIH.useTUI = false;
+						SIH.setUseTUI(false);
 						System.out.println("test: geef mij useTUI"+SIH.useTUI);
 						print("you have chosen GUI");
 					}
@@ -146,11 +136,14 @@ public class Client extends Thread{
 			
 			try {
 				print("Trying to connect with this server");
-				client = new Client(playerName, addr, port);
+				//client = new Client(playerName, addr, port);
+				sock = new Socket(addr, port);
+				print("Created Socket!");
+				serverInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+				userToServer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
 				System.out.println("test: chosingsrv() SIH:" + SIH);
-				client.whichPlayerIndexChoice = this.whichPlayerIndexChoice;
-				client.start();
-				client.sendMessage(this.SIH.handshake());
+				this.start();
+				this.sendMessage(SIH.handshake());
 
 			} catch (IOException e) {
 				print("ERROR: couldn't construct a client object!");
