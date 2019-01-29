@@ -112,6 +112,7 @@ public class Client extends Thread{
 					}
 					else if(number == 2){
 						SIH.useTUI = false;
+						System.out.println("test: geef mij useTUI"+SIH.useTUI);
 						print("you have chosen GUI");
 					}
 				}

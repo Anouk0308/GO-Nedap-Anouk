@@ -24,6 +24,7 @@ public class ClientInputHandler {
     //split de serverstring in een array
   	public String[] clientStringSplitter(String clientString) {
   		this.clientString = clientString;
+  		System.out.println("commando received from client: " + clientString);
   		String[] stringArray = clientString.split("\\+");
   		return stringArray;
   	}
@@ -32,7 +33,6 @@ public class ClientInputHandler {
   //analyseerd welk commando het is, en stuurt door naar de goede methode
   	public void stringArrayAnalyser(String[] sa, ClientHandler ch) {
   		String s = sa[0];
-  		System.out.println("test: welk commando krijgen we van de client?" + sa[0]);
   		switch(s) {
   			case "HANDSHAKE":				handshake(sa, ch);
   											break;
@@ -138,10 +138,16 @@ public class ClientInputHandler {
 	  			g.player2CH.sendMessage(acknowledgeMove(gameID, move, gameState));
   			}
   			else {
+  				System.out.println("test: er is twee keer gepasst");
   				int gameID = g.gameID;
+  				System.out.println("test: gameID"+gameID);
   				Score score = g.score(g.boardstring, g.DIM);
+  				System.out.println("test: score" + score);
   				String winner = g.winner(score);
+  				System.out.println("test: winner"+winner);
   				String message = "The game is finished";
+  				System.out.println("test: we kunnen nu acknowledgeMove voor de laatste keer sturen");
+  				
   				
 				int playerColorIndex = g.getPlayerColor(playerName);
 				String moveString = tileIndex + ";" + playerColorIndex;
@@ -166,9 +172,18 @@ public class ClientInputHandler {
   			Board b = new Board(g.boardstring, g.DIM);
   			if(b.isEmptyIntersection(tileIndex)) {//validatie
   				String newboardstring = g.updateBoard(playerName, tileIndex, g.boardstring, g.DIM);
+  				
+  				System.out.println("test: wat is playername?"+ playerName);
+  				System.out.println("test: wat is player1Index?"+ g.player1ColorIndex);
+  				System.out.println("test: wat is player2Index?"+ g.player2ColorIndex);
+  				System.out.println("test: wat is tileIndex?"+ tileIndex);
+  				System.out.println("test: wat is g.boardstring?"+ g.boardstring);
+  				System.out.println("test: wat is g.DIM?"+ g.DIM);
   				System.out.println("test: wat is newboardstring?"+ newboardstring);
+  				
   				if(g.boardHistory == null || !g.boardHistory.contains(newboardstring)) {//validatie of nieuwboardstring al een keer gemaakt is
-  					g.updateBoardHistory(newboardstring);;
+  					g.updateBoardHistory(newboardstring);
+  					g.boardstring = newboardstring;
   					g.setCurrentPlayerOther();
   					
   					int gameID = g.gameID;
@@ -177,7 +192,7 @@ public class ClientInputHandler {
   					Move move = new Move(moveString);
   					Status status = Status.PLAYING;
   					int currentPlayer = g.currentPlayer;
-  					String boardstring = g.boardstring;
+  					String boardstring = newboardstring;
   					String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
   					GameState gameState = new GameState(gameStateString);
   					
@@ -277,11 +292,13 @@ public class ClientInputHandler {
   			isLeaderBoolean = 0;
   		}
   		String s = "ACKNOWLEDGE_HANDSHAKE+" + gameID + "+" + isLeaderBoolean;
+  		System.out.println("Commando send to client: " + s);
   		return s;
   	}
   
   	public String requestConfig() {
   		String s = "REQUEST_CONFIG+" + "Please chose your prefered color and prefered board dimension";
+  		System.out.println("Commando send to client: " + s);
   		return s;
   	}
   	
@@ -293,38 +310,50 @@ public class ClientInputHandler {
   		System.out.println("test: vind hij wel boardstring van g? " + boardstring);
   		//anders naar matching partners
   		String s = "ACKNOWLEDGE_CONFIG+" + ownPlayerName + "+" + ownPlayerColorIndex + "+" + DIM + "+" + "PLAYING;" + currentPlayer + ";" + boardstring + "+" + otherPlayerName;
+  		System.out.println("Commando send to client: " + s);
   		return s;
   	}
   	
   	public String acknowledgeMove(int gameID, Move move, GameState gameState) {
-  		String s = "ACKNOWLEDGE_MOVE+" + gameID + "+" + move + "+" + gameState;
+  		String sgameID = Integer.toString(gameID);
+  		String smove = move.toString();
+  		String sgameState = gameState.toString();
+  		String s = "ACKNOWLEDGE_MOVE+" + sgameID + "+" + smove + "+" + sgameState;
+  		System.out.println("Commando send to client: " + s);
   		return s;
   	}
   	
   	public String invalidMove() {
-  		return "this move is invalid";
+  		String s = "this move is invalid";
+  		System.out.println("Commando send to client: " + s);
+  		return s;
   	}
   	
   	public String unknownCommand(String s) {
+  		System.out.println("Commando send to client: " + s);
   		return s;
   	}
   	
   	public String gameFinishedExit(int gameID, String winner, Score score, String message) {//in geval dat iemand exit drukt
   		String s = "GAME_FINISHED+" + gameID + "+" + winner + "+" + score + "+"+ message;
+  		System.out.println("Commando send to client: " + s);
   		return s;
   	}
   	
   	public String gameFinishedPasses(int gameID, String winner, Score score, String message) {
   		String s = "GAME_FINISHED+" + gameID + "+" + winner + "+" + score + "+"+ message;
+  		System.out.println("Commando send to client: " + s);
   		return s;
   	}
   	
   	public String requestRematch() {
   		String s = "REQUEST_REMATCH";
+  		System.out.println("Commando send to client: " + s);
   		return s;
   	}
   	public String acknowledgeRematch(int answer) {
   		String s = "REQUEST_REMATCH+"+ answer;
+  		System.out.println("Commando send to client: " + s);
   		return s;
   	}   
 

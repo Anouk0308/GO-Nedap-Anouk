@@ -7,6 +7,7 @@ public class GameState {
 	public String boardstring;
 	
 	public GameState(String gameStateString){
+		this.gameStateString = gameStateString;
 		String stringArray[] = gameStateString.split("\\;");
 
 			//this.status = status.valueOf(stringArray[0]);
@@ -17,5 +18,10 @@ public class GameState {
 	
 	public String getBoardstring() {
 		return this.boardstring;
+	}
+	
+	@Override
+	public String toString() {
+		return gameStateString;
 	}
 }

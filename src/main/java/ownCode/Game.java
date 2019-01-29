@@ -91,16 +91,30 @@ public class Game {
 	}
 
 	public String updateBoard(String playerName, int tileIndex, String boardstring, int DIM) {
+		System.out.println("test: wat is playername?"+ playerName);
+		System.out.println("test: wat is player1name?"+ player1Name);
+		System.out.println("test: wat is tileIndex?"+ tileIndex);
+		System.out.println("test: wat is g.boardstring?"+ boardstring);
+		System.out.println("test: wat is g.DIM?"+ DIM);
+		
+		
+		
+		
 		this.board = new Board(boardstring, DIM);//board updaten met huidige boardstring
 		int tileColor = 0;
 		Intersection i = Intersection.EMPTY;
 		
-		if(playerName == player1Name) {
+		System.out.println("test: wat is player1ColorIndex?"+ player1ColorIndex);
+		System.out.println("test: wat is player2ColorIndex?"+ player2ColorIndex);
+		
+		if(playerName.equals(player1Name)) {
 			tileColor = player1ColorIndex;
 		}
-		else if (playerName == player2Name) {
+		else if (playerName.equals(player2Name)) {
 			tileColor = player2ColorIndex;
 		}
+		
+		System.out.println("test: wat is tileColor?"+ tileColor);
 		
 		if(tileColor == 1) {
 			i= Intersection.BLACK;
@@ -108,21 +122,28 @@ public class Game {
 		else if (tileColor == 2) {
 			i= Intersection.WHITE;
 		}
+		
+		System.out.println("test: wat is intersection?"+ i);
+		
 		this.board.setIntersection(tileIndex, i);
 		String notYetCheckedBoardstring = this.board.toBoardstring();
-		String checkedBoardstring = checkForCaptures(notYetCheckedBoardstring, DIM);
+		System.out.println("test: wat is NYCboardstring?"+ notYetCheckedBoardstring);
+		//String checkedBoardstring = checkForCaptures(notYetCheckedBoardstring, DIM);
+		//System.out.println("test: wat is Cboardstring?"+ checkedBoardstring);
 		return notYetCheckedBoardstring;//de vernieuwe boardstring
 	}
 	
 	public String checkForCaptures(String notYetCheckedBoardstring, int DIM) {
 		Board board = new Board(notYetCheckedBoardstring, DIM);
+		System.out.println("test: gaat het goed bij het board in cfc?"+ board);
 		Intersection[] intersectionsArray = board.intersections;
+		System.out.println("test: gaat het goed bij het array in cfc?"+ intersectionsArray);
 		List<Intersection> intersections = new ArrayList<Intersection>(Arrays.asList(intersectionsArray));
-		
+		System.out.println("test: gaat het goed bij het list in cfc?"+ intersections);
     	
     	for(int i = 0; i < intersections.size(); i++) {
     		if(intersections.get(i) == Intersection.EMPTY) {
-    			//empty tellen niet mee met stenen capturen, dus a++
+    			continue;//empty tellen niet mee met stenen capturen, dus a++
     		}
     		else {
     			sameColorNeightbours.put(i, intersections.get(i));//stop de eerste steen in sameColorNeightbours
@@ -172,16 +193,16 @@ public class Game {
 		Board board = new Board(checkedBoardstring, DIM);
 		Intersection[] intersectionsArray = board.intersections;
 		int pointsBlack = 0;
-		int pointsWhite = 0;
+		double pointsWhite = 0.0;
 		for(int i = 0; i < intersectionsArray.length; i++) {
 			if(intersectionsArray[i] == Intersection.BLACK) {
 				pointsBlack = pointsBlack + 1;
 			}
 			else if(intersectionsArray[i] == Intersection.WHITE) {
-				pointsBlack = pointsWhite +1;
+				pointsWhite = pointsWhite + 1.0;
 			}
 		}
-		//pointsWhite = pointsWhite + 0.5;
+		pointsWhite = pointsWhite + 0.5;
 		String scoreString = pointsBlack + ";" + pointsWhite;
 		Score score = new Score(scoreString);
 		return score;
@@ -230,7 +251,7 @@ public class Game {
 	
 	public String winner(Score score) {
 		int pointsBlack = score.pointsBlack;
-		int pointsWhite = score.pointsWhite;
+		double pointsWhite = score.pointsWhite;
 		int winnerColor = 0;
 		String winner = "";
 		if (pointsBlack > pointsWhite) {

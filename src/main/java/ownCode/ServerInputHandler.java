@@ -27,7 +27,7 @@ public class ServerInputHandler {
 	public int DIM;
 	public int tileIndex;
 	public int pointsBlack;
-	public int pointsWhite;
+	public double pointsWhite;
 	public int currentPlayer;
 	public int gameID;
 	public int playerColorIndex;
@@ -54,7 +54,7 @@ public class ServerInputHandler {
 	
 	//split de serverstring in een array
 	public String[] serverStringSplitter(String serverString) {
-		System.out.println("test: geef serverString"+serverString);
+		System.out.println("test: geef serverString "+serverString);
 		String[] stringArray = serverString.split("\\+");
 		System.out.println(stringArray[0]+ "zijn bij splitter");
 		return stringArray;
@@ -170,13 +170,19 @@ public class ServerInputHandler {
 	}
 	
 	public void acknowledgeMove(String[] sa) {
+		System.out.println("test: hij komt iig in am aan!");
 			Move move = new Move(sa[2]);
+			System.out.println("test: geef move in AM "+ move);
 				int tileIndex = move.tileIndex;
+			System.out.println("test: geef ti in AM "+ tileIndex);
 				int playerColorIndex = move.playerColorIndex;
+			System.out.println("test: geef pci in AM "+ playerColorIndex);
 			GameState gameState = new GameState(sa[3]);
 				//Status status = gameState.status;
 				int currentPlayer = gameState.currentPlayer;
+			System.out.println("test: geef cp in AM "+ currentPlayer);
 				String boardstring = gameState.getBoardstring();
+			System.out.println("test: geef bstring in AM "+ boardstring);
 				System.out.println("test: iig de variabelen kunnen worden gezet");
 				System.out.println("test: DIM is?"+ this.DIM);
 				System.out.println("test: boardstring is?"+ boardstring);
@@ -231,7 +237,7 @@ public class ServerInputHandler {
 			this.serverMessage = sa[4];
 		}
 		print("The winner is:" + winner);
-		print("Points for black:" + Integer.toString(pointsBlack)+" - points for white:" + Integer.toString(pointsWhite));
+		print("Points for black:" + Integer.toString(pointsBlack)+" - points for white:" + Double.toString(pointsWhite));
 		print(serverMessage);
 		Client c = new Client();
 		c.anotherGame();
@@ -256,7 +262,9 @@ public class ServerInputHandler {
 	
 //Strings die client naar de server stuurt
 	public String handshake() {
-		return "HANDSHAKE+"+playerName;
+		String s = "HANDSHAKE+"+playerName;
+		System.out.println("test: stuur naar server: " + s);
+		return s;
 	}
 	
 	public String setConfig() throws IOException {
@@ -283,8 +291,7 @@ public class ServerInputHandler {
 				this.DIM = 7;
 			}
 		String s = "SET_CONFIG+"+Integer.toString(gameID)+"+"+Integer.toString(playerColorIndex)+"+"+Integer.toString(DIM); 
-		System.out.println("Test: setConfig geeft regel " +  s);//dit gaat goed
-		System.out.println("test: is client null? " + c);
+		System.out.println("test: stuur naar server: " + s);
 		return s; 
 	}
 	
@@ -299,7 +306,7 @@ public class ServerInputHandler {
 				if(userInput != null) {
 					int thisInt = Integer.parseInt(userInput.readLine());
 					this.tileIndex = thisInt;
-					if(gb.validMove(tileIndex)) {
+					if(gb.validMove(tileIndex)|| tileIndex == -1) {
 						print("this is a valid move");
 					}
 					else {
@@ -311,25 +318,33 @@ public class ServerInputHandler {
 	            e.printStackTrace();
 	        }
 		}
-		return "MOVE"+"+"+Integer.toString(gameID)+"+"+playerName+"+"+Integer.toString(tileIndex);
+		String s = "MOVE"+"+"+Integer.toString(gameID)+"+"+playerName+"+"+Integer.toString(tileIndex);
+		System.out.println("test: stuur naar server: " + s);
+		return s;
 	}
 	
 	public String exit() {
-		return "EXIT"+"+"+Integer.toString(gameID)+"+"+playerName;
+		String s = "EXIT"+"+"+Integer.toString(gameID)+"+"+playerName;
+		System.out.println("test: stuur naar server: " + s);
+		return s; 
 	}
 	
 	public String setRematch(int answer) {
-		return "SET_REMATCH+" + answer;
+		String s = "SET_REMATCH+" + answer;
+		System.out.println("test: stuur naar server: " + s);
+		return s;
 	}
 
 //kiest goede UI en laat het board zien
 	public void UI(String boardstring, int DIM) {
 		System.out.println("test in UI, wat is boardstring"+ boardstring);
 		System.out.println("test in UI, wat is dim"+ DIM);
+		
+		System.out.println("test: wat is useTUI in UI()"+useTUI);
 		if(useTUI = true) {
 			TUI tui = new TUI(boardstring, DIM);
 		}
-		else if(useTUI = false){
+		else{
 			GoGuiIntegrator gogui = new GoGuiIntegrator(false,true,DIM);
 			gogui.startGUI();
 			gogui.setBoardSize(DIM);
