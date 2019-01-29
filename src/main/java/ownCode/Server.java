@@ -26,7 +26,7 @@ public class Server {
 	public int requestPlayerColorIndex;
 	public int gameID;
 	private ReentrantLock lock = new ReentrantLock();
-	public int port;
+	public int serverPort;
 	public BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 	public ClientInputHandler CIH;
 	public ClientHandler ch;
@@ -42,7 +42,7 @@ public class Server {
     
     public void gameFlow() {
     	String defaultName = "default player name"; 
-  	  	int serverPort = 8000;
+  	  	serverPort = 8000;
   	  
   	  	//probeer een ServerSocket aan te maken met zelf gegeven port
   	  	try {
@@ -70,7 +70,7 @@ public class Server {
      */
     public void run() {
     	try {
-			ServerSocket ssocket = new ServerSocket(port);
+			ServerSocket ssocket = new ServerSocket(serverPort);
 			while (true) {
 				Socket s = ssocket.accept();
 				System.out.println("test: er is een clientsocket gemaakt");

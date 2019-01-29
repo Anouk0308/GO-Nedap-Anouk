@@ -45,6 +45,7 @@ public class ServerInputHandler {
 	public GameBrain gb;
 	public BufferedReader userInput;
 	public Client c;
+	public GoGuiIntegrator gogui;
 	
 	public ServerInputHandler(BufferedReader userInput, Client c) {
 		this.c = c;
@@ -351,19 +352,41 @@ public class ServerInputHandler {
 		}
 		else if (useTUI == false){
 			System.out.println("test: hij komt iig in useTUI false...");
-			GoGuiIntegrator gogui = new GoGuiIntegrator(false,true,DIM);
-			gogui.startGUI();
-			gogui.setBoardSize(DIM);
-			Board board = new Board(boardstring, DIM);
-			
-			for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
-				int x = i%DIM;
-				int y = Math.floorDiv(i, DIM);
-				if(board.intersections[i] == Intersection.WHITE) {
-					gogui.addStone(x, y, true);
+			if(gogui == null) {
+				gogui = new GoGuiIntegrator(false,true,DIM);
+				gogui.startGUI();
+				gogui.setBoardSize(DIM);
+				Board board = new Board(boardstring, DIM);
+				
+				for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
+					int x = i%DIM;
+					int y = Math.floorDiv(i, DIM);
+					if(board.intersections[i] == Intersection.WHITE) {
+						gogui.addStone(x, y, true);
+					}
+					else if(board.intersections[i] == Intersection.BLACK){
+						gogui.addStone(x, y, false);
+					}
+					else {
+						print("something is wrong with the boardstring in UI()");
+					}
 				}
-				else if(board.intersections[i] == Intersection.BLACK){
-					gogui.addStone(x, y, false);
+			} else {
+				gogui.clearBoard();
+				
+				Board board = new Board(boardstring, DIM);
+				
+				for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
+					int x = i%DIM;
+					int y = Math.floorDiv(i, DIM);
+					if(board.intersections[i] == Intersection.WHITE) {
+						gogui.addStone(x, y, true);
+					}
+					else if(board.intersections[i] == Intersection.BLACK){
+						gogui.addStone(x, y, false);
+					} else {
+						print("something is wrong with the boardstring in UI()");
+					}
 				}
 			}
 		}
