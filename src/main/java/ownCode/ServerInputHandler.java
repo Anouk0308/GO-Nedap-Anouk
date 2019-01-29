@@ -368,7 +368,7 @@ public class ServerInputHandler {
 						gogui.addStone(x, y, false);
 					}
 					else {
-						print("something is wrong with the boardstring in UI()");
+						continue;//lege intersection
 					}
 				}
 			} else {
