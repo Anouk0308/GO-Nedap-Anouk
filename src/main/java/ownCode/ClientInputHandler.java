@@ -130,7 +130,7 @@ public class ClientInputHandler {
   				System.out.println("test:g.boardstring niet leeg?" + g.boardstring);
   				System.out.println("test:g.DIM niet leeg?"+ g.DIM);
   				Score score = g.score(g.boardstring, g.DIM);
-  				System.out.println("test: het gaat niet fout bij score");
+  				System.out.println("test: g.score?"+score);
   				String winner = g.winner(score);
   				String message = "The game is finished";
   				
@@ -306,13 +306,15 @@ public class ClientInputHandler {
   	}
   	
   	public String gameFinishedExit(int gameID, String winner, Score score, String message) {//in geval dat iemand exit drukt
-  		String s = "GAME_FINISHED+" + gameID + "+" + winner + "+" + score + "+"+ message;
+  		String sscore = score.toString();
+  		String s = "GAME_FINISHED+" + gameID + "+" + winner + "+" + sscore + "+"+ message;
   		print("Commando send to client: " + s);
   		return s;
   	}
   	
   	public String gameFinishedPasses(int gameID, String winner, Score score, String message) {
-  		String s = "GAME_FINISHED+" + gameID + "+" + winner + "+" + score + "+"+ message;
+  		String sscore = score.toString();
+  		String s = "GAME_FINISHED+" + gameID + "+" + winner + "+" + sscore + "+"+ message;
   		print("Commando send to client: " + s);
   		return s;
   	}

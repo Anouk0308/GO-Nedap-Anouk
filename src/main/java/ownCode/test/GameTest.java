@@ -35,7 +35,7 @@ public class GameTest {
 
 	}
 	
-	//conctoleer of checkForCaptures() werkt
+	//controleer of checkForCaptures() werkt
 	@Test
 	public void testCFC() {
 		g.boardstring = notChecked1;
@@ -61,16 +61,6 @@ public class GameTest {
 	}
 	
 	//test score
-	/**	
-		public void testScore() {
-			String boardstring = "1111";
-			int DIM = 2;
-			Score s = g.score(boardstring, DIM);
-			Score test = new Score("4;0.5");
-			assertEquals(test,s);
-			//eerst capturedEmptyFields testen
-		}*/
-	
 	@Test
 	public void proberen(){
 		String boardstring = "1111";
@@ -93,8 +83,10 @@ public class GameTest {
 		}
 		pointsWhite = pointsWhite + 0.5;
 		String scoreString = pointsBlack + ";" + pointsWhite;
+		System.out.println(scoreString);
 		assertEquals(scoreString, "4;0.5");
 		Score score = new Score(scoreString);
+		System.out.println(score);
 	}
 
 }
