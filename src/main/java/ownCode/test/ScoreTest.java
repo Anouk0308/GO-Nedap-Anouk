@@ -16,17 +16,17 @@ public class ScoreTest {
 
     @Before
     public void setUp() {
-        s1 = new Score("1;34;2;36");
-        s2 = new Score("2;34;1;36");
-        s3 = new Score("1;34;2");
-        s4 = new Score("1;34;2;36;45");
+        s1 = new Score("34;36.0");
+        s2 = new Score("34;36.0");
+        s3 = new Score("34");
+        s4 = new Score("34;36.0;45");
     }
 
     //cotroleer of string goed wordt gesplit
     @Test
     public void splitGameState() {
     	assertEquals(s1.pointsBlack, 34);
-    	assertEquals(s1.pointsWhite,36);
+    	assertEquals(s1.pointsWhite,36.0);
 
     }
     

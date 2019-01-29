@@ -61,9 +61,40 @@ public class GameTest {
 	}
 	
 	//test score
-		@Test
+	/**	
 		public void testScore() {
+			String boardstring = "1111";
+			int DIM = 2;
+			Score s = g.score(boardstring, DIM);
+			Score test = new Score("4;0.5");
+			assertEquals(test,s);
 			//eerst capturedEmptyFields testen
+		}*/
+	
+	@Test
+	public void proberen(){
+		String boardstring = "1111";
+		int DIM = 2;
+		String checkedBoardstring = g.capturedEmptyfields(boardstring, DIM);//elk vak aan lege intersecties dat gecaptured is door 1 kleur wordt omgezet in stenen in die kleur
+		assertEquals("1111", checkedBoardstring);
+		
+		Board board = new Board(checkedBoardstring, DIM);
+		Intersection[] intersectionsArray = board.intersections;
+		int pointsBlack = 0;
+		double pointsWhite = 0.0;
+		
+		for(int i = 0; i < intersectionsArray.length; i++) {
+			if(intersectionsArray[i] == Intersection.BLACK) {
+				pointsBlack = pointsBlack + 1;
+			}
+			else if(intersectionsArray[i] == Intersection.WHITE) {
+				pointsWhite = pointsWhite + 1.0;
+			}
 		}
+		pointsWhite = pointsWhite + 0.5;
+		String scoreString = pointsBlack + ";" + pointsWhite;
+		assertEquals(scoreString, "4;0.5");
+		Score score = new Score(scoreString);
+	}
 
 }
