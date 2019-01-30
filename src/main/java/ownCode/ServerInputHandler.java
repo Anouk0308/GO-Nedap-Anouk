@@ -319,18 +319,14 @@ public class ServerInputHandler {
 
 //kiest goede UI en laat het board zien
 	public void UI(String boardstring, int DIM) {
-		System.out.println("test: boardstring" + boardstring);
-		System.out.println("test: DIM" + DIM);
-		System.out.println("test: P"+ p);
+		
 		//creer ook hint op board, via computerplayer
 		Board b = new Board(boardstring, DIM);
 		Strategy g = new NaiveStrategy();
 		ComputerPlayer cp = new ComputerPlayer(Intersection.HINT, g);
 		int moveHint = cp.determineMove(b);
-		System.out.println("test: moveHint" + moveHint);
 		b.setHint(moveHint);
 		String boardstringWithHint = b.toBoardstring();
-		System.out.println("test: bwh" + boardstringWithHint);
 		
 		
 		if(useTUI == true) {
