@@ -24,13 +24,8 @@ Client
 * Wanneer het is afgelopen:
   * Dit kan door drie mogelijkheden
     * Iemand disconnect
-  * Alleen in geval van beide passen is het mogelijk om een rematch te doen
-  
-*	Wanneer het is afgelopen 
-  * Dit kan door drie mogelijkheden
-    * Iemand disconnect
     * Iemand typt EXIT
     * Beide spelers passen
   * Alleen in geval van beide passen is het mogelijk om een rematch te doen
-    * Geef aan of je nog een potje wilt spelen tegen deze person
-    * Beide ja? Lees terug naar WANNEER SPELEN
+    * Geef aan of je nog een potje wilt spelen tegen deze persoon
+    * Willen jullie beide nog een potje spelen? lees dan terug vanaf WANNEER SPELEN
