@@ -14,9 +14,11 @@ public class Move {
 		}
 		
 	}
-	
+	//geef de string zodat het gelijk verstuurd kan worden via het protocol
 	@Override
 	public String toString() {
-		return moveString;
+		String s = tileIndex + ";" + playerColorIndex;
+		return s;
 	}
+
 }

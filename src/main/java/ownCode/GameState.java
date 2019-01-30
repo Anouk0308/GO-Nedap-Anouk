@@ -16,12 +16,18 @@ public class GameState {
 		
 	}
 	
+	//getter voor deze boardstring
 	public String getBoardstring() {
 		return this.boardstring;
 	}
 	
+	//geef de string zodat het gelijk verstuurd kan worden via het protocol
 	@Override
 	public String toString() {
-		return gameStateString;
+		//String s = status+ ";" + currentPlayer + ";" + boardstring; 
+		String s = gameStateString;
+		return s;
 	}
+	
+	
 }

@@ -7,6 +7,7 @@ public class NaiveStrategy implements Strategy{
 		return "Naive";
 	}
 	
+	//deze strategie is letterlijk math.random
 	public int determineMove(Board b) {
 		if(b.isFull() == true) {
 			return -1;

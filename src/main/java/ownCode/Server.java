@@ -4,37 +4,33 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.BindException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock; 
 
 public class Server {
-	public BufferedReader clientInput;
-	public ClientHandler clientServerSocket; 
-	public Socket sock;
 	public String clientString;
 	public String namePlayerWaiting = null;
-	public ClientHandler chPlayerWaiting;
 	public String playerName;
-	public List<Game> gameList = new ArrayList<Game>();
 	public List<String> playerNames= new ArrayList<String>();
-	public List<ClientHandler> threads;
-	private Game g;
+	
 	public int requestDIM;
 	public int requestPlayerColorIndex;
 	public int gameID;
-	private ReentrantLock lock = new ReentrantLock();
 	public int serverPort;
+	
+	public BufferedReader clientInput;
+	public ClientHandler clientServerSocket; 
+	public Socket sock;
+	public ClientHandler ch;
+	public ClientHandler chPlayerWaiting;
+	public List<ClientHandler> threads;
+	public List<Game> gameList = new ArrayList<Game>();
 	public BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 	public ClientInputHandler CIH;
-	public ClientHandler ch;
 	public ServerSocket serverSocket;
 
 	 public Server() {
-		 //lege constructor om main te kunnen beginnen in gameFlow()
 	 }
 	 
     public static void main(String[] args) {
@@ -42,11 +38,8 @@ public class Server {
     	server.gameFlow();
     }
     
+  //geef een getal om een port te maken
     public void gameFlow() {
-    	String defaultName = "default player name"; 
-  	  	serverPort = 8000;
-  	  
-  	  	//probeer een ServerSocket aan te maken met zelf gegeven port
   	  	try {
   	  		print("Which port would you like to open?");
   	  		print("Type the port");
@@ -59,7 +52,6 @@ public class Server {
 	  	  	threads = new ArrayList<ClientHandler>();
   	  		this.run();
   	  	} catch (IOException e) {
-  	  		print("ERROR: could not create a socket on port " + serverPort);
   	  		print("Try again");
   	  		gameFlow();
   	  	}
@@ -71,6 +63,7 @@ public class Server {
      * ClientHandler thread is started that takes care of the further
      * communication with the Client.
      */
+    //probeer een ServerSocket aan te maken met zelf gegeven port
     public void run() {
     	try {
 			serverSocket = new ServerSocket(serverPort);
@@ -92,12 +85,6 @@ public class Server {
 				} 
 			}
     }
-   
-
-   
-    private static void print(String message){
-		System.out.println(message);
-	}
     
     /**
      * Sends a message using the collection of connected ClientHandlers
@@ -127,5 +114,8 @@ public class Server {
         threads.remove(handler);
     }
 
+    private static void print(String message){
+		System.out.println(message);
+	}
 }
 

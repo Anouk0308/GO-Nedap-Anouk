@@ -3,15 +3,13 @@ package ownCode;
 import java.util.*;
 
 public class GameBrain {
-	public ArrayList<String> boardHistory;//komt telkens een nieuwe bij
-	public String oldboardstring;//krijgt Game van de Client
-	public String newboardstring;//gaat naar de client
-	public Player p; //krijgt mee van client
-	public int DIM;//deze krijgt hij mee vanuit de client
+	public ArrayList<String> boardHistory;
+	public String oldboardstring;
+	public String newboardstring;
+	public Player p; 
+	public int DIM;
 	public Board board;
-	
-	//game krijgt van client een oldboarstring om het huidige board te bepalen en een player om te bepalen welke strategy te gebruiken voor het bepalen van de move (kan niet alleen strategie meegeven, omdat we ook een human player moeten maken)
-	// game geeft client een newboardstring met een move toegepast, waarbij game zelf checkt of de move valid is
+
 	public GameBrain(String obs, int DIM, Player p){
 		this.oldboardstring = obs;
 		this.p = p;
@@ -30,10 +28,6 @@ public class GameBrain {
 			boardHistory.add(oldboardstring);
 		}
 	}
-
-	public void print(String s) {
-		System.out.println(s);
-	}
 	
 	//maakt een move
 	public int setMove(String oldboardstring) {
@@ -43,12 +37,10 @@ public class GameBrain {
 				
 		if(move == -1) {
 			temp = move;
-		}
-		else if( validMove(move)) {
+		} else if( validMove(move)) {
 			temp = move;
-		}
-		else {
-			temp = this.setMove(oldboardstring);
+		} else {
+			temp = this.setMove(oldboardstring); //probeer opnieuw
 		}
 		return temp;
 	}
@@ -61,12 +53,10 @@ public class GameBrain {
 			board = new Board(oldboardstring, DIM);
 			if(!this.boardHistory.contains(this.newboardstring)) {
 				return true;
-			}
-			else{
+			} else {
 				return false;
 			}
-		}
-		else {
+		} else {
 			return false;
 		}
 		
@@ -74,6 +64,10 @@ public class GameBrain {
 	
 	public String getNewboardstring() {
 		return newboardstring;
+	}
+	
+	public void print(String s) {
+		System.out.println(s);
 	}
 
 }

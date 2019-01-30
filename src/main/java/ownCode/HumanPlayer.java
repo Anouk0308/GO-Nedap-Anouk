@@ -8,11 +8,12 @@ public class HumanPlayer extends Player {
         super(name, in);
     }
 
+    //move is wat de player aan int geeft
     public int determineMove(Board board) {
         String prompt = "> " + getName() + " (" + getPlayerColour().toString() + ")"
                 + ", what is your choice? ";
         int choice = readInt(prompt);
-        boolean valid = board.isIntersection(choice) && board.isEmptyIntersection(choice);
+        boolean valid = board.isIntersection(choice) && board.isEmptyIntersection(choice);//kijkt of het een valid move is
         while (!valid) {
             System.out.println("ERROR: field " + choice
                     + " is no valid choice.");
@@ -22,6 +23,7 @@ public class HumanPlayer extends Player {
         return choice;
     }
 
+    //Stuur prompt naar player, kijkt wat reactie is, maak int van string
     private int readInt(String prompt) {
         int value = 0;
         boolean intRead = false;

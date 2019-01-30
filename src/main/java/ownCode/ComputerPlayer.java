@@ -5,16 +5,6 @@ public class ComputerPlayer extends Player{
 	 private Intersection intersection;
 	 private Strategy g;
 	
-	 /** voor als ik meerdere strategieen heb
-	public ComputerPlayer(Intersection in, Strategy g) {
-		super("Computer", in);
-		if(g != null) {
-		   this.g = g;
-		   this.intersection = in;
-	   }
-	}
-	*/
-	
 	public ComputerPlayer(Intersection in, Strategy g) {
 		super("Computer", in);
 		this.intersection = in;
@@ -31,10 +21,12 @@ public class ComputerPlayer extends Player{
 		String playerColour = "";
 			if(intersection == Intersection.BLACK) {
 				playerColour = "Black";
-			}
-			if(intersection == Intersection.WHITE) {
+			} else if(intersection == Intersection.WHITE) {
 				playerColour = "White";
+			} else {
+				System.out.println("Something went wrong, you don't have a colour");
 			}
+			
 		String strategy = "";
 			if(g != null) {
 				strategy = "Naive";

@@ -12,8 +12,10 @@ public class Score {
 		this.pointsWhite = Double.parseDouble(stringArray[1]);
 	}
 	
+	//geef de string zodat het gelijk verstuurd kan worden via het protocol
 	@Override
 	public String toString() {
-		return scoreString;
+		String s = pointsBlack + ";" + pointsWhite;
+		return s;
 	}
 }
