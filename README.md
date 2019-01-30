@@ -12,7 +12,7 @@ Client
 *	Geef aan op welke server je wilt spelen, door zowel de Inetaddress als de port te geven
 
 * In geval dat je als je de eerste van de 2 spelers bent:
-  *	Geef aan welke kleur je wilt zijn
+ * Geef aan welke kleur je wilt zijn
   * Geef aan hoe groot je het board wilt hebben
   
 *	Wanneer je speelt:
