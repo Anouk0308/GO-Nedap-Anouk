@@ -10,14 +10,17 @@ Client
 *	Geef aan of je zelf wilt spelen of dat de AI voor je moet spelen
 *	Geef aan of je een TUI of een GUI wilt
 *	Geef aan op welke server je wilt spelen, door zowel de Inetaddress als de port te geven
+
 * In geval dat je als je de eerste van de 2 spelers bent:
   *	Geef aan welke kleur je wilt zijn
   * Geef aan hoe groot je het board wilt hebben
+  
 *	Wanneer je speelt:
   *	Wacht tot je beurt is
   * Kies een index waarop je jouw volgende steen wilt zetten (index tel je van links boven naar rechts beneden, waarbij de eerste intersectie 0 is)
   * Als je wilt passen, typ -1
   * Als je niet weet waar je je volgende steen wilt zetten, kijk dan naar de hint steen
+  
 *	Wanneer het is afgelopen 
   *Dit kan door drie mogelijkheden
     *Iemand disconnect
