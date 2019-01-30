@@ -23,7 +23,7 @@ Client
 
 * Wanneer het is afgelopen:
   * Dit kan door drie mogelijkheden
-   * Iemand disconnect
+    * Iemand disconnect
   * Alleen in geval van beide passen is het mogelijk om een rematch te doen
   
 *	Wanneer het is afgelopen 
