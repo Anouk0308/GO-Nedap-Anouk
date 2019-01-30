@@ -41,7 +41,6 @@ public class Client extends Thread{
 			chosingName();	
 			chosingAI();
 			chosingUI();
-			chosingTime();
 			chosingServer();
 		} catch(IOException e){
 			System.out.println(e);
@@ -85,9 +84,13 @@ public class Client extends Thread{
 		try {
 			if(userInput != null) {
 				int number = Integer.parseInt(userInput.readLine());
-				if(number == 1 || number == 2) {
+				if(number == 1) {
 					whichPlayerIndexChoice = number;
-					print("You have chosen " + number);
+					print("You have chosen to play yourself");
+				} if(number == 2) {
+					whichPlayerIndexChoice = number;
+					print("You have chosen to let the AI play");
+					chosingTime();
 				} else {
 					print("No dummy, that is not a 1 or a 2, try again");
 					chosingAI();
@@ -201,15 +204,16 @@ public class Client extends Thread{
 			print("I am listening");
 			while(true) {
 				serverString = serverInput.readLine();
-				String thisLine = userInput.readLine();
+				//hier gaat wat fout, maar ik ben er zelf nog niet achter wat
+				/*String thisLine = userInput.readLine();
 				if(thisLine.equals("EXIT")) {
 					sendMessage(SIH.exit());
 					exit = true;
 					shutdown();
-				} else {
+				} else {*/
 					SIH.serverStringSplitter(serverString);
 				}
-			}
+			//}
 			}catch (IOException e) {
 				print("Something went wrong while running the client");
 				print("it is possible that the server has disconnected");

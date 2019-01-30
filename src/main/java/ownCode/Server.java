@@ -67,7 +67,7 @@ public class Server {
     public void run() {
     	try {
 			serverSocket = new ServerSocket(serverPort);
-    	} catch (BindException e) {
+    	} 	catch (BindException e) {
 			print("port is already used, enter a new port");
 			gameFlow();
 		} 	catch (IOException e) {

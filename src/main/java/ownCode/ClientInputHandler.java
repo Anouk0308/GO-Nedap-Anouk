@@ -26,7 +26,7 @@ public class ClientInputHandler {
     //split de serverstring in een array en stuurt analyser aan
   	public void clientStringSplitter(String clientString, ClientHandler ch) {
   		this.clientString = clientString;
-  		print("commando received from client: " + clientString);
+  		print("Commando received from client: " + clientString);
   		String[] stringArray = clientString.split("\\+");
   		stringArrayAnalyser(stringArray, ch);
   	}

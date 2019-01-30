@@ -119,15 +119,6 @@ public class ServerInputHandler {
 		
 		this.DIM = Integer.parseInt(sa[3]);
 			print("The board is " + DIM + " by " + DIM + " size.");
-			
-		this.gameState = new GameState(sa[4]);
-			//this.status = this.gameState.status; gaat fout
-			this.currentPlayer = this.gameState.currentPlayer;
-			this.boardstring = this.gameState.boardstring;
-			UI(boardstring, DIM);
-			
-		this.opponentName = sa[5];
-			print("You will play to " + opponentName);
 		
 		if(c.getWhichPlayerIndexChoice() == 1) {
 			p = new HumanPlayer(playerName, playerColor);
@@ -137,7 +128,18 @@ public class ServerInputHandler {
 			p = new ComputerPlayer(playerColor, ns);
 		} else {
 			print("Something went wrong. I don't know if your human or a computer");
-		}	
+		}
+		
+		this.gameState = new GameState(sa[4]);
+			//this.status = this.gameState.status; gaat fout
+			this.currentPlayer = this.gameState.currentPlayer;
+			this.boardstring = this.gameState.boardstring;
+			UI(boardstring, DIM);
+			
+		this.opponentName = sa[5];
+			print("You will play to " + opponentName);
+		
+			
 			
 		if(this.currentPlayer == this.playerColorIndex) {
 			gb = new GameBrain(boardstring, DIM, p);
