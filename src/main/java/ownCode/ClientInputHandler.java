@@ -144,12 +144,19 @@ public class ClientInputHandler {
 				String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
 				GameState gameState = new GameState(gameStateString);
 				
-				g.player1CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
-				g.player2CH.sendMessage(acknowledgeMove(gameID, move, gameState));
-  				g.player1CH.sendMessage(gameFinishedPasses(gameID, winner, score, message));//naar beide
-  				g.player2CH.sendMessage(gameFinishedPasses(gameID, winner, score, message));
-  				g.player1CH.sendMessage(requestRematch());//naar beide //rematch is alleen als spel op goede manier is afgelopen
-  				g.player2CH.sendMessage(requestRematch());//naar beide //rematch is alleen als spel op goede manier is afgelopen
+				String s1 = acknowledgeMove(gameID, move, gameState);
+				String s2 = gameFinishedPasses(gameID, winner, score, message);
+				String s3 = requestRematch();
+			
+				lock.lock();
+				g.player1CH.sendMessage(s1);
+  				g.player1CH.sendMessage(s2);
+  				g.player1CH.sendMessage(s3);
+				g.player2CH.sendMessage(s1);
+  				g.player2CH.sendMessage(s2);
+  				g.player2CH.sendMessage(s3);
+  				lock.unlock();//je wilt dat beide een message hebben gekregen voor je wilt reageren op het antwoord
+  				
   			} else {
   				print("Something went wrong when both players passed");
   			}

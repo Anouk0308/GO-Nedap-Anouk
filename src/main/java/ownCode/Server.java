@@ -2,6 +2,7 @@ package ownCode;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.BindException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -30,6 +31,7 @@ public class Server {
 	public BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 	public ClientInputHandler CIH;
 	public ClientHandler ch;
+	public ServerSocket serverSocket;
 
 	 public Server() {
 		 //lege constructor om main te kunnen beginnen in gameFlow()
@@ -52,6 +54,7 @@ public class Server {
 				String thisLine = userInput.readLine();
 				serverPort = Integer.parseInt(thisLine);
 				print("You have chosen port " + serverPort);
+				print("Wait till clients connect with you");
 	  	  	}
 	  	  	threads = new ArrayList<ClientHandler>();
   	  		this.run();
@@ -70,17 +73,24 @@ public class Server {
      */
     public void run() {
     	try {
-			ServerSocket ssocket = new ServerSocket(serverPort);
-			while (true) {
-				Socket s = ssocket.accept();
-				CIH = new ClientInputHandler(this);
-				ch = new ClientHandler(this, s);
-				ch.start();
-				addHandler(ch);
-			}
-		} catch (IOException e) {
+			serverSocket = new ServerSocket(serverPort);
+    	} catch (BindException e) {
+			print("port is already used, enter a new port");
+			gameFlow();
+		} 	catch (IOException e) {
 			e.printStackTrace();
-		}
+		} 
+			while (true) {
+				try {
+					Socket s = serverSocket.accept();
+					CIH = new ClientInputHandler(this);
+					ch = new ClientHandler(this, s);
+					ch.start();
+					addHandler(ch);
+				}catch (IOException e) {
+					e.printStackTrace();
+				} 
+			}
     }
    
 

@@ -3,19 +3,7 @@ package ownCode;
 import com.nedap.go.gui.*;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.PrintWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
-//Client bestaat uit:
-		//code voor het Socket verkeer:
-		//code om de String van de server om te zetten naar variabelen
-		//code om variabelen om te zetten naar een String om naar de server door te sturen
 
 public class ServerInputHandler {
 	public String playerName;
@@ -27,10 +15,10 @@ public class ServerInputHandler {
 	public int DIM;
 	public int tileIndex;
 	public int pointsBlack;
-	public double pointsWhite;
 	public int currentPlayer;
 	public int gameID;
 	public int playerColorIndex;
+	public double pointsWhite;
 	
 	public boolean isLeader;
 	public boolean useTUI;
@@ -52,22 +40,15 @@ public class ServerInputHandler {
 		this.userInput = userInput;
 	}
 	
-	public void setUseTUI(boolean b) {
-		useTUI = b;
-	}
-	
 	//split de serverstring in een array
 	public String[] serverStringSplitter(String serverString) {
-		System.out.println("test: geef serverString "+serverString);
 		String[] stringArray = serverString.split("\\+");
-		System.out.println(stringArray[0]+ "zijn bij splitter");
 		return stringArray;
 	}
 	
 	//analyseerd welk commando het is, en stuurt door naar de goede methode
 	public void stringArrayAnalyser(String[] sa) {
 		String s = sa[0];
-		System.out.println(s+ "zijn bij analyser");
 		switch(s) {
 			case "ACKNOWLEDGE_HANDSHAKE":	acknowledgeHandshake(sa);
 											break;
@@ -85,79 +66,89 @@ public class ServerInputHandler {
 											break;
 			case "REQUEST_REMATCH":			requestRematch(sa);
 											break;
-			default:						System.out.println("The server sent an invalid command");
+			default:						System.out.println("The server sent an unknown command");
 											break;
 		}
 	}
 	
+	//laat user weten dat de handshake is acknowledged door de server
 	public void acknowledgeHandshake(String[] sa) {
 		this.gameID = Integer.parseInt(sa[1]);
 		if(Integer.parseInt(sa[2]) == 0) {
 			this.isLeader = false;
-		}
-		if(Integer.parseInt(sa[2]) == 1) {
+		} else if(Integer.parseInt(sa[2]) == 1) {
 			this.isLeader = true;
+		} else {
+			print("Something went wrong with the acknowledgeHandshake command. No isLeader is given");
 		}
 		print("Connected with the server");
 		print("Wait till more information");
 	}
 	
+	//laat de user weten dat er nog een 2e player moet connecten om een spel te spelen
 	public void requestConfig(String[] sa) {
 		this.serverMessage = sa[1];
 		print(serverMessage);
 		try {
 			String s = setConfig();
-		c.sendMessage(s);//serverOutput
+		c.sendMessage(s);
 		}catch (IOException e) {
             e.printStackTrace();
         }
 		print("Wait till another player");
-		//wacht tot een acknowledgeConfig
 	}
 	
+	//vertelt de user zijn playername, zijn kleur, hoe groot het board is en wie de opponent is
 	public void acknowledgeConfig(String[] sa) {
 		Player p = null;
 		Strategy ns;
 		
 		this.playerName = sa[1];
+		
 		if(Integer.parseInt(sa[2])==1){
 			this.playerColorIndex = 1;
 			this.playerColor = playerColor.BLACK;
 			print("Your color is black");
-		}
-		if(Integer.parseInt(sa[2])==2){
+		} else if(Integer.parseInt(sa[2])==2){
 			this.playerColorIndex = 2;
 			this.playerColor = playerColor.WHITE;
 			print("Your color is white");
+		} else {
+			print("Something went wrong with the acknowledgeConfig command. I don't know what your colour is");
 		}
-			if(c.getWhichPlayerIndexChoice() == 1) {
-				p = new HumanPlayer(playerName, playerColor);
-			}
-			else if(c.getWhichPlayerIndexChoice() == 2) {
-				ns = new NaiveStrategy();
-				p = new ComputerPlayer(playerColor, ns);
-			}
+		
 		this.DIM = Integer.parseInt(sa[3]);
 			print("The board is " + DIM + " by " + DIM + " size.");
+			
 		this.gameState = new GameState(sa[4]);
 			//this.status = this.gameState.status;
 			this.currentPlayer = this.gameState.currentPlayer;
 			this.boardstring = this.gameState.boardstring;
 			UI(boardstring, DIM);
+			
 		this.opponentName = sa[5];
 			print("You will play to " + opponentName);
 		
-			if(this.currentPlayer == this.playerColorIndex) {
-				gb = new GameBrain(boardstring, DIM, p);
-				gb.updateBoardHistory(boardstring);
-				c.sendMessage(move(gb,boardstring));//serverOutput
-				//wacht tot acknowledgeMove van eigen move
-			}
-			else{;
-				gb = new GameBrain(boardstring, DIM, p);
-				print("It is the other player's turn");
-				//wacht tot acknowledgeMove van de andere players move
-			}
+		if(c.getWhichPlayerIndexChoice() == 1) {
+			p = new HumanPlayer(playerName, playerColor);
+		}
+		else if(c.getWhichPlayerIndexChoice() == 2) {
+			ns = new NaiveStrategy();
+			p = new ComputerPlayer(playerColor, ns);
+		} else {
+			print("Something went wrong. I don't know if your human or a computer");
+		}	
+			
+		if(this.currentPlayer == this.playerColorIndex) {
+			gb = new GameBrain(boardstring, DIM, p);
+			gb.updateBoardHistory(boardstring);
+			c.sendMessage(move(gb,boardstring));
+			print("Wait till the other places a stone");//wacht tot eigen zet is acknowledged, de ander een zet heeft gezet en die zet is acknowledged
+		} else {
+			gb = new GameBrain(boardstring, DIM, p);
+			print("It is the other player's turn");
+			print("Wait till the other places a stone");//wacht tot een acknowledgement van de opponents move
+		}
 	}
 	
 	public void acknowledgeMove(String[] sa) {
@@ -165,38 +156,38 @@ public class ServerInputHandler {
 				int tileIndex = move.tileIndex;
 				int playerColorIndex = move.playerColorIndex;
 			GameState gameState = new GameState(sa[3]);
-				//Status status = gameState.status;
 				int currentPlayer = gameState.currentPlayer;
 				String boardstring = gameState.getBoardstring();
-		//als de user de current player is en ander heeft niet gepast
-		if(currentPlayer == this.playerColorIndex && tileIndex != -1) {
-			UI(boardstring, this.DIM);
-			gb.updateBoardHistory(boardstring); //tegenstander heeft een nieuw board gemaakt
-			c.sendMessage(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
-			//wacht tot een acknowledgement van mijn move
-		}
-		//als de user de current player is en andere heeft wel gepast
-		else if(currentPlayer == this.playerColorIndex && tileIndex == -1) {
-			UI(boardstring, this.DIM);//de tegenstander heeft geen nieuw board aan gemaakt
-			c.sendMessage(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
-			//wacht tot een acknowledgement van mijn move
-		}
-
-		//als de user niet de current player is ben en ik heb niet gepast
-		else if(currentPlayer != this.playerColorIndex && tileIndex != -1) {
-			UI(boardstring, DIM);
-			gb.updateBoardHistory(boardstring); //mijn zet is geaccepteerd en maakt een nieuw board
-			//wacht tot een acknowledgement van de opponents move
-		}
-		
-		//als de user niet de current player is ben en ik heb wel gepast
-		else if(currentPlayer != this.playerColorIndex && tileIndex != -1) {
-			UI(boardstring, DIM);
-			//mijn zet is geaccepteerd maar ik maak geen nieuw board
-			//wacht tot een acknowledgement van de opponents move
-		}	
+				
+			//als de user de current player is en ander heeft niet gepast
+			if(currentPlayer == this.playerColorIndex && tileIndex != -1) {
+				UI(boardstring, this.DIM);
+				gb.updateBoardHistory(boardstring); //tegenstander heeft een nieuw board gemaakt
+				c.sendMessage(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
+				print("Wait till the other places a stone"); //wacht tot eigen zet is acknowledged, de ander een zet heeft gezet en die zet is acknowledged
+			}
+			//als de user de current player is en andere heeft wel gepast
+			else if(currentPlayer == this.playerColorIndex && tileIndex == -1) {
+				UI(boardstring, this.DIM);//de tegenstander heeft geen nieuw board aan gemaakt
+				print("The other has passed");
+				c.sendMessage(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
+				print("Wait till the other places a stone");//wacht tot eigen zet is acknowledged, de ander een zet heeft gezet en die zet is acknowledged
+			}
+			//als de user niet de current player is ben en ik heb niet gepast
+			else if(currentPlayer != this.playerColorIndex && tileIndex != -1) {
+				UI(boardstring, DIM);
+				gb.updateBoardHistory(boardstring); //mijn zet is geaccepteerd en maakt een nieuw board
+				print("Wait till the other places a stone");//wacht tot een acknowledgement van de opponents move
+			}
+			//als de user niet de current player is ben en ik heb wel gepast
+			else if(currentPlayer != this.playerColorIndex && tileIndex != -1) {
+				UI(boardstring, DIM);
+				//mijn zet is geaccepteerd maar ik maak geen nieuw board
+				print("Wait till the other places a stone");//wacht tot een acknowledgement van de opponents move
+			}	
 	}
 	
+	//wanneer de server vind dat het een foute move is, probeer dan een nieuwe move te maken
 	public void invalidMove(String[] sa) {
 		this.serverMessage = sa[1];
 		print(serverMessage);
@@ -204,12 +195,14 @@ public class ServerInputHandler {
 		c.sendMessage(move(gb,boardstring));
 	}
 	
+	//wanneer de server iets stuurt wat niet klopt
 	public void unknownCommand(String[] sa) {
 		this.serverMessage = sa[1];
 		print("The server does not recognise a command");
 		print("please go cry to Anouk, because I also don't know what to do :(");
 	}
 	
+	//wanneer de server aangeeft dat het spel is afgelopen
 	public void gameFinished(String[] sa) {
 		if(this.gameID == Integer.parseInt(sa[1])) {
 			this.winner = sa[2];
@@ -217,14 +210,15 @@ public class ServerInputHandler {
 				this.pointsBlack = this.score.pointsBlack;
 				this.pointsWhite = this.score.pointsWhite;
 			this.serverMessage = sa[4];
+		} else {
+			print("The server doesn't no which game your playing! Go kick the server till he knows!");
 		}
 		print("The winner is:" + winner);
 		print("Points for black:" + Integer.toString(pointsBlack)+" - points for white:" + Double.toString(pointsWhite));
-		print(serverMessage);
-		Client c = new Client();
-		c.anotherGame();
+		print(serverMessage); 
 	}
 	
+	//geef de mogelijkheid om nog een potje te spelen
 	public void requestRematch(String[] sa) {
 		print("would you like to play a new game?");
 		print("1 for yes, 0 for no");
@@ -232,8 +226,7 @@ public class ServerInputHandler {
 			String answer = userInput.readLine();
 			if(answer == "0" || answer == "1") {
 					setRematch(Integer.parseInt(answer));
-			}
-			else {
+			} else {
 				print("that is not a 0 or 1, try again");
 				requestRematch(sa);
 			}
@@ -242,13 +235,13 @@ public class ServerInputHandler {
 		}
 	}
 	
-//Strings die client naar de server stuurt
+	//probeer te connecten met de server
 	public String handshake() {
 		String s = "HANDSHAKE+"+playerName;
-		System.out.println("test: stuur naar server: " + s);
 		return s;
 	}
 	
+	//geef aan welke kleur je wilt spelen en hoe groot het board moet zijn
 	public String setConfig() throws IOException {
 		print("Okay, which color would you like to use? 1 for black and 2 for white");
 		String userString = userInput.readLine();
@@ -256,32 +249,36 @@ public class ServerInputHandler {
 			if(userInput != null) {
 				if(thisInt == 1 || thisInt == 2) {
 					this.playerColorIndex = thisInt;
-				}
-				else {
+				} else {
 					print("No sillybilly, that is not a 1 or 2, try again");
 					setConfig();
 				}
-			}
-			else {//default
+			} else {//default
 				this.playerColorIndex = 2;
 			}
 		print("Great, what is your perfered board dimension?");
 			if(userInput != null) {
 				this.DIM = Integer.parseInt(userInput.readLine());
-			}
-			else {//default
+			} else {//default
 				this.DIM = 7;
 			}
 		String s = "SET_CONFIG+"+Integer.toString(gameID)+"+"+Integer.toString(playerColorIndex)+"+"+Integer.toString(DIM); 
-		System.out.println("test: stuur naar server: " + s);
 		return s; 
 	}
 	
+	//bepaal een move
 	public String move(GameBrain gb, String boardstring) {
-		if(gb.p instanceof ComputerPlayer) {
-			this.tileIndex = gb.setMove(boardstring);
-		}
-		else {
+		if(gb.p instanceof ComputerPlayer) { 
+			
+			//zorg ervoor dat een move niet te lang duurt
+			long start = System.currentTimeMillis();
+			long end = start + c.moveTime * 1000; // moveTime bepaald in selectiemenu op het begin * 1000 ms/sec
+			while (System.currentTimeMillis() < end)
+			{
+				this.tileIndex = gb.setMove(boardstring);
+			}	
+		
+		} else {
 			print("Where would you like to place a new stone?");
 			try {
 				if(userInput != null) {
@@ -289,81 +286,91 @@ public class ServerInputHandler {
 					this.tileIndex = thisInt;
 					if(gb.validMove(tileIndex)|| tileIndex == -1) {
 						print("this is a valid move");
-					}
-					else {
+					} else {
 						print("this is not a valid move, please enter a new number");
 						move(gb,boardstring);
 					}
+				} else {
+					print("this is not a valid move, please enter a new number");
+					move(gb,boardstring);
 				}
 			} catch (IOException e) {
 	            e.printStackTrace();
 	        }
 		}
 		String s = "MOVE"+"+"+Integer.toString(gameID)+"+"+playerName+"+"+Integer.toString(tileIndex);
-		System.out.println("test: stuur naar server: " + s);
 		return s;
 	}
 	
+	//wanneer een user EXIT typt
 	public String exit() {
 		String s = "EXIT"+"+"+Integer.toString(gameID)+"+"+playerName;
-		System.out.println("test: stuur naar server: " + s);
 		return s; 
 	}
 	
+	//wanneer er gevraagd is of de user een rematch wilt, moet dit antwoord terug worden gestuurd naar de server
 	public String setRematch(int answer) {
 		String s = "SET_REMATCH+" + answer;
-		System.out.println("test: stuur naar server: " + s);
 		return s;
 	}
 
 //kiest goede UI en laat het board zien
 	public void UI(String boardstring, int DIM) {
+		
+		//creer ook hint op board
+		Board b = new Board(boardstring, DIM);
+		int moveHint = p.determineMove(b);
+		b.setHint(moveHint);
+		String boardstringWithHint = b.toBoardstring();
+		
+		
 		if(useTUI == true) {
-			TUI tui = new TUI(boardstring, DIM);
-		}
-		else if (useTUI == false){
+			TUI tui = new TUI(boardstringWithHint, DIM);
+		} else if (useTUI == false){
 			if(gogui == null) {
 				gogui = new GoGuiIntegrator(false,true,DIM);
 				gogui.startGUI();
 				gogui.setBoardSize(DIM);
-				Board board = new Board(boardstring, DIM);
 				
 				for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
 					int x = i%DIM;
 					int y = Math.floorDiv(i, DIM);
-					if(board.intersections[i] == Intersection.WHITE) {
+					if(b.intersections[i] == Intersection.WHITE) {
 						gogui.addStone(x, y, true);
-					}
-					else if(board.intersections[i] == Intersection.BLACK){
+					} else if(b.intersections[i] == Intersection.BLACK){
 						gogui.addStone(x, y, false);
-					}
-					else {
+					} else if(b.intersections[i] == Intersection.HINT){
+						gogui.addHintIndicator(x, y);
+					} else {
 						continue;//lege intersection
 					}
 				}
 			} else {
 				gogui.clearBoard();
-				
-				Board board = new Board(boardstring, DIM);
-				
+			
 				for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
 					int x = i%DIM;
 					int y = Math.floorDiv(i, DIM);
-					if(board.intersections[i] == Intersection.WHITE) {
+					if(b.intersections[i] == Intersection.WHITE) {
 						gogui.addStone(x, y, true);
-					}
-					else if(board.intersections[i] == Intersection.BLACK){
+					} else if(b.intersections[i] == Intersection.BLACK){
 						gogui.addStone(x, y, false);
+					} else if(b.intersections[i] == Intersection.HINT){
+						gogui.addHintIndicator(x, y);
 					} else {
 						print("something is wrong with the boardstring in UI()");
 					}
 				}
 			}
-		}
-		else {
+		} else {
 			print("Something went wrong with creating a UI");
 		}
 
+	}
+	
+	//veranderd de boolean useTUI naar meegegeven boolean
+	public void setUseTUI(boolean b) {
+		useTUI = b;
 	}
 	
 	private static void print(String message){

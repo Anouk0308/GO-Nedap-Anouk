@@ -7,7 +7,8 @@ public class TUI {
 	private static final String LINE = "-";
 	private static final String COLUMN = "  |";
 	private static final String BLACK = "BL";
-	private static final String WHITE = "WH";
+	private static final String WHITE = "WI";
+	private static final String HINT = "HH";
 	private String DC;
 	
 	public TUI(String newboardstring, int DIM) {
@@ -27,6 +28,9 @@ public class TUI {
     		}
     		if(stringArray[i].equals("2")) {
     			intersections[i]=WHITE;
+    		}
+    		if(stringArray[i].equals("H")) {
+    			intersections[i]=HINT;
     		}
     	}
     	
@@ -57,4 +61,5 @@ public class TUI {
 		System.out.print(DC);
     	System.out.println("");
 	}
+
 }

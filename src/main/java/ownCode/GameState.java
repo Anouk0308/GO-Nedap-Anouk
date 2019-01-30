@@ -10,7 +10,7 @@ public class GameState {
 		this.gameStateString = gameStateString;
 		String stringArray[] = gameStateString.split("\\;");
 
-			//this.status = status.valueOf(stringArray[0]);
+			//this.status = status.valueOf(stringArray[0]); hier gaat wat fout :(
 			this.currentPlayer = Integer.parseInt(stringArray[1]);
 			this.boardstring = stringArray[2];
 		

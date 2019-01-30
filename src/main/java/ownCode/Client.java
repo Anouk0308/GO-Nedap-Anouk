@@ -12,8 +12,10 @@ import java.net.UnknownHostException;
 public class Client extends Thread{
 	public String playerName;
 	public String serverString;
+	
 	public int whichPlayerIndexChoice;
 	public int port;
+	public int moveTime;
 	public boolean exit = false;
 
 	public BufferedReader serverInput;
@@ -25,7 +27,6 @@ public class Client extends Thread{
 	public Thread clientThread;
 	
 	public Client(){
-		//een lege constructor om in main de functie gameFlow() aan te vragen
 	}
 	
 	public static void main(String[] args) {
@@ -33,60 +34,76 @@ public class Client extends Thread{
 		client.gameFlow();
 	}
 	
+	//een keuze menu voor naam, AI, UI, tijd per move en server
 	public void gameFlow(){
 		try{
 			SIH = new ServerInputHandler(userInput, this);
 			chosingName();	
 			chosingAI();
 			chosingUI();
+			chosingTime();
 			chosingServer();
-			//connect with server and starts client thread
 		} catch(IOException e){
 			System.out.println(e);
 		}
 	}
 
-	
+	//krijg een goede playername
 	public void chosingName() throws IOException {
 		print("Welkom gamer, what is your name?");
 		try {
 			if(userInput != null) {
 				String thisLine = userInput.readLine();
-				if( !thisLine.contains("+")) {
-					playerName = thisLine;
-					SIH.playerName = thisLine;
-				}
-				else {
-					print("Are you trying to kill the programm?");
-					print("Try a name without a +");
+				if(thisLine != "") {
+					if( !thisLine.contains("+")) {
+						playerName = thisLine;
+						SIH.playerName = thisLine;
+					}
+					else {
+						print("Are you trying to kill the programm?");
+						print("Try a name without a +");
+						chosingName();
+					} 
+				} else {
+					print("I am sure you do have a name");
+					print("You van even come up with a fake name, but give me one");
 					chosingName();
-				} 
+				}
+			} else {
+				print("I am sure you do have a name");
+				print("You van even come up with a fake name, but give me one");
+				chosingName();
 			}
 		}catch (IOException e) {	
+			print("error" + e.getMessage());
 		}
 	}
 	
+	//kies tussen humanplayer en computerplayer
 	public void chosingAI() throws IOException {
-		print("Very well " + playerName +", would you like to play yourself or would you like to use the AI?");
+		print("Very well " + playerName + ", would you like to play yourself or would you like to use the AI?");
 		print("type 1 for playing yourself, type 2 for letting the AI play.");
+		try {
 			if(userInput != null) {
 				int number = Integer.parseInt(userInput.readLine());
-				try {
-					if(number == 1 || number == 2) {
-						whichPlayerIndexChoice = number;
-						print("You have chosen " + number);
-					}
-					else {
-						print("No dummy, that is not a 1 or a 2, try again");
-						chosingAI();
-					}
-				} catch (NumberFormatException e) {
-					print("No no, that is not an integer, try a number");
-		            chosingServer();
+				if(number == 1 || number == 2) {
+					whichPlayerIndexChoice = number;
+					print("You have chosen " + number);
+				}else {
+					print("No dummy, that is not a 1 or a 2, try again");
+					chosingAI();
 				}
+			}else {
+				print("No dummy, that is not a 1 or a 2, try again");
+				chosingAI();
 			}
+		}catch (NumberFormatException e) {
+				print("No no, that is not an integer, try a number");
+	            chosingAI();
+		}
 	}
 	
+	//kies tussen TUI en GUI
 	public void chosingUI() throws IOException {
 		print("What would you like to as display?");
 		print("type 1 for TUI, type 2 for GUI.");
@@ -97,27 +114,54 @@ public class Client extends Thread{
 					if(number == 1) {
 						SIH.setUseTUI(true);;
 						print("you have chosen TUI");
-					}
-					else if(number == 2){
+					} else if(number == 2){
 						SIH.setUseTUI(false);
 						print("you have chosen GUI");
 					}
-				}
-				else {
-					print("No clown, that is not a 1 or 2");
+				} else {
+					print("No no, that is not a 1 or 2");
 					chosingUI();
 				} 
+			} else {
+				print("No, that is not a 1 or 2, try again");
+				chosingUI();
 			}
-		}catch (IOException e) {
+		} catch (IOException e) {
+			print("error " + e.getMessage());
+			print("try again");
+			chosingUI();
+		} catch (NumberFormatException e) {
+			print("error " + e.getMessage());
+			print("try again");
+			chosingUI();
 		}
 	}
 	
+	//geef aan hoelang een move mag duren
+	public void chosingTime() throws IOException {
+		print("What is the maximum seconds a move may take?");
+		int thisLine = Integer.parseInt(userInput.readLine());
+		try {
+			moveTime = thisLine;
+		} catch(NumberFormatException e) {
+			print("No silly, that is not an integer, try again");
+            chosingTime();
+		}
+		
+	}
+	
+	//geef een Inetadress en port, er wordt een socket gecreeert wanneer mogelijk
 	public void chosingServer() throws IOException {
 		print("To which server would you like to connect?");
 		print("type the Inetadress");
 			String thisLine1 = userInput.readLine();
 			try {
-				addr = InetAddress.getByName(thisLine1);    
+				if(thisLine1!="") {
+					addr = InetAddress.getByName(thisLine1);
+				} else {
+					print("You have to type something, try again");
+					chosingServer();
+				}
 	        } catch (UnknownHostException e) {
 	        	print("Computer says no, try anoter Inetadress");
 	            chosingServer();
@@ -125,7 +169,13 @@ public class Client extends Thread{
 			print("type the port");
 			String thisLine2 = userInput.readLine();
 			try {
-				port = Integer.parseInt(thisLine2);
+				if(thisLine1!="") {
+					port = Integer.parseInt(thisLine2);
+				} else {
+					print("You have to type something");
+					print("Now you have to start all over again...");
+					chosingServer();
+				}
 			} catch (NumberFormatException e) {
 				print("No crazy, that is not an integer, try another port");
 	            chosingServer();
@@ -133,7 +183,6 @@ public class Client extends Thread{
 			
 			try {
 				print("Trying to connect with this server");
-				//client = new Client(playerName, addr, port);
 				sock = new Socket(addr, port);
 				print("Created Socket!");
 				serverInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
@@ -147,14 +196,12 @@ public class Client extends Thread{
 			}
 	}
 	
-	
+	//luister naar de server. Wanneer er een string binnen is, stuur deze dan naar de ServerInputHandler
 	public void run() {
 		try {
 			print("I am listening");
 			while(true) {
-				System.out.println("test: we zitten in de while");
 				serverString = serverInput.readLine();
-				System.out.println("test: server says: " + serverString);
 				/**String thisLine = userInput.readLine();
 				if(thisLine.equals("EXIT")) {
 					sendMessage(SIH.exit());//serverOutput
@@ -167,7 +214,10 @@ public class Client extends Thread{
 				}
 			/**}*/
 			}catch (IOException e) {
-				print("Something went wrong while running the client");;
+				print("Something went wrong while running the client");
+				print("it is possible that the server has disconnected");
+				print("Sorry, but we havev to close the socket connection");
+				shutdown();
 		}
 	}
 	
@@ -197,31 +247,7 @@ public class Client extends Thread{
 		System.out.println(message);
 	}
 	
-	public void anotherGame() {
-		print("Would you like to play another game of GO? Y/N");
-		
-		try {
-			String thisLine = userInput.readLine();
-			if(userInput != null) {
-				if(thisLine == "Y") {
-					sendMessage(SIH.exit());//serverOutput
-					exit = true;//kill this socket
-					exit = false;//make it possible to create a socket again
-					gameFlow();
-				}
-				else if(thisLine == "N") {
-					sendMessage(SIH.exit());//serverOutput
-					exit = true;
-				}
-				else {
-					print("This is not a Y or N silly, try again");
-				}
-			}
-		}catch (IOException e) {
-	            e.printStackTrace();
-	    }
-	}
-	
+	//whichPlayerIndexChoice geeft aan of het een humanplayer of computerplayer is
 	public int getWhichPlayerIndexChoice() {
 		return whichPlayerIndexChoice;
 	}
