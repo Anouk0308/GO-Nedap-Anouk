@@ -9,7 +9,10 @@ public class HumanPlayer extends Player {
     }
 
     //move is wat de player aan int geeft
-    public int determineMove(Board board) {
+    public int determineMove(String boardstring) {
+    	double DDIM = Math.sqrt((double)boardstring.length());
+		int DIM = (int)DDIM;
+    	Board board = new Board(boardstring, DIM);
         String prompt = "> " + getName() + " (" + getPlayerColour().toString() + ")"
                 + ", what is your choice? ";
         int choice = readInt(prompt);

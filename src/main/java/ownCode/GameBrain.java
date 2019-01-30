@@ -21,10 +21,7 @@ public class GameBrain {
 	
 	//houdt bij of de boardstring niet al eerder is voorgekomen in het spel
 	public void updateBoardHistory(String oldboardstring) {
-		if( this.boardHistory.contains(oldboardstring)) {
-			print("er is niet gepasst door de andere speler, maar heb wel dezelfde boardstring gekregen vanuit de server");
-		}
-		else {
+		if( !this.boardHistory.contains(oldboardstring)) {
 			boardHistory.add(oldboardstring);
 		}
 	}
@@ -32,12 +29,13 @@ public class GameBrain {
 	//maakt een move
 	public int setMove(String oldboardstring) {
 		this.updateBoardHistory(oldboardstring);
+		Board board = new Board(oldboardstring, DIM);
 		int temp = -2;
-		int move = p.determineMove(board);
+		int move = p.determineMove(oldboardstring);
 				
 		if(move == -1) {
 			temp = move;
-		} else if( validMove(move)) {
+		} else if( validMove(move, oldboardstring)) {
 			temp = move;
 		} else {
 			temp = this.setMove(oldboardstring); //probeer opnieuw
@@ -46,7 +44,8 @@ public class GameBrain {
 	}
 	
 	// Valid betekend als de intersectie leeg is en als het niet een board creeert die al eerder in het spel is voorgekomen
-	public boolean validMove(int move) {
+	public boolean validMove(int move, String oldboardstring) {
+		Board board = new Board(oldboardstring, DIM);
 		if(board.isEmptyIntersection(move)) {
 			board.setIntersection(move, p.getPlayerColour());
 			newboardstring = board.toBoardstring();

@@ -6,10 +6,12 @@ import java.util.List;
 public class Board {
     public int DIM;/**deze krijgt hij mee vanuit de client of game */
     public Intersection[] intersections;
+    public String boardstring;
     
     //krijgt een string mee van DIM*DIM lengte, waarbij de characters kunnen zijn: 0,1,2,3
     public Board(String boardstring, int DIM) {
     	this.DIM = DIM;
+    	this.boardstring = boardstring;
     	String stringArray[] = boardstring.split("\\B");
     	intersections = new Intersection[DIM*DIM];
     	for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
@@ -44,16 +46,8 @@ public class Board {
     }
     
     //kijkt of het board vol is
-    public boolean isFull() {
-    	int teller=0;
-    	for(int i = 0; 0 <= i && i < DIM*DIM; i++)
-    		if(this.intersections[i] == Intersection.EMPTY) {
-    			teller++;
-    		}
-    	if(teller == 0) {
-    		return true;
-    	}
-        return false;
+    public boolean isFull(String boardstring) {
+    	return !boardstring.contains("0");
     }
    
     //geeft buren van een intersectie

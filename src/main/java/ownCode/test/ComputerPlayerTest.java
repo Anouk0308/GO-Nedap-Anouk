@@ -9,14 +9,14 @@ import static org.junit.Assert.assertEquals;
 
 public class ComputerPlayerTest {
 	private ComputerPlayer cp;
-	private Board board;
+	private String boardstring;
 	private Intersection playercolour = Intersection.BLACK;
 	private NaiveStrategy ng;
 	
 	@Before
 	public void setUp() {
 		cp = new ComputerPlayer(playercolour, ng);
-	    board = new Board("1212", 2);
+	    boardstring = "1212";
 	}
 	
 	//test of getName de goede string terug geeft
@@ -27,6 +27,6 @@ public class ComputerPlayerTest {
 	//test of determineMove een getal geeft als het vol is (rest moeilijk te testen door random getal)
 	   @Test
 	   public void testDetermineMove() {
-		   assertEquals(cp.determineMove(board), -1);
+		   assertEquals(cp.determineMove(boardstring), -1);
 	   }
 }

@@ -34,8 +34,8 @@ public class ComputerPlayer extends Player{
 		return strategy + "-" + playerColour ;
    }
 
-	public int determineMove(Board board) {
-		return g.determineMove(board);
+	public int determineMove(String boardstring) {
+		return g.determineMove(boardstring);
 	}
 	
 }

@@ -55,9 +55,9 @@ public class BoardTest {
     //controleer of isFull opmerkt als het boord vol is
     @Test
     public void testIsFull() {
-        assertFalse(board1.isFull());
-        assertFalse(board2.isFull());
-        assertTrue(board3.isFull());
+        assertFalse(board1.isFull(board1.boardstring));
+        assertFalse(board2.isFull(board2.boardstring));
+        assertTrue(board3.isFull(board3.boardstring));
     }
     
     //controleer of setIntersection de intersectie omzet naar een van de andere opties & of getIntersection het kan uitlezen

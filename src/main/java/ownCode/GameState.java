@@ -9,8 +9,14 @@ public class GameState {
 	public GameState(String gameStateString){
 		this.gameStateString = gameStateString;
 		String stringArray[] = gameStateString.split("\\;");
-
-			//this.status = status.valueOf(stringArray[0]); hier gaat wat fout :(
+			String statusString = stringArray[0];
+			if(statusString.equals("PLAYING")) {
+				 this.status = Status.PLAYING;
+			} else if(statusString.equals("FINISHED")) {
+				this.status = Status.FINISHED;
+			} else {
+				System.out.println("This GameStateStatus is wrong");
+			}
 			this.currentPlayer = Integer.parseInt(stringArray[1]);
 			this.boardstring = stringArray[2];
 		
@@ -24,8 +30,7 @@ public class GameState {
 	//geef de string zodat het gelijk verstuurd kan worden via het protocol
 	@Override
 	public String toString() {
-		//String s = status+ ";" + currentPlayer + ";" + boardstring; 
-		String s = gameStateString;
+		String s = status+ ";" + currentPlayer + ";" + boardstring; 
 		return s;
 	}
 	

@@ -184,9 +184,8 @@ public class Client extends Thread{
 			}
 			
 			try {
-				print("Trying to connect with this server");
 				sock = new Socket(addr, port);
-				print("Created Socket!");
+				print("Created a Socket!");
 				serverInput = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 				userToServer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
 				this.start();

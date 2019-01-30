@@ -21,7 +21,7 @@ public abstract class Player {
         return intersection;
     }
 	
-	public abstract int determineMove(Board board);
+	public abstract int determineMove(String boardstring);
 	
 	
 

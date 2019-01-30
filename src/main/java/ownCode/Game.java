@@ -53,9 +53,7 @@ public class Game {
 	
 	//boardHistory updaten
 	public void updateBoardHistory(String oldboardstring) {
-		if( this.boardHistory.contains(oldboardstring)) {
-			print("the other player did not pass, but the server gives a boardstring that is already created in the game");
-		} else {
+		if( !this.boardHistory.contains(oldboardstring)) {
 			boardHistory.add(oldboardstring);
 		}
 	}

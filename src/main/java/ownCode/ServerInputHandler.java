@@ -42,6 +42,7 @@ public class ServerInputHandler {
 	
 	//split de serverstring in een array en stuurt analyser aan
 	public void serverStringSplitter(String serverString) {
+		System.out.println("test: String received from server:" + serverString);
 		String[] stringArray = serverString.split("\\+");
 		stringArrayAnalyser(stringArray);
 	}
@@ -159,35 +160,38 @@ public class ServerInputHandler {
 				int tileIndex = move.tileIndex;
 				int playerColorIndex = move.playerColorIndex;
 			GameState gameState = new GameState(sa[3]);
+				Status status = gameState.status;
 				int currentPlayer = gameState.currentPlayer;
 				String boardstring = gameState.getBoardstring();
 				
-			//als de user de current player is en ander heeft niet gepast
-			if(currentPlayer == this.playerColorIndex && tileIndex != -1) {
-				UI(boardstring, this.DIM);
-				gb.updateBoardHistory(boardstring); //tegenstander heeft een nieuw board gemaakt
-				c.sendMessage(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
-				print("Wait till the other places a stone"); //wacht tot eigen zet is acknowledged, de ander een zet heeft gezet en die zet is acknowledged
-			}
-			//als de user de current player is en andere heeft wel gepast
-			else if(currentPlayer == this.playerColorIndex && tileIndex == -1) {
-				UI(boardstring, this.DIM);//de tegenstander heeft geen nieuw board aan gemaakt
-				print("The other has passed");
-				c.sendMessage(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
-				print("Wait till the other places a stone");//wacht tot eigen zet is acknowledged, de ander een zet heeft gezet en die zet is acknowledged
-			}
-			//als de user niet de current player is ben en ik heb niet gepast
-			else if(currentPlayer != this.playerColorIndex && tileIndex != -1) {
-				UI(boardstring, DIM);
-				gb.updateBoardHistory(boardstring); //mijn zet is geaccepteerd en maakt een nieuw board
-				print("Wait till the other places a stone");//wacht tot een acknowledgement van de opponents move
-			}
-			//als de user niet de current player is ben en ik heb wel gepast
-			else if(currentPlayer != this.playerColorIndex && tileIndex != -1) {
-				UI(boardstring, DIM);
-				//mijn zet is geaccepteerd maar ik maak geen nieuw board
-				print("Wait till the other places a stone");//wacht tot een acknowledgement van de opponents move
-			}	
+			if(status == Status.PLAYING) {
+				//als de user de current player is en ander heeft niet gepast
+				if(currentPlayer == this.playerColorIndex && tileIndex != -1) {
+					UI(boardstring, this.DIM);
+					gb.updateBoardHistory(boardstring); //tegenstander heeft een nieuw board gemaakt
+					c.sendMessage(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
+					print("Wait till the other places a stone"); //wacht tot eigen zet is acknowledged, de ander een zet heeft gezet en die zet is acknowledged
+				}
+				//als de user de current player is en andere heeft wel gepast
+				else if(currentPlayer == this.playerColorIndex && tileIndex == -1) {
+					UI(boardstring, this.DIM);//de tegenstander heeft geen nieuw board aan gemaakt
+					print("The other has passed");
+					c.sendMessage(move(gb,boardstring)); //ik ben aan zet en stuur het door naar de server
+					print("Wait till the other places a stone");//wacht tot eigen zet is acknowledged, de ander een zet heeft gezet en die zet is acknowledged
+				}
+				//als de user niet de current player is ben en ik heb niet gepast
+				else if(currentPlayer != this.playerColorIndex && tileIndex != -1) {
+					UI(boardstring, DIM);
+					gb.updateBoardHistory(boardstring); //mijn zet is geaccepteerd en maakt een nieuw board
+					print("Wait till the other places a stone");//wacht tot een acknowledgement van de opponents move
+				}
+				//als de user niet de current player is ben en ik heb wel gepast
+				else if(currentPlayer != this.playerColorIndex && tileIndex != -1) {
+					UI(boardstring, DIM);
+					//mijn zet is geaccepteerd maar ik maak geen nieuw board
+					print("Wait till the other places a stone");//wacht tot een acknowledgement van de opponents move
+				}
+			} //in geval van FINISHED komt er vanuit de server een nieuwe commando, dus hoef je niks te doen
 	}
 	
 	//wanneer de server vind dat het een foute move is, probeer dan een nieuwe move te maken
@@ -227,8 +231,9 @@ public class ServerInputHandler {
 		print("1 for yes, 0 for no");
 		try {
 			String answer = userInput.readLine();
-			if(answer == "0" || answer == "1") {
-					setRematch(Integer.parseInt(answer));
+			if(answer.equals("0") || answer.equals("1")) {
+				print("You have chosen "+ answer);
+				c.sendMessage(setRematch(Integer.parseInt(answer)));
 			} else {
 				print("that is not a 0 or 1, try again");
 				requestRematch(sa);
@@ -278,6 +283,7 @@ public class ServerInputHandler {
 			long end = start + c.moveTime * 1000; // moveTime bepaald in selectiemenu op het begin * 1000 ms/sec
 			while (System.currentTimeMillis() < end) {	
 				this.tileIndex = gb.setMove(boardstring);
+				break;
 			}	
 		
 		} else {
@@ -286,7 +292,7 @@ public class ServerInputHandler {
 				if(userInput != null) {
 					int thisInt = Integer.parseInt(userInput.readLine());
 					this.tileIndex = thisInt;
-					if(gb.validMove(tileIndex)|| tileIndex == -1) {
+					if(gb.validMove(tileIndex, boardstring)|| tileIndex == -1) {
 						print("this is a valid move");
 					} else {
 						print("this is not a valid move, please enter a new number");
@@ -318,20 +324,26 @@ public class ServerInputHandler {
 
 //kiest goede UI en laat het board zien
 	public void UI(String boardstring, int DIM) {
+		String boardstringWithHint;
 		
 		//creer ook hint op board, via computerplayer
 		Board b = new Board(boardstring, DIM);
 		Strategy g = new NaiveStrategy();
 		ComputerPlayer cp = new ComputerPlayer(Intersection.HINT, g);
 		
-		int moveHint = cp.determineMove(b);
-		while(! b.isEmptyIntersection(moveHint)) {
-			moveHint = cp.determineMove(b);//is namelijk een random getal
+		if(!b.isFull(boardstring)){
+			int moveHint = cp.determineMove(boardstring);
+			while(! b.isEmptyIntersection(moveHint)) {
+				moveHint = cp.determineMove(boardstring);//is namelijk een random getal
+			}
+			b.setHint(moveHint);
+			boardstringWithHint = b.toBoardstring();
+		} else {
+			boardstringWithHint = boardstring; //geen hint nodig, het board is vol
 		}
-		b.setHint(moveHint);
 		
 		
-		String boardstringWithHint = b.toBoardstring();
+		
 		
 		
 		if(useTUI == true) {
