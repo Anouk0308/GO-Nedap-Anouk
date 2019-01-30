@@ -1,17 +1,15 @@
 package ownCode;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientInputHandler {
 	public String clientString;
 	public String playerName;
-	private Game g;
+	
 	private int gameID;
+	
+	private Game g;
 	private ReentrantLock lock = new ReentrantLock();
 	private Server server;
 	private Socket sock;
@@ -25,7 +23,7 @@ public class ClientInputHandler {
 		System.out.println(s);
 	}
 	
-    //split de serverstring in een array
+    //split de serverstring in een array en stuurt analyser aan
   	public void clientStringSplitter(String clientString, ClientHandler ch) {
   		this.clientString = clientString;
   		print("commando received from client: " + clientString);
@@ -53,6 +51,7 @@ public class ClientInputHandler {
   		}
   	}
   	
+  	//wanneer de server een handshake binnen krijgt, gaat deze door naar matchingPlayers
   	public void handshake(String[] sa, ClientHandler ch) {
   		playerName = sa[1];
 
@@ -65,7 +64,8 @@ public class ClientInputHandler {
   		matchingPlayers(playerName, ch);
   	}
 	
-    public void matchingPlayers(String playerName, ClientHandler ch) {//maakt spelletjes mogelijk voor 2 mensen
+  	//kijk of er iemand aan het wachten is op een opponent. Nee? dit is de nieuwe wachtende persoon. Ja? voeg ze samen in een game
+    public void matchingPlayers(String playerName, ClientHandler ch) {
     	if(server.namePlayerWaiting == null) {
     		server.namePlayerWaiting = playerName;
     		server.chPlayerWaiting = ch;
@@ -96,16 +96,19 @@ public class ClientInputHandler {
     	}
     }
   	
+    //wachtende speler geeft aan welke kleur en DIM hij wilt in het volgende spel
   	public void setConfig(String[] sa, ClientHandler ch) {
 	  	server.requestPlayerColorIndex = Integer.parseInt(sa[2]);
 	  	server.requestDIM = Integer.parseInt(sa[3]);
   	}
   	
+  	//als een speler een move gezet heeft:
   	public void move(String[] sa, ClientHandler ch) {
   		Game g = server.gameList.get(Integer.parseInt(sa[1]));
   		String playerName = sa[2];
   		int tileIndex = Integer.parseInt(sa[3]);
-  		if(tileIndex == -1) {
+  		if(tileIndex == -1) {//speler passt
+  			//is deze speler de eerste passer is
   			if(g.onePass == false) {
 	  			String boardstring = g.boardstring;
 	  			g.onePass = true;
@@ -120,20 +123,15 @@ public class ClientInputHandler {
 				String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
 				GameState gameState = new GameState(gameStateString);
 	  			
-	  			g.player1CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
+	  			g.player1CH.sendMessage(acknowledgeMove(gameID, move, gameState));
 	  			g.player2CH.sendMessage(acknowledgeMove(gameID, move, gameState));
   			}
+  			//als deze speler de tweede passer is, is het spel afgelopen
   			else if(g.onePass == true){
-  				System.out.println("test: we zijn hier iig gekomen");
   				int gameID = g.gameID;
-  				System.out.println("test:het gaat niet fout bij gameID");
-  				System.out.println("test:g.boardstring niet leeg?" + g.boardstring);
-  				System.out.println("test:g.DIM niet leeg?"+ g.DIM);
   				Score score = g.score(g.boardstring, g.DIM);
-  				System.out.println("test: g.score?"+score);
   				String winner = g.winner(score);
   				String message = "The game is finished";
-  				
   				
 				int playerColorIndex = g.getPlayerColor(playerName);
 				String moveString = tileIndex + ";" + playerColorIndex;
@@ -148,26 +146,27 @@ public class ClientInputHandler {
 				String s2 = gameFinishedPasses(gameID, winner, score, message);
 				String s3 = requestRematch();
 			
-				lock.lock();
+				lock.lock();//er gaat wat fout, alleen speler krijgt deze berichten. Wanneer ik tijd over heb, zal ik hier nog een keer naar kijken
 				g.player1CH.sendMessage(s1);
   				g.player1CH.sendMessage(s2);
   				g.player1CH.sendMessage(s3);
 				g.player2CH.sendMessage(s1);
   				g.player2CH.sendMessage(s2);
   				g.player2CH.sendMessage(s3);
-  				lock.unlock();//je wilt dat beide een message hebben gekregen voor je wilt reageren op het antwoord
+  				lock.unlock();
   				
   			} else {
   				print("Something went wrong when both players passed");
   			}
   		}
+  		//als de move op het board ligt
   		else if (0 <= tileIndex && tileIndex < g.DIM*g.DIM ) {
   			g.onePass = false;
   			Board b = new Board(g.boardstring, g.DIM);
-  			if(b.isEmptyIntersection(tileIndex)) {//validatie
+  			if(b.isEmptyIntersection(tileIndex)) {//is de intersectie leeg?
   				String newboardstring = g.updateBoard(playerName, tileIndex, g.boardstring, g.DIM);
   				
-  				if(g.boardHistory == null || !g.boardHistory.contains(newboardstring)) {//validatie of nieuwboardstring al een keer gemaakt is
+  				if(g.boardHistory == null || !g.boardHistory.contains(newboardstring)) {//zorgt de move ervoor dat er een board komt, die al een keer eerder is gespeelt?
   					g.updateBoardHistory(newboardstring);
   					g.boardstring = newboardstring;
   					g.setCurrentPlayerOther();
@@ -182,20 +181,21 @@ public class ClientInputHandler {
   					String gameStateString = status + ";" + currentPlayer + ";" + boardstring;
   					GameState gameState = new GameState(gameStateString);
   					
-  					g.player1CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
-  					g.player2CH.sendMessage(acknowledgeMove(gameID, move, gameState));//naar beide
+  					g.player1CH.sendMessage(acknowledgeMove(gameID, move, gameState));
+  					g.player2CH.sendMessage(acknowledgeMove(gameID, move, gameState));
   				}
   				else {
-  				ch.sendMessage(invalidMove());//naar 1
+  				ch.sendMessage(invalidMove());//alleen naar de speler die de move heeft gezet
   				}
   			}
   			
   		}
   		else {
-  			ch.sendMessage(invalidMove());//naar 1
+  			ch.sendMessage(invalidMove());
   		}				
   	}
   	
+  	//wanneer de speler EXIT typt, moet de ander weten dat het spel over is
   	public void exit(String[] sa, ClientHandler ch) {
   		int gameID = Integer.parseInt(sa[1]);
   		Game g = server.gameList.get(gameID);
@@ -207,20 +207,26 @@ public class ClientInputHandler {
   		ch2.sendMessage(gameFinishedExit(gameID, winner, score, message));
   	}
   	
+  	//bekijk het antwoord van de spelers op de vraag of ze nog een potje willen spelen
   	public void setRematch(String[] sa, ClientHandler ch) {
   		int answerThisCH = Integer.parseInt(sa[1]);
   		int getGame = -1;
+  		
+  		//vind de game waar deze ch in zit
   		for(int i = 0; i < server.gameList.size(); i++) {
   			g = server.gameList.get(i);
   			if(g.player1CH == ch || g.player2CH == ch) {
   				getGame = i;
   			}
   		}
-  		if(getGame != -1) {
+  		
+  		if(getGame != -1) {//dus er is een spel gevonden
   			g = server.gameList.get(getGame);
+  		} else {
+  			print("Cannot find the game with this Client");
   		}
   		
-  		g.rematchOrNot(answerThisCH);
+  		g.rematchOrNot(answerThisCH);//moet onthouden wat ze allebei willen
   		
   		if(g.twoAnswers = true) {//dit gebeurt pas als tweede player ook antwoord heeft gegeven
   				rematchAnswer(g);
@@ -233,10 +239,10 @@ public class ClientInputHandler {
   		int answerGame;
   		Game ng;
   		
-  		if(g.rematch = true) {
+  		if(g.rematch = true) { // allebei hebben gezegd dat ze een rematch willen
 	  		answerGame = 1;
-  	  		g.player1CH.sendMessage(acknowledgeRematch(answerGame));//allebei
-  			g.player2CH.sendMessage(acknowledgeRematch(answerGame));//allebei
+  	  		g.player1CH.sendMessage(acknowledgeRematch(answerGame));
+  			g.player2CH.sendMessage(acknowledgeRematch(answerGame));
   			
   			ng = new Game(g.player1Name, g.player1ColorIndex, g.player2Name, g.DIM, g.gameID);
   			int gameID = server.gameList.size();
@@ -251,14 +257,14 @@ public class ClientInputHandler {
   			ng.player2CH.sendMessage(acknowledgeConfig(ng, player2Name, player2ColorIndex, player1Name, currentPlayer, gameID));
   			
   			g = null;
-	  		}
-	  		else {
-	  			answerGame = 0;
-  	  		g.player1CH.sendMessage(acknowledgeRematch(answerGame));//allebei
-  			g.player2CH.sendMessage(acknowledgeRematch(answerGame));//allebei
-	  		}
+  		} else { //een of allebei willen niet een rematch spelen
+	  		answerGame = 0;
+  	  		g.player1CH.sendMessage(acknowledgeRematch(answerGame));
+  			g.player2CH.sendMessage(acknowledgeRematch(answerGame));
+	  	}
   	}
 
+  	//stuur deze string als de handshake van de client goed is aangekomen
   	public String acknowledgeHandshake() {
   		if(server.gameList == null) {
   			gameID = 0;
@@ -276,22 +282,23 @@ public class ClientInputHandler {
   		return s;
   	}
   
+  	//stuur deze string als de speler mag kiezen welke kleur hij/zij speelt en hoe groot het board moet zijn
   	public String requestConfig() {
   		String s = "REQUEST_CONFIG+" + "Please chose your prefered color and prefered board dimension";
   		print("Commando send to client: " + s);
   		return s;
   	}
   	
+  	//stuur deze string met het spelConfig
   	public String acknowledgeConfig(Game g, String ownPlayerName, int ownPlayerColorIndex, String otherPlayerName, int currentPlayer, int gameID) {
-  		//ACKNOWLEDGE_CONFIG+Anouk+0+PLAYING;0;+Luuk krijgen we binnen, kleur 0 is fout en gamestate is fout
   		String boardstring = g.boardstring;
   		int DIM = g.DIM;
-  		//anders naar matching partners
   		String s = "ACKNOWLEDGE_CONFIG+" + ownPlayerName + "+" + ownPlayerColorIndex + "+" + DIM + "+" + "PLAYING;" + currentPlayer + ";" + boardstring + "+" + otherPlayerName;
   		print("Commando send to client: " + s);
   		return s;
   	}
   	
+  	//stuur deze string met de acknowledged move
   	public String acknowledgeMove(int gameID, Move move, GameState gameState) {
   		String sgameID = Integer.toString(gameID);
   		String smove = move.toString();
@@ -301,24 +308,28 @@ public class ClientInputHandler {
   		return s;
   	}
   	
+  	//stuur deze string als het een invalid move is
   	public String invalidMove() {
   		String s = "this move is invalid";
   		print("Commando send to client: " + s);
   		return s;
   	}
   	
+  	//stuur deze string als de commando van de client unknown is
   	public String unknownCommand(String s) {
   		print("Commando send to client: " + s);
   		return s;
   	}
   	
-  	public String gameFinishedExit(int gameID, String winner, Score score, String message) {//in geval dat iemand exit drukt
+  	//stuur deze string in het geval een van de players EXIT heeft getypt
+  	public String gameFinishedExit(int gameID, String winner, Score score, String message) {
   		String sscore = score.toString();
   		String s = "GAME_FINISHED+" + gameID + "+" + winner + "+" + sscore + "+"+ message;
   		print("Commando send to client: " + s);
   		return s;
   	}
   	
+  	//stuur deze string als beide spelers gepassed hebben
   	public String gameFinishedPasses(int gameID, String winner, Score score, String message) {
   		String sscore = score.toString();
   		String s = "GAME_FINISHED+" + gameID + "+" + winner + "+" + sscore + "+"+ message;
@@ -326,11 +337,14 @@ public class ClientInputHandler {
   		return s;
   	}
   	
+  	//stuur deze string als je het hen mogelijk wilt maken of een rematch te spelen (alleen als de game gefinished is met 2 passes)
   	public String requestRematch() {
   		String s = "REQUEST_REMATCH";
   		print("Commando send to client: " + s);
   		return s;
   	}
+  	
+  	//stuur deze string als beide antwoorden binnen zijn op de vraag of er een rematch komt (int answer = 0 betekend dat minimaal 1 speler geen rematch wilt)
   	public String acknowledgeRematch(int answer) {
   		String s = "REQUEST_REMATCH+"+ answer;
   		print("Commando send to client: " + s);

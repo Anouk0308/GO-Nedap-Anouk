@@ -40,7 +40,7 @@ public class ServerInputHandler {
 		this.userInput = userInput;
 	}
 	
-	//split de serverstring in een array
+	//split de serverstring in een array en stuurt analyser aan
 	public void serverStringSplitter(String serverString) {
 		String[] stringArray = serverString.split("\\+");
 		stringArrayAnalyser(stringArray);
@@ -121,7 +121,7 @@ public class ServerInputHandler {
 			print("The board is " + DIM + " by " + DIM + " size.");
 			
 		this.gameState = new GameState(sa[4]);
-			//this.status = this.gameState.status;
+			//this.status = this.gameState.status; gaat fout
 			this.currentPlayer = this.gameState.currentPlayer;
 			this.boardstring = this.gameState.boardstring;
 			UI(boardstring, DIM);
@@ -151,6 +151,7 @@ public class ServerInputHandler {
 		}
 	}
 	
+	//dealt met de acknowledgeMove commando
 	public void acknowledgeMove(String[] sa) {
 			Move move = new Move(sa[2]);
 				int tileIndex = move.tileIndex;
@@ -266,7 +267,7 @@ public class ServerInputHandler {
 		return s; 
 	}
 	
-	//bepaal een move
+	//bepaalt een move
 	public String move(GameBrain gb, String boardstring) {
 		if(gb.p instanceof ComputerPlayer) { 
 			

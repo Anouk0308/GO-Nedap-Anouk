@@ -9,8 +9,9 @@ public class TUI {
 	private static final String BLACK = "BL";
 	private static final String WHITE = "WI";
 	private static final String HINT = "HH";
-	private String DC;
+	private String row;
 	
+	//print het board uit met getallen voor lege intersecties, letters voor de andere intersecties en | en - om ruimte te creeeren tussen de intersecties
 	public TUI(String newboardstring, int DIM) {
 		this.newboardstring = newboardstring;
 		this.DIM = DIM;
@@ -38,11 +39,11 @@ public class TUI {
     	for(int i = 0; i<DIM*DIM; i+=DIM) {
     	
 	    	//rij aan verticalen strepen
-	    	DC = "";
+	    	row = "";
 	    	for(int a = 0; a<DIM; a++) {
-	    		DC = DC + COLUMN;
+	    		row = row + COLUMN;
 	    	}
-	    	System.out.print(DC);
+	    	System.out.print(row);
 	    	System.out.println("");
 	    	
 	    	//rij aan hozisontale strepen + getallen/letters
@@ -54,11 +55,11 @@ public class TUI {
     	}
 	
 		//rij aan verticalen strepen
-		DC = "";
+    	row = "";
 		for(int i = 0; i<DIM; i++) {
-			DC = DC + COLUMN;
+			row = row + COLUMN;
 		}
-		System.out.print(DC);
+		System.out.print(row);
     	System.out.println("");
 	}
 

@@ -37,13 +37,13 @@ public class ClientHandler extends Thread {
 		         clientString = clientInput.readLine();
 		         CIH.clientStringSplitter(clientString, this);
     		}
-
 		} catch (IOException e1) {
 			System.out.println("problemen bij functie run()");
 		}
     	
     }
     
+    //stuurt een berichtje over de socket
 	public void sendMessage(String msg) {
 		try {
 			serverToClient.write(msg);
