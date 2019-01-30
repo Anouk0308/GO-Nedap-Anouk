@@ -18,14 +18,8 @@ Client
 * Wanneer je speelt:
   * Wacht tot het je beurt is
   * Kies een index waarop je jouw volgende steen wilt zetten (de index tel je van links boven naar rechts onder)
-  * 
-  
-  
-*	Wanneer je speelt:
-  *	Wacht tot je beurt is
-  * Kies een index waarop je jouw volgende steen wilt zetten (index tel je van links boven naar rechts beneden, waarbij de eerste intersectie 0 is)
-  * Als je wilt passen, typ -1
-  * Als je niet weet waar je je volgende steen wilt zetten, kijk dan naar de hint steen
+  * Als je wilt passen, type -1
+  * Al je niet weet waar je je volgende steen wilt zetten, kijk dan naar de hint steen
   
 *	Wanneer het is afgelopen 
   * Dit kan door drie mogelijkheden
