@@ -20,6 +20,10 @@ Client
   * Kies een index waarop je jouw volgende steen wilt zetten (de index tel je van links boven naar rechts onder)
   * Als je wilt passen, type -1
   * Al je niet weet waar je je volgende steen wilt zetten, kijk dan naar de hint steen
+
+* Wanneer het is afgelopen:
+  * Dit kan door drie mogelijkheden
+  * Alleen in geval van beide passen is het mogelijk om een rematch te doen
   
 *	Wanneer het is afgelopen 
   * Dit kan door drie mogelijkheden
