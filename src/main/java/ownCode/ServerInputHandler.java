@@ -67,6 +67,8 @@ public class ServerInputHandler {
 											break;
 			case "REQUEST_REMATCH":			requestRematch(sa);
 											break;
+			case "ACKNOWLEDGE_REMATCH":		acknowledgeRematch(sa);
+											break;
 			default:						System.out.println("The server sent an unknown command");
 											break;
 		}
@@ -240,6 +242,16 @@ public class ServerInputHandler {
 			}
 		} catch(IOException e) {
 			print(e.getMessage());
+		}
+	}
+	
+	public void acknowledgeRematch(String[] sa) {
+		int booleanRematch = Integer.parseInt(sa[1]);
+		if(booleanRematch == 0) {//iemand heeft nee gezegt
+			print("The opponent is done with playing go");
+			print("connect again with the server to play with someone else");
+		} else if(booleanRematch != 1) {//bij 1 hoeft de client niks te doen, de server start een nieuwe game
+			print("Something went wrong with the rematch");
 		}
 	}
 	

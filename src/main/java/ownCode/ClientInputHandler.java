@@ -209,7 +209,7 @@ public class ClientInputHandler {
   	
   	//bekijk het antwoord van de spelers op de vraag of ze nog een potje willen spelen
   	public void setRematch(String[] sa, ClientHandler ch) {
-  		int answerThisCH = Integer.parseInt(sa[1]);
+  		int answerfromThisCH = Integer.parseInt(sa[1]);
   		int getGame = -1;
   		
   		//vind de game waar deze ch in zit
@@ -226,7 +226,7 @@ public class ClientInputHandler {
   			print("Cannot find the game with this Client");
   		}
   		
-  		g.rematchOrNot(answerThisCH);//moet onthouden wat ze allebei willen
+  		g.rematchOrNot(answerfromThisCH);//moet onthouden wat ze allebei willen
   		
   		if(g.twoAnswers = true) {//dit gebeurt pas als tweede player ook antwoord heeft gegeven
   				rematchAnswer(g);
@@ -234,8 +234,8 @@ public class ClientInputHandler {
   		
   	}
   	
-  	public void rematchAnswer(Game gg) {
-  		Game g = gg;
+  	public void rematchAnswer(Game game) {
+  		Game g = game;
   		int answerGame;
   		Game ng;
   		
@@ -246,6 +246,7 @@ public class ClientInputHandler {
   			
   			ng = new Game(g.player1Name, g.player1ColorIndex, g.player2Name, g.DIM, g.gameID);
   			int gameID = server.gameList.size();
+  			ng.gameID = gameID;
   			server.gameList.add(ng);
   		
   			String player1Name = ng.player1Name;
@@ -346,7 +347,7 @@ public class ClientInputHandler {
   	
   	//stuur deze string als beide antwoorden binnen zijn op de vraag of er een rematch komt (int answer = 0 betekend dat minimaal 1 speler geen rematch wilt)
   	public String acknowledgeRematch(int answer) {
-  		String s = "REQUEST_REMATCH+"+ answer;
+  		String s = "ACKNOWLEDGE_REMATCH+"+ answer;
   		print("Commando send to client: " + s);
   		return s;
   	}   

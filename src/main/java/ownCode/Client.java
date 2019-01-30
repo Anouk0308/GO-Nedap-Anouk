@@ -192,7 +192,8 @@ public class Client extends Thread{
 				this.sendMessage(SIH.handshake());
 
 			} catch (IOException e) {
-				print("ERROR: couldn't construct a client object!");
+				print("ERROR: couldn't construct a client object, try again");
+				chosingServer();
 				System.exit(0);
 			}
 	}
