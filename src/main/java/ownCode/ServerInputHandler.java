@@ -41,9 +41,9 @@ public class ServerInputHandler {
 	}
 	
 	//split de serverstring in een array
-	public String[] serverStringSplitter(String serverString) {
+	public void serverStringSplitter(String serverString) {
 		String[] stringArray = serverString.split("\\+");
-		return stringArray;
+		stringArrayAnalyser(stringArray);
 	}
 	
 	//analyseerd welk commando het is, en stuurt door naar de goede methode

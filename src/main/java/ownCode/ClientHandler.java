@@ -9,7 +9,8 @@ import java.net.Socket;
 
 public class ClientHandler extends Thread {
 	public Server s;
-    private BufferedReader clientInput;
+    
+	private BufferedReader clientInput;
     private BufferedWriter serverToClient;
     private String thisLine;
     private String clientString;
@@ -28,13 +29,13 @@ public class ClientHandler extends Thread {
 	    }
     }
     
+    //run een thread, lees wat er binnenkomt via de socket, stuur het door naar de ClientInputHandler
     public void run() {
     	thisLine = null;
     	try {
     		while(true) {
 		         clientString = clientInput.readLine();
-		         String[] stringArray = CIH.clientStringSplitter(clientString);
-		         CIH.stringArrayAnalyser(stringArray, this);
+		         CIH.clientStringSplitter(clientString, this);
     		}
 
 		} catch (IOException e1) {

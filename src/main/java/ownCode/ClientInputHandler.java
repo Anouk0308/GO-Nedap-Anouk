@@ -26,11 +26,11 @@ public class ClientInputHandler {
 	}
 	
     //split de serverstring in een array
-  	public String[] clientStringSplitter(String clientString) {
+  	public void clientStringSplitter(String clientString, ClientHandler ch) {
   		this.clientString = clientString;
   		print("commando received from client: " + clientString);
   		String[] stringArray = clientString.split("\\+");
-  		return stringArray;
+  		stringArrayAnalyser(stringArray, ch);
   	}
   	
   

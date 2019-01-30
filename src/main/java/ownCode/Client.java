@@ -36,7 +36,7 @@ public class Client extends Thread{
 	
 	//een keuze menu voor naam, AI, UI, tijd per move en server
 	public void gameFlow(){
-		try{
+		try {
 			SIH = new ServerInputHandler(userInput, this);
 			chosingName();	
 			chosingAI();
@@ -58,8 +58,7 @@ public class Client extends Thread{
 					if( !thisLine.contains("+")) {
 						playerName = thisLine;
 						SIH.playerName = thisLine;
-					}
-					else {
+					} else {
 						print("Are you trying to kill the programm?");
 						print("Try a name without a +");
 						chosingName();
@@ -89,15 +88,15 @@ public class Client extends Thread{
 				if(number == 1 || number == 2) {
 					whichPlayerIndexChoice = number;
 					print("You have chosen " + number);
-				}else {
+				} else {
 					print("No dummy, that is not a 1 or a 2, try again");
 					chosingAI();
 				}
-			}else {
+			} else {
 				print("No dummy, that is not a 1 or a 2, try again");
 				chosingAI();
 			}
-		}catch (NumberFormatException e) {
+		} catch (NumberFormatException e) {
 				print("No no, that is not an integer, try a number");
 	            chosingAI();
 		}
@@ -202,26 +201,24 @@ public class Client extends Thread{
 			print("I am listening");
 			while(true) {
 				serverString = serverInput.readLine();
-				/**String thisLine = userInput.readLine();
+				String thisLine = userInput.readLine();
 				if(thisLine.equals("EXIT")) {
-					sendMessage(SIH.exit());//serverOutput
+					sendMessage(SIH.exit());
 					exit = true;
 					shutdown();
+				} else {
+					SIH.serverStringSplitter(serverString);
 				}
-				else {*/
-					String[] stringArray = this.SIH.serverStringSplitter(serverString);
-					this.SIH.stringArrayAnalyser(stringArray);
-				}
-			/**}*/
+			}
 			}catch (IOException e) {
 				print("Something went wrong while running the client");
 				print("it is possible that the server has disconnected");
-				print("Sorry, but we havev to close the socket connection");
+				print("Sorry, but we have to close the socket connection");
 				shutdown();
 		}
 	}
 	
-	
+	//stuur een berichtje over de socket naar de server
 	public void sendMessage(String msg) {
 		try {
 			userToServer.write(msg);
@@ -233,6 +230,7 @@ public class Client extends Thread{
 
 	}
 	
+	//close the socket
 	public void shutdown() {
 		print("Closing socket connection...");
 		try {
@@ -243,12 +241,12 @@ public class Client extends Thread{
 		}
 	}
 	
-	private static void print(String message){
-		System.out.println(message);
-	}
-	
 	//whichPlayerIndexChoice geeft aan of het een humanplayer of computerplayer is
 	public int getWhichPlayerIndexChoice() {
 		return whichPlayerIndexChoice;
+	}
+	
+	private static void print(String message){
+		System.out.println(message);
 	}
 }
