@@ -42,7 +42,6 @@ public class ServerInputHandler {
 	
 	//split de serverstring in een array en stuurt analyser aan
 	public void serverStringSplitter(String serverString) {
-		System.out.println("test: String received from server:" + serverString);
 		String[] stringArray = serverString.split("\\+");
 		stringArrayAnalyser(stringArray);
 	}
