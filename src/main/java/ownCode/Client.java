@@ -87,7 +87,7 @@ public class Client extends Thread{
 				if(number == 1) {
 					whichPlayerIndexChoice = number;
 					print("You have chosen to play yourself");
-				} if(number == 2) {
+				} else if(number == 2) {
 					whichPlayerIndexChoice = number;
 					print("You have chosen to let the AI play");
 					chosingTime();
