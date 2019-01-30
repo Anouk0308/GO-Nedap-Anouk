@@ -14,6 +14,11 @@ Client
 * In geval dat je als je de eerste van de 2 spelers bent:
   * Geef aan welke kleur je wilt zijn
   * Geef aan hoe groot je het board wilt hebben
+
+* Wanneer je speelt:
+  * Wacht tot het je beurt is
+  * Kies een index waarop je jouw volgende steen wilt zetten (de index tel je van links boven naar rechts onder)
+  
   
 *	Wanneer je speelt:
   *	Wacht tot je beurt is
