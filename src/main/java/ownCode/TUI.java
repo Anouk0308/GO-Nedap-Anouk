@@ -23,15 +23,14 @@ public class TUI {
     	for(int i = 0; 0 <= i && i < DIM*DIM; i++) {
     		if(stringArray[i].equals("0")) {
     			intersections[i]=String.format("%02d", i);
-    		}
-    		if(stringArray[i].equals("1")) {
+    		} else if(stringArray[i].equals("1")) {
     			intersections[i]=BLACK;
-    		}
-    		if(stringArray[i].equals("2")) {
+    		} else if(stringArray[i].equals("2")) {
     			intersections[i]=WHITE;
-    		}
-    		if(stringArray[i].equals("H")) {
+    		} else if(stringArray[i].equals("3")) {
     			intersections[i]=HINT;
+    		} else {
+    			System.out.println("Boardstring contains something else then 0/1/2/3");
     		}
     	}
     	

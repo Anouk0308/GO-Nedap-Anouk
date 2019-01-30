@@ -276,8 +276,7 @@ public class ServerInputHandler {
 			//zorg ervoor dat een move niet te lang duurt
 			long start = System.currentTimeMillis();
 			long end = start + c.moveTime * 1000; // moveTime bepaald in selectiemenu op het begin * 1000 ms/sec
-			while (System.currentTimeMillis() < end)
-			{
+			while (System.currentTimeMillis() < end) {	
 				this.tileIndex = gb.setMove(boardstring);
 			}	
 		
@@ -324,8 +323,14 @@ public class ServerInputHandler {
 		Board b = new Board(boardstring, DIM);
 		Strategy g = new NaiveStrategy();
 		ComputerPlayer cp = new ComputerPlayer(Intersection.HINT, g);
+		
 		int moveHint = cp.determineMove(b);
+		while(! b.isEmptyIntersection(moveHint)) {
+			moveHint = cp.determineMove(b);//is namelijk een random getal
+		}
 		b.setHint(moveHint);
+		
+		
 		String boardstringWithHint = b.toBoardstring();
 		
 		

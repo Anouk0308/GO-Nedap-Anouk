@@ -133,7 +133,7 @@ public class Board {
     
     //zet een hintsteen op meegegeven index
     public void setHint(int i) {
-    	if(isIntersection(i)) {
+    	if(isIntersection(i)&&isEmptyIntersection(i)) {
     			intersections[i] = Intersection.HINT;
     	}
     }
